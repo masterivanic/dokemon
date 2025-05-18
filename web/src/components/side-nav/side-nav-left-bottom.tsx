@@ -36,17 +36,17 @@ export function SideNavLeftBottom() {
     <ul role="list" className="-mx-2 space-y-1">
       <li>
         <a
-          href="https://github.com/sponsors/productiveops"
+          href="https://github.com/javastraat/dokemon"
           target="_blank"
           className={cn(
             "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-200 hover:bg-gray-800 hover:text-white"
           )}
         >
           <HeartIcon
-            className="h-6 w-6 shrink-0 text-red-500"
+            className="h-6 w-6 shrink-0 text-gray-400"
             aria-hidden="true"
           />
-          Sponsor $1
+          Github
         </a>
       </li>
       <li>

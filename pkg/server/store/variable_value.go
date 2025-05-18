@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/productiveops/dokemon/pkg/crypto/ske"
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/crypto/ske"
+	"github.com/javastraat/dokemon/pkg/server/model"
 
 	"gorm.io/gorm"
 )

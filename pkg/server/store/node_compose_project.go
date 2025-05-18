@@ -3,7 +3,7 @@ package store
 import (
 	"errors"
 
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/server/model"
 
 	"gorm.io/gorm"
 )

@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/productiveops/dokemon/pkg/crypto"
-	"github.com/productiveops/dokemon/pkg/crypto/ske"
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/crypto"
+	"github.com/javastraat/dokemon/pkg/crypto/ske"
+	"github.com/javastraat/dokemon/pkg/server/model"
 
 	"github.com/labstack/echo/v4"
 )

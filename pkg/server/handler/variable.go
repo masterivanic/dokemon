@@ -3,7 +3,7 @@ package handler
 import (
 	"strconv"
 
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/server/model"
 
 	"github.com/labstack/echo/v4"
 )

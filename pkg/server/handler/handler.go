@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/productiveops/dokemon/web"
+	"github.com/javastraat/dokemon/web"
 
-	"github.com/productiveops/dokemon/pkg/server/store"
+	"github.com/javastraat/dokemon/pkg/server/store"
 
 	"github.com/labstack/echo/v4"
 )

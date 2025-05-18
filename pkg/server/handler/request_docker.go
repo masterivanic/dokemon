@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/productiveops/dokemon/pkg/dockerapi"
+	"github.com/javastraat/dokemon/pkg/dockerapi"
 
 	"github.com/labstack/echo/v4"
 )

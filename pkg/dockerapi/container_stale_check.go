@@ -7,7 +7,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/productiveops/dokemon/pkg/registry"
+	"github.com/javastraat/dokemon/pkg/registry"
 	"github.com/rs/zerolog/log"
 )
 

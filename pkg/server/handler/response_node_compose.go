@@ -3,8 +3,8 @@ package handler
 import (
 	"slices"
 
-	"github.com/productiveops/dokemon/pkg/dockerapi"
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/dockerapi"
+	"github.com/javastraat/dokemon/pkg/server/model"
 )
 
 type nodeComposeProjectItemHead struct {

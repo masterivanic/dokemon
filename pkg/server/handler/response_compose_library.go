@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/productiveops/dokemon/pkg/server/model"
+import "github.com/javastraat/dokemon/pkg/server/model"
 
 type composeLibraryItemHead struct {
 	Id			*uint	`json:"id"`

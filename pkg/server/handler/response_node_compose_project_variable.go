@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/productiveops/dokemon/pkg/crypto/ske"
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/crypto/ske"
+	"github.com/javastraat/dokemon/pkg/server/model"
 )
 
 type nodeComposeProjectVariableResponse struct {

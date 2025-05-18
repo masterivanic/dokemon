@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/productiveops/dokemon/pkg/messages"
+	"github.com/javastraat/dokemon/pkg/messages"
 
 	"github.com/rs/zerolog/log"
 )

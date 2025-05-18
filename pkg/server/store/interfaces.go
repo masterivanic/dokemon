@@ -3,7 +3,7 @@ package store
 import (
 	"time"
 
-	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/javastraat/dokemon/pkg/server/model"
 )
 
 type UserStore interface {

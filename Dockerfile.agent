@@ -1,28 +1,68 @@
 # syntax=docker/dockerfile:1
 
 # Build the Go application
-FROM --platform=$BUILDPLATFORM golang:1.21 AS build-stage
+FROM --platform=$BUILDPLATFORM golang:latest AS build-stage
 
-WORKDIR /temp
+# Set default TARGETARCH if not provided (fallback to build platform)
+ARG TARGETARCH
+ARG TARGETOS=linux
 
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-      wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz; \
-    fi
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      wget https://download.docker.com/linux/static/stable/aarch64/docker-24.0.7.tgz; \
-    fi
-RUN cd /bin && tar xvzf /temp/docker-24.0.7.tgz --strip-components 1 docker/docker
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-      curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 -o /bin/docker-compose; \
-    fi
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-aarch64 -o /bin/docker-compose; \
-    fi
-RUN chmod 755 /bin/docker-compose
+# Determine architecture for Docker CLI download
+RUN <<EOF
+#!/bin/sh
+set -eux
+
+# Determine architecture if not set
+if [ -z "${TARGETARCH}" ]; then
+  case "$(uname -m)" in
+    x86_64) export TARGETARCH=amd64 ;;
+    aarch64) export TARGETARCH=arm64 ;;
+    *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;;
+  esac
+fi
+
+# Download Docker CLI
+case "${TARGETARCH}" in
+  amd64|x86_64)
+    curl -fsSLO "https://download.docker.com/linux/static/stable/x86_64/docker-28.1.1.tgz"
+    ;;
+  arm64|aarch64)
+    curl -fsSLO "https://download.docker.com/linux/static/stable/aarch64/docker-28.1.1.tgz"
+    ;;
+  *)
+    echo "Unsupported architecture: ${TARGETARCH}"
+    exit 1
+    ;;
+esac
+
+tar xzvf "docker-28.1.1.tgz" --strip-components=1 -C /bin docker/docker
+rm "docker-28.1.1.tgz"
+EOF
+
+# Download Docker Compose
+RUN <<EOF
+#!/bin/sh
+set -eux
+
+if [ -z "${TARGETARCH}" ]; then
+  case "$(uname -m)" in
+    x86_64) export TARGETARCH=amd64 ;;
+    aarch64) export TARGETARCH=arm64 ;;
+    *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;;
+  esac
+fi
+
+case "${TARGETARCH}" in
+  amd64|x86_64)
+    curl -fsSL "https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64" -o /bin/docker-compose
+    ;;
+  arm64|aarch64)
+    curl -fsSL "https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64" -o /bin/docker-compose
+    ;;
+esac
+
+chmod +x /bin/docker-compose
+EOF
 
 WORKDIR /app
 
@@ -31,13 +71,12 @@ RUN go mod download
 
 COPY . ./
 
-ARG TARGETOS TARGETARCH
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /dokemon-agent ./cmd/agent
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /dokemon-agent ./cmd/agent
 
 RUN mkdir -p /data
 
-# Deploy the application binary into a lean image
-FROM --platform=$BUILDPLATFORM gcr.io/distroless/base-debian11 AS build-release-stage
+# Final image
+FROM gcr.io/distroless/base-debian11
 
 WORKDIR /
 

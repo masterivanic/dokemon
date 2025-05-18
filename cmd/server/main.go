@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/productiveops/dokemon/pkg/server"
+	"github.com/javastraat/dokemon/pkg/server"
 )
 
 func main() {

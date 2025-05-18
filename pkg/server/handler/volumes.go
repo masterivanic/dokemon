@@ -4,8 +4,8 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/productiveops/dokemon/pkg/dockerapi"
-	"github.com/productiveops/dokemon/pkg/messages"
+	"github.com/javastraat/dokemon/pkg/dockerapi"
+	"github.com/javastraat/dokemon/pkg/messages"
 
 	"github.com/labstack/echo/v4"
 )

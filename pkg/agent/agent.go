@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/productiveops/dokemon/pkg/common"
-	"github.com/productiveops/dokemon/pkg/dockerapi"
-	"github.com/productiveops/dokemon/pkg/messages"
+	"github.com/javastraat/dokemon/pkg/common"
+	"github.com/javastraat/dokemon/pkg/dockerapi"
+	"github.com/javastraat/dokemon/pkg/messages"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog"
