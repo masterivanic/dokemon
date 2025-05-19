@@ -46,7 +46,7 @@ export function SideNavLeftBottom() {
             className="h-6 w-6 shrink-0 text-gray-400"
             aria-hidden="true"
           />
-          Github
+          Our Github
         </a>
       </li>
       <li>
@@ -58,7 +58,7 @@ export function SideNavLeftBottom() {
           )}
         >
           <LifebuoyIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
-          Support
+          Discord Support
         </a>
       </li>
       <li>
