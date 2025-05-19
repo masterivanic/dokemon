@@ -4,11 +4,9 @@ import { SideNavTopLevel } from "./side-nav-top-level"
 import { SideNavNode } from "./side-nav-node"
 import { SideNavContainer } from "./side-nav-container"
 import { SideNavCompose } from "./side-nav-compose"
-import { ArrowLeftIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"
-import { useState } from "react"
+import { ArrowLeftIcon } from "@heroicons/react/24/outline"
 
 export default function SideNav() {
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const element = useRoutes([
     {
       path: "nodes/:nodeId/containers/:containerId/*",
@@ -36,50 +34,7 @@ export default function SideNav() {
     },
   ])
 
-  return (
-    <>
-      {/* Mobile menu button */}
-      <button
-        type="button"
-        className="lg:hidden fixed top-4 left-4 z-50 rounded-md bg-gray-900 p-2 text-gray-400 hover:text-white focus:outline-none"
-        onClick={() => setIsMobileSidebarOpen(true)}
-      >
-        <span className="sr-only">Open sidebar</span>
-        <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-      </button>
-
-      {/* Sidebar */}
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-gray-900 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0",
-          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        {/* Close button for mobile */}
-        <button
-          type="button"
-          className="lg:hidden absolute top-0 right-0 -mr-12 p-2 text-gray-400 hover:text-white focus:outline-none"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        >
-          <span className="sr-only">Close sidebar</span>
-          <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-        </button>
-
-        {/* Sidebar content */}
-        <div className="flex h-full flex-col overflow-y-auto px-4 py-6">
-          {element}
-        </div>
-      </div>
-
-      {/* Overlay for mobile */}
-      {isMobileSidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 z-30 bg-black bg-opacity-50"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
-      )}
-    </>
-  )
+  return element
 }
 
 export function SideBarItem({ to, children }: { to: string; children: any }) {
