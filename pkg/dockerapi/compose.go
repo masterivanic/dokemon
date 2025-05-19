@@ -12,7 +12,7 @@ import (
 	"slices"
 	"sort"
 
-	"github.com/javastraat/dokemon/pkg/server/store"
+	"github.com/dokemon-ng/dokemon/pkg/server/store"
 
 	"github.com/gabemarshall/pty"
 	"github.com/gorilla/websocket"

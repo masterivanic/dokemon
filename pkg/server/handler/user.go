@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/javastraat/dokemon/pkg/crypto"
-	"github.com/javastraat/dokemon/pkg/server/model"
-	"github.com/javastraat/dokemon/pkg/server/requestutil"
+	"github.com/dokemon-ng/dokemon/pkg/crypto"
+	"github.com/dokemon-ng/dokemon/pkg/server/model"
+	"github.com/dokemon-ng/dokemon/pkg/server/requestutil"
 
 	"github.com/labstack/echo/v4"
 )

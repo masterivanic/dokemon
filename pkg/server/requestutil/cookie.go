@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/javastraat/dokemon/pkg/crypto/ske"
+	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
 
 	"github.com/labstack/echo/v4"
 )

@@ -1,6 +1,6 @@
 package dockerapi
 
-import "github.com/javastraat/dokemon/pkg/server/store"
+import "github.com/dokemon-ng/dokemon/pkg/server/store"
 
 // Containers
 

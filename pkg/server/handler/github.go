@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/go-github/v57/github"
 	"github.com/labstack/echo/v4"
-	"github.com/javastraat/dokemon/pkg/crypto/ske"
+	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
 	"github.com/rs/zerolog/log"
 )
 

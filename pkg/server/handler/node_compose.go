@@ -4,11 +4,11 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/javastraat/dokemon/pkg/crypto/ske"
-	"github.com/javastraat/dokemon/pkg/dockerapi"
-	"github.com/javastraat/dokemon/pkg/messages"
-	"github.com/javastraat/dokemon/pkg/server/model"
-	"github.com/javastraat/dokemon/pkg/server/store"
+	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
+	"github.com/dokemon-ng/dokemon/pkg/dockerapi"
+	"github.com/dokemon-ng/dokemon/pkg/messages"
+	"github.com/dokemon-ng/dokemon/pkg/server/model"
+	"github.com/dokemon-ng/dokemon/pkg/server/store"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"

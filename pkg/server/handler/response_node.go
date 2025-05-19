@@ -3,7 +3,7 @@ package handler
 import (
 	"time"
 
-	"github.com/javastraat/dokemon/pkg/server/model"
+	"github.com/dokemon-ng/dokemon/pkg/server/model"
 )
 
 type nodeResponse struct {

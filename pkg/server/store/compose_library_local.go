@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/javastraat/dokemon/pkg/server/model"
+	"github.com/dokemon-ng/dokemon/pkg/server/model"
 
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"

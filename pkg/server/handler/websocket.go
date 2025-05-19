@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/javastraat/dokemon/pkg/crypto"
-	"github.com/javastraat/dokemon/pkg/crypto/ske"
-	"github.com/javastraat/dokemon/pkg/messages"
+	"github.com/dokemon-ng/dokemon/pkg/crypto"
+	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
+	"github.com/dokemon-ng/dokemon/pkg/messages"
 
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"

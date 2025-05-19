@@ -18,7 +18,7 @@ You can run the below commands to quickly try out Dokémon.
       -v /dokemondata:/data \
       -v /var/run/docker.sock:/var/run/docker.sock \
       --restart unless-stopped \
-      --name dokemon-server -d javastraat/dokemon-server:latest
+      --name dokemon-server -d dokemon-ng/dokemon-server:latest
 
 ## Using Traefik with LetsEncrypt SSL certificate
 
@@ -50,7 +50,7 @@ This is an example configuration for running Dokémon behind Traefik with LetsEn
           - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
       dokemon:
-        image: javastraat/dokemon-server:latest
+        image: dokemon-ng/dokemon-server:latest
         container_name: dokemon-server
         restart: unless-stopped
         labels:

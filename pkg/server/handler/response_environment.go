@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/javastraat/dokemon/pkg/server/model"
+	"github.com/dokemon-ng/dokemon/pkg/server/model"
 )
 
 type environmentResponse struct {
