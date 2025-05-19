@@ -19,6 +19,7 @@ import NodeRegisterDialog from "./node-register-dialog"
 import ServerUrlEditDialog from "./serverurl-edit-dialog"
 import { INodeHead } from "@/lib/api-models"
 import { apiNodesDelete, apiNodesGenerateToken } from "@/lib/api"
+import { VERSION } from "@/lib/version"
 import {
   CLASSES_CLICKABLE_TABLE_ROW,
   cn,
@@ -194,7 +195,7 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 }
 
 function getAgentVersion(nodeHead: INodeHead) {
-  if (isDokemonNode(nodeHead)) return "N/A (Dokemon Server)"
+  if (isDokemonNode(nodeHead)) return {VERSION}
   if (nodeHead.agentVersion) return nodeHead.agentVersion
   return "-"
 }
