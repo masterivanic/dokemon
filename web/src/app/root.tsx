@@ -4,7 +4,7 @@ import { VERSION } from "@/lib/version"
 import { ModeToggle } from "@/components/ui/mode-toggle"
 import { SideNavLeftBottom } from "@/components/side-nav/side-nav-left-bottom"
 import { useState } from "react"
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"
+import { Bars3Icon } from "@heroicons/react/24/outline"
 
 export default function Root() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -12,13 +12,15 @@ export default function Root() {
   return (
     <>
       <div>
-        {/* Mobile sidebar toggle button */}
+        {/* Mobile sidebar toggle button - acts as both open and close */}
         <button
           type="button"
-          className="lg:hidden fixed top-4 left-4 z-50 rounded-md bg-gray-900 p-2 text-gray-400 hover:text-white focus:outline-none"
-          onClick={() => setSidebarOpen(true)}
+          className={`lg:hidden fixed top-4 left-4 z-50 rounded-md bg-gray-900 p-2 text-gray-400 hover:text-white focus:outline-none ${
+            sidebarOpen ? 'left-72' : 'left-4'
+          } transition-all duration-300`}
+          onClick={() => setSidebarOpen(!sidebarOpen)}
         >
-          <span className="sr-only">Open sidebar</span>
+          <span className="sr-only">{sidebarOpen ? 'Close' : 'Open'} sidebar</span>
           <Bars3Icon className="h-6 w-6" aria-hidden="true" />
         </button>
 
@@ -29,23 +31,13 @@ export default function Root() {
           }`}
         >
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-0 dark:bg-gray-950">
-            {/* Close button for mobile */}
-            <div className="flex h-16 shrink-0 items-center">
-              <button
-                type="button"
-                className="lg:hidden ml-2 mr-1 rounded-md p-2 text-gray-400 hover:text-white focus:outline-none"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <span className="sr-only">Close sidebar</span>
-                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-              </button>
-              
+            <div className="flex h-16 shrink-0 items-center text-white">
               <img
-                className="ml-4 w-24"
+                className="ml-9 w-24"
                 src="/assets/images/dokemon-dark-small.svg"
                 alt="Dokémon"
               />
-              <span className="ml-3 mr-5 pt-[3px] text-sm text-white">v{VERSION}</span>
+              <span className="ml-3 mr-5 pt-[3px] text-sm">v{VERSION}</span>
               <ModeToggle />
             </div>
             
@@ -62,7 +54,7 @@ export default function Root() {
           </div>
         </div>
 
-        {/* Overlay for mobile */}
+        {/* Overlay for mobile - clicking it closes the sidebar */}
         {sidebarOpen && (
           <div
             className="lg:hidden fixed inset-0 z-30 bg-black bg-opacity-50"
