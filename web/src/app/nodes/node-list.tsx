@@ -195,7 +195,9 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 }
 
 function getAgentVersion(nodeHead: INodeHead) {
-  if (isDokemonNode(nodeHead)) return "Dokemon Server ${VERSION}"
+  if (isDokemonNode(nodeHead)) return `Dokemon Server v${VERSION}`
   if (nodeHead.agentVersion) return nodeHead.agentVersion
   return "-"
 }
+
+
