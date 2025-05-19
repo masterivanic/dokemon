@@ -12,15 +12,13 @@ export default function Root() {
   return (
     <>
       <div>
-        {/* Mobile sidebar toggle button - acts as both open and close */}
+        {/* Mobile sidebar toggle button */}
         <button
           type="button"
-          className={`lg:hidden fixed top-4 left-4 z-50 rounded-md bg-gray-900 p-2 text-gray-400 hover:text-white focus:outline-none ${
-            sidebarOpen ? 'left-72' : 'left-4'
-          } transition-all duration-300`}
+          className="lg:hidden fixed top-4 left-4 z-50 rounded-md bg-gray-900 p-2 text-gray-400 hover:text-white focus:outline-none"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
-          <span className="sr-only">{sidebarOpen ? 'Close' : 'Open'} sidebar</span>
+          <span className="sr-only">Toggle sidebar</span>
           <Bars3Icon className="h-6 w-6" aria-hidden="true" />
         </button>
 
@@ -54,7 +52,7 @@ export default function Root() {
           </div>
         </div>
 
-        {/* Overlay for mobile - clicking it closes the sidebar */}
+        {/* Overlay for mobile */}
         {sidebarOpen && (
           <div
             className="lg:hidden fixed inset-0 z-30 bg-black bg-opacity-50"
@@ -62,9 +60,9 @@ export default function Root() {
           />
         )}
 
-        {/* Main content area */}
+        {/* Main content area with mobile padding adjustment */}
         <div className="lg:pl-72">
-          <main className="py-10">
+          <main className="py-10 lg:pt-10 pt-16"> {/* Added lg:pt-10 pt-16 for different padding on mobile */}
             <Outlet />
           </main>
         </div>
