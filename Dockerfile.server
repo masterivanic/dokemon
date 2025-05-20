@@ -86,6 +86,7 @@ RUN mkdir -p /data
 
 # Final stage
 FROM gcr.io/distroless/base-debian11
+RUN npm install lucide-react @radix-ui/react-dropdown-menu
 WORKDIR /
 COPY --from=build-stage /dokemon /dokemon
 COPY --from=build-stage /data /data
