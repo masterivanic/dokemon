@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { IImage } from "@/lib/api-models"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import useImages from "@/hooks/useImages"
 import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils"
 import MainArea from "@/components/widgets/main-area"
@@ -29,6 +29,7 @@ import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 
 type SortConfig = {
   key: string
@@ -36,12 +37,12 @@ type SortConfig = {
 }
 
 export default function ImageList() {
+  const { toast } = useToast()
   const { nodeId } = useParams()
-  const { nodeHead } = useNodeHead(nodeId!)
-  const { isLoading, images, mutateImages } = useImages(nodeId!)
+  const { nodeHead, error: nodeHeadError } = useNodeHead(nodeId!)
+  const { isLoading, images, mutateImages, error: imagesError } = useImages(nodeId!)
   const [image, setImage] = useState<IImage | null>(null)
-  const [deleteImageConfirmationOpen, setDeleteImageConfirmationOpen] =
-    useState(false)
+  const [deleteImageConfirmationOpen, setDeleteImageConfirmationOpen] = useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -49,58 +50,89 @@ export default function ImageList() {
     direction: 'ascending'
   })
 
+  useEffect(() => {
+    if (nodeHeadError) {
+      toast({
+        title: "Node Error",
+        description: nodeHeadError.message,
+        variant: "destructive"
+      })
+    }
+    if (imagesError) {
+      toast({
+        title: "Images Error",
+        description: imagesError.message,
+        variant: "destructive"
+      })
+    }
+  }, [nodeHeadError, imagesError, toast])
+
+  if (!nodeId) {
+    return (
+      <MainArea>
+        <div className="p-4 text-red-500">
+          Error: Node ID is missing
+        </div>
+      </MainArea>
+    )
+  }
+
   if (isLoading) return <Loading />
 
   const sortedImages = useMemo(() => {
-    if (!images?.items) return []
-    
-    const sortableItems = [...images.items]
-    sortableItems.sort((a, b) => {
-      let aValue, bValue
+    try {
+      if (!images?.items) return []
+      
+      const sortableItems = [...images.items]
+      return sortableItems.sort((a, b) => {
+        let aValue: string | number = ''
+        let bValue: string | number = ''
 
-      switch (sortConfig.key) {
-        case 'id':
-          aValue = a.id
-          bValue = b.id
-          break
-        case 'name':
-          aValue = a.name
-          bValue = b.name
-          break
-        case 'tag':
-          aValue = a.tag
-          bValue = b.tag
-          break
-        case 'status':
-          aValue = a.inUse ? 'In use' : 'Unused'
-          bValue = b.inUse ? 'In use' : 'Unused'
-          break
-        case 'size':
-          aValue = a.size
-          bValue = b.size
-          break
-        default:
-          return 0
-      }
+        switch (sortConfig.key) {
+          case 'id':
+            aValue = a.id?.toLowerCase() || ''
+            bValue = b.id?.toLowerCase() || ''
+            break
+          case 'name':
+            aValue = a.name?.toLowerCase() || ''
+            bValue = b.name?.toLowerCase() || ''
+            break
+          case 'tag':
+            aValue = a.tag?.toLowerCase() || ''
+            bValue = b.tag?.toLowerCase() || ''
+            break
+          case 'status':
+            aValue = a.inUse ? 'in use' : 'unused'
+            bValue = b.inUse ? 'in use' : 'unused'
+            break
+          case 'size':
+            aValue = a.size || 0
+            bValue = b.size || 0
+            return sortConfig.direction === 'ascending' ? aValue - bValue : bValue - aValue
+          default:
+            return 0
+        }
 
-      if (aValue < bValue) {
-        return sortConfig.direction === 'ascending' ? -1 : 1
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'ascending' ? 1 : -1
-      }
-      return 0
-    })
-
-    return sortableItems
-  }, [images, sortConfig])
+        return sortConfig.direction === 'ascending' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue)
+      })
+    } catch (error) {
+      console.error("Sorting error:", error)
+      toast({
+        title: "Sorting Error",
+        description: "Could not sort images",
+        variant: "destructive"
+      })
+      return images?.items || []
+    }
+  }, [images, sortConfig, toast])
 
   const requestSort = (key: string) => {
-    let direction: 'ascending' | 'descending' = 'ascending'
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending'
-    }
-    setSortConfig({ key, direction })
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'ascending' ? 'descending' : 'ascending'
+    }))
   }
 
   const handleDeleteImageConfirmation = (image: IImage) => {
@@ -109,56 +141,62 @@ export default function ImageList() {
   }
 
   const handleDelete = async () => {
-    setDeleteInProgress(true)
-    const response = await fetch(
-      `${apiBaseUrl()}/nodes/${nodeId}/images/remove`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: image?.id, force: false }),
+    try {
+      setDeleteInProgress(true)
+      const response = await fetch(
+        `${apiBaseUrl()}/nodes/${nodeId}/images/remove`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: image?.id, force: false }),
+        }
+      )
+      
+      if (!response.ok) {
+        const r = await response.json()
+        throw new Error(r.errors?.body || "Failed to delete image")
       }
-    )
-    if (!response.ok) {
-      const r = await response.json()
+
+      await mutateImages()
+      toastSuccess("Image deleted successfully")
+    } catch (error) {
+      toastFailed(error instanceof Error ? error.message : "Unknown error occurred")
+    } finally {
       setDeleteImageConfirmationOpen(false)
-      toastFailed(r.errors?.body)
-    } else {
-      mutateImages()
-      setTimeout(() => {
-        setDeleteImageConfirmationOpen(false)
-        toastSuccess("Image deleted.")
-      }, 500)
+      setDeleteInProgress(false)
     }
-    setDeleteInProgress(false)
   }
 
   const handlePrune = async () => {
-    setPruneInProgress(true)
-    const response = await fetch(
-      `${apiBaseUrl()}/nodes/${nodeId}/images/prune`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ all: true }),
+    try {
+      setPruneInProgress(true)
+      const response = await fetch(
+        `${apiBaseUrl()}/nodes/${nodeId}/images/prune`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ all: true }),
+        }
+      )
+
+      if (!response.ok) {
+        const r = await response.json()
+        throw new Error(r.errors?.body || "Failed to prune images")
       }
-    )
-    if (!response.ok) {
+
       const r = await response.json()
-      toastFailed(r.errors?.body)
-    } else {
-      mutateImages()
-      const r = await response.json()
-      let description = "Nothing found to delete"
-      if (r.imagesDeleted?.length > 0) {
-        description = `Unused images deleted. Space reclaimed: ${convertByteToMb(
-          r.spaceReclaimed
-        )}`
-      }
-      setTimeout(async () => {
-        toastSuccess(description)
-      }, 500)
+      await mutateImages()
+      
+      const description = r.imagesDeleted?.length > 0
+        ? `Unused images deleted. Space reclaimed: ${convertByteToMb(r.spaceReclaimed)}`
+        : "Nothing found to delete"
+      
+      toastSuccess(description)
+    } catch (error) {
+      toastFailed(error instanceof Error ? error.message : "Unknown error occurred")
+    } finally {
+      setPruneInProgress(false)
     }
-    setPruneInProgress(false)
   }
 
   return (
@@ -174,11 +212,12 @@ export default function ImageList() {
           message={`Are you sure you want to delete image '${image?.name}'?`}
         />
       )}
+      
       <TopBar>
         <Breadcrumb>
           <BreadcrumbLink to="/nodes">Nodes</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbCurrent>{nodeHead?.name}</BreadcrumbCurrent>
+          <BreadcrumbCurrent>{nodeHead?.name || 'Unknown Node'}</BreadcrumbCurrent>
           <BreadcrumbSeparator />
           <BreadcrumbCurrent>Images</BreadcrumbCurrent>
         </Breadcrumb>
@@ -189,97 +228,61 @@ export default function ImageList() {
             deleteHandler={handlePrune}
             isProcessing={pruneInProgress}
             title="Delete Unused"
-            message={`Are you sure you want to delete all unused images?`}
+            message="Are you sure you want to delete all unused images?"
           />
         </TopBarActions>
       </TopBar>
+
       <MainContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort('id')}
-                  className="p-0 hover:bg-transparent"
-                >
-                  Id
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead scope="col">
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort('name')}
-                  className="p-0 hover:bg-transparent"
-                >
-                  Name
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead scope="col">
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort('tag')}
-                  className="p-0 hover:bg-transparent"
-                >
-                  Tag
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead scope="col">
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort('status')}
-                  className="p-0 hover:bg-transparent"
-                >
-                  Status
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead scope="col">
-                <Button
-                  variant="ghost"
-                  onClick={() => requestSort('size')}
-                  className="p-0 hover:bg-transparent"
-                >
-                  Size
-                  <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-              </TableHead>
+              {['id', 'name', 'tag', 'status', 'size'].map((key) => (
+                <TableHead key={key} scope="col">
+                  <Button
+                    variant="ghost"
+                    onClick={() => requestSort(key)}
+                    className="p-0 hover:bg-transparent flex items-center"
+                  >
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
+              ))}
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedImages?.length === 0 && <TableNoData colSpan={6} />}
-            {sortedImages?.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.id.substring(7, 19)}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>
-                  {item.tag}{" "}
-                  {item.dangling ? (
-                    <span className="text-xs text-red-400"> (Dangling)</span>
-                  ) : (
-                    ""
-                  )}
-                </TableCell>
-                <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
-                <TableCell>{convertByteToMb(item.size)}</TableCell>
-                <TableCell className="text-right">
-                  {!item.inUse && (
-                    <TableButtonDelete
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteImageConfirmation(item)
-                      }}
-                    />
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+            {sortedImages.length === 0 ? (
+              <TableNoData colSpan={6} />
+            ) : (
+              sortedImages.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.id.substring(7, 19)}</TableCell>
+                  <TableCell>{item.name || '-'}</TableCell>
+                  <TableCell>
+                    {item.tag || '-'}
+                    {item.dangling && (
+                      <span className="text-xs text-red-400"> (Dangling)</span>
+                    )}
+                  </TableCell>
+                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
+                  <TableCell>{convertByteToMb(item.size)}</TableCell>
+                  <TableCell className="text-right">
+                    {!item.inUse && (
+                      <TableButtonDelete
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteImageConfirmation(item)
+                        }}
+                      />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>
