@@ -38,7 +38,7 @@ export function SideNavLeftBottom() {
     <ul role="list" className="-mx-2 space-y-1">
       <li>
         <a
-          href="https://github.com/dokemon-ng/dokemon"
+          href="https://github.com/dokemon-ng"
           target="_blank"
           className={cn(
             "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-200 hover:bg-gray-800 hover:text-white"
