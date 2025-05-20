@@ -53,7 +53,7 @@ export function SideNavLeftBottom() {
       </li>
       <li>
         <a
-          href="https://github.com/dokemon-ng/Software/issues/new"
+          href="https://github.com/dokemon-ng/dokemon/issues/new"
           target="_blank"
           className={cn(
             "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
@@ -65,7 +65,7 @@ export function SideNavLeftBottom() {
       </li>
       <li>
         <a
-          href="https://github.com/dokemon-ng/Software/issues"
+          href="https://github.com/dokemon-ng/dokemon/issues"
           target="_blank"
           className={cn(
             "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
