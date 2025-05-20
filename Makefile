@@ -4,7 +4,7 @@ default: help
 
 build-server: ## Build server for production or local
 	@if [ "$(env-target)" = "prod" ]; then \
-		sudo docker buildx build --platform linux/amd64,linux/arm64 -t javastraat/dokemon-server:latest -f Dockerfile.server --push .; \
+		sudo docker buildx build --platform linux/amd64,linux/arm64 -t javastraat/dokemon-server:latest --push -f Dockerfile.server .; \
 	else \
 		sudo docker buildx build -t javastraat/dokemon-server:latest -f Dockerfile.server .; \
 	fi
@@ -13,7 +13,7 @@ build-agent: ## Build agent for production or local
 	@if [ "$(env-target)" = "prod" ]; then \
 		sudo docker buildx build --platform linux/amd64,linux/arm64 -t javastraat/dokemon-agent:latest  --push -f Dockerfile.agent .; \
 	else \
-		sudo docker buildx build -t javastraat/dokemon-agent:latest  --push -f Dockerfile.agent .; \
+		sudo docker buildx build -t javastraat/dokemon-agent:latest -f Dockerfile.agent .; \
 	fi
 
 run-server: ## Run Docker server locally
