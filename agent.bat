@@ -1,1 +1,0 @@
-docker run     -e SERVER_URL=http://192.168.2.203:9090     -e TOKEN=unA+U5Ek6QGzNOVQ4M0Ou0gy74LDfhXjMqfba0DanZNMfJBzvmVs6bI=  -v /var/run/docker.sock:/var/run/docker.sock     --name dokemon-agent --restart unless-stopped    -d javastraat/dokemon-agent:latest
