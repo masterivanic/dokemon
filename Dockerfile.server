@@ -17,6 +17,9 @@ RUN npm config set fetch-retries 5 && \
 RUN npm install -g npm@latest || \
     (sleep 30 && npm install -g npm@latest)
 
+# Install required dependencies globally to make them available for the build
+RUN npm install -g lucide-react @radix-ui/react-dropdown-menu
+
 # Copy package files first for better caching
 COPY web/package.json web/yarn.lock* web/package-lock.json* web/pnpm-lock.yaml* ./
 
@@ -36,7 +39,6 @@ COPY ./web .
 
 # Build with retries for network operations
 RUN npm run build || (sleep 30 && npm run build)
-RUN npm install lucide-react @radix-ui/react-dropdown-menu
 
 # Stage 3: Go build
 FROM --platform=$BUILDPLATFORM golang:latest AS build-stage
@@ -87,7 +89,7 @@ RUN mkdir -p /data
 
 # Final stage
 FROM gcr.io/distroless/base-debian11
-RUN npm install lucide-react @radix-ui/react-dropdown-menu
+
 WORKDIR /
 COPY --from=build-stage /dokemon /dokemon
 COPY --from=build-stage /data /data
