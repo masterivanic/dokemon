@@ -49,7 +49,7 @@ export default function ImageList() {
     direction: 'ascending'
   })
 
-  if (isLoading) return <Loading>()
+  if (isLoading) return <Loading />
 
   const sortedImages = useMemo(() => {
     if (!images?.items) return []
@@ -108,12 +108,91 @@ export default function ImageList() {
     setDeleteImageConfirmationOpen(true)
   }
 
-  // ... rest of your existing handlers remain the same ...
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/images/remove`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: image?.id, force: false }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteImageConfirmationOpen(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateImages()
+      setTimeout(() => {
+        setDeleteImageConfirmationOpen(false)
+        toastSuccess("Image deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
+  }
+
+  const handlePrune = async () => {
+    setPruneInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/images/prune`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      toastFailed(r.errors?.body)
+    } else {
+      mutateImages()
+      const r = await response.json()
+      let description = "Nothing found to delete"
+      if (r.imagesDeleted?.length > 0) {
+        description = `Unused images deleted. Space reclaimed: ${convertByteToMb(
+          r.spaceReclaimed
+        )}`
+      }
+      setTimeout(async () => {
+        toastSuccess(description)
+      }, 500)
+    }
+    setPruneInProgress(false)
+  }
 
   return (
     <MainArea>
-      {/* ... existing DeleteDialog and TopBar code remains the same ... */}
-      
+      {deleteImageConfirmationOpen && (
+        <DeleteDialog
+          openState={deleteImageConfirmationOpen}
+          setOpenState={setDeleteImageConfirmationOpen}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Image"
+          message={`Are you sure you want to delete image '${image?.name}'?`}
+        />
+      )}
+      <TopBar>
+        <Breadcrumb>
+          <BreadcrumbLink to="/nodes">Nodes</BreadcrumbLink>
+          <BreadcrumbSeparator />
+          <BreadcrumbCurrent>{nodeHead?.name}</BreadcrumbCurrent>
+          <BreadcrumbSeparator />
+          <BreadcrumbCurrent>Images</BreadcrumbCurrent>
+        </Breadcrumb>
+        <TopBarActions>
+          <DeleteDialog
+            widthClass="w-42"
+            deleteCaption="Delete Unused (Prune All)"
+            deleteHandler={handlePrune}
+            isProcessing={pruneInProgress}
+            title="Delete Unused"
+            message={`Are you sure you want to delete all unused images?`}
+          />
+        </TopBarActions>
+      </TopBar>
       <MainContent>
         <Table>
           <TableHeader>
@@ -174,7 +253,7 @@ export default function ImageList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedImages?.length === 0 && <TableNoData colSpan={5} />}
+            {sortedImages?.length === 0 && <TableNoData colSpan={6} />}
             {sortedImages?.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.id.substring(7, 19)}</TableCell>
