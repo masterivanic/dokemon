@@ -20,6 +20,9 @@
 # Go workspace file
 go.work
 
+make-server.sh
+make-agent.sh
+
 # App Binaries in root directory
 /agent
 /server
