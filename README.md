@@ -1,8 +1,8 @@
-![Alt text](/screenshots/dokemon-light.svg?raw=true "Dokemon Logo")
+![Alt text](https://github.com/dokemon-ng/dokemon/raw/main/screenshots/dokemon-light.svg?raw=true)
 
 Dokémon is a friendly GUI for managing Docker Containers. You can manage multiple servers from a single Dokemon instance.
 
-Check https://dokemon.dev for more details.
+Check https://dokemon.einstein.amsterdam (old: https://dokemon.dev) for more details.
 
 ## Quickstart
 
@@ -75,20 +75,19 @@ Open https://dokemon.example.com (substitute your URL here which you entered as 
 ## Screenshots
 
 ### Manage Multiple Servers
-
-![Alt text](/screenshots/screenshot-dokemon-nodes.jpg?raw=true "Dokemon Nodes")
+![Alt text](https://github.com/dokemon-ng/dokemon/raw/main/screenshots/screenshot-dokemon-nodes.jpg?raw=true)
 
 ### Manage Variables for Different Environments
 
-![Alt text](/screenshots/screenshot-dokemon-variables.jpg?raw=true "Dokemon Variables")
+![Alt text](https://github.com/dokemon-ng/dokemon/raw/main/screenshots/screenshot-dokemon-variables.jpg?raw=true)
 
 ### Deploy Compose Projects
 
-![Alt text](/screenshots/screenshot-dokemon-compose-up.jpg?raw=true "Dokemon Compose Up")
+![Alt text](https://github.com/dokemon-ng/dokemon/raw/main/screenshots/screenshot-dokemon-compose-up.jpg?raw=true)
 
 ### Manage Containers, Images, Volumes, Networks
 
-![Alt text](/screenshots/screenshot-dokemon-containers.jpg?raw=true "Dokemon Containers")
+![Alt text](https://github.com/dokemon-ng/dokemon/raw/main/screenshots/screenshot-dokemon-containers.jpg?raw=true)
 
 ## License
 
