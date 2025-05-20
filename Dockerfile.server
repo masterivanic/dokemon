@@ -36,6 +36,7 @@ COPY ./web .
 
 # Build with retries for network operations
 RUN npm run build || (sleep 30 && npm run build)
+RUN npm install lucide-react @radix-ui/react-dropdown-menu
 
 # Stage 3: Go build
 FROM --platform=$BUILDPLATFORM golang:latest AS build-stage
