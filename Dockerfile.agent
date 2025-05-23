@@ -13,6 +13,7 @@ RUN set -eux; \
       case "$(uname -m)" in \
         x86_64) export TARGETARCH=amd64 ;; \
         aarch64) export TARGETARCH=arm64 ;; \
+        armv7l) export TARGETARCH=arm ;; \
         *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;; \
       esac; \
     fi; \
@@ -22,6 +23,9 @@ RUN set -eux; \
         ;; \
       arm64|aarch64) \
         curl -fsSLO "https://download.docker.com/linux/static/stable/aarch64/docker-28.1.1.tgz" \
+        ;; \
+      arm) \
+        curl -fsSLO "https://download.docker.com/linux/static/stable/armhf/docker-28.1.1.tgz" \
         ;; \
       *) \
         echo "Unsupported architecture: ${TARGETARCH}"; \
@@ -37,6 +41,7 @@ RUN set -eux; \
       case "$(uname -m)" in \
         x86_64) export TARGETARCH=amd64 ;; \
         aarch64) export TARGETARCH=arm64 ;; \
+        armv7l) export TARGETARCH=arm ;; \
         *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;; \
       esac; \
     fi; \
@@ -46,6 +51,9 @@ RUN set -eux; \
         ;; \
       arm64|aarch64) \
         curl -fsSL "https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64" -o /bin/docker-compose \
+        ;; \
+      arm) \
+        curl -fsSL "https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-armv7" -o /bin/docker-compose \
         ;; \
     esac; \
     chmod +x /bin/docker-compose
@@ -57,7 +65,11 @@ RUN go mod download
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /dokemon-agent ./cmd/agent
+# Special handling for ARMv7 Go build
+RUN if [ "${TARGETARCH}" = "arm" ]; then \
+      export GOARCH=arm GOARM=7; \
+    fi && \
+    CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /dokemon-agent ./cmd/agent
 
 RUN mkdir -p /data
 
