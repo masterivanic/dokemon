@@ -64,6 +64,11 @@ RUN case "${TARGETARCH}" in \
             tar xzvf "docker-28.1.1.tgz" --strip-components=1 -C /usr/local/bin docker/docker && \
             rm "docker-28.1.1.tgz" \
             ;; \
+        arm) \
+            curl -fsSLO "https://download.docker.com/linux/static/stable/armhf/docker-28.1.1.tgz" && \
+            tar xzvf "docker-28.1.1.tgz" --strip-components=1 -C /usr/local/bin docker/docker && \
+            rm "docker-28.1.1.tgz" \
+            ;; \
         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
     esac
 
@@ -75,6 +80,9 @@ RUN case "${TARGETARCH}" in \
         arm64) \
             curl -fsSL "https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64" -o /usr/local/bin/docker-compose \
             ;; \
+        arm) \
+            curl -fsSL "https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-armv7" -o /usr/local/bin/docker-compose \
+            ;; \
     esac && \
     chmod +x /usr/local/bin/docker-compose
 
@@ -84,7 +92,12 @@ COPY . ./
 COPY --from=react-builder /app/dist ./web/dist
 RUN $GOPATH/bin/rice embed-go -i ./web
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /dokemon ./cmd/server
+# Special handling for ARMv7 Go build
+RUN if [ "${TARGETARCH}" = "arm" ]; then \
+      export GOARCH=arm GOARM=7; \
+    fi && \
+    CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /dokemon ./cmd/server
+
 RUN mkdir -p /data
 
 # Final stage
