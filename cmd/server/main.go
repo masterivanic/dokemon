@@ -17,7 +17,7 @@ func main() {
 
 	port := os.Getenv("DOKEMON_PORT")
 	if port == "" {
-		port = "9092"
+		port = "9090"
 	}
 	bindAddr := ":" + port
 	s.Run(bindAddr)
