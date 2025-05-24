@@ -2,6 +2,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 
@@ -20,7 +21,10 @@ interface DataTableProps<TData, TValue> {
   onRowClickId?: (id: string) => any
   onRowClick?: (item: TData) => any
   idVisible?: boolean
+  globalFilter?: string
+  onGlobalFilterChange?: (value: string) => void
 }
+
 
 export function DataTable<TData, TValue>({
   columns,
@@ -28,11 +32,18 @@ export function DataTable<TData, TValue>({
   onRowClickId: onRowClickId,
   onRowClick: onRowClick,
   idVisible = false,
+  globalFilter = "",
+  onGlobalFilterChange,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange,
     initialState: {
       columnVisibility: { id: idVisible },
     },
@@ -40,26 +51,35 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
+      {onGlobalFilterChange && (
+        <div className="mb-2">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={globalFilter}
+            onChange={(e) => onGlobalFilterChange(e.target.value)}
+            className="border rounded px-2 py-1 w-full"
+          />
+        </div>
+      )}
       <div className="rounded-md border shadow-md">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className={header.id === "actions" ? "w-[40px]" : ""}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className={header.id === "actions" ? "w-[40px]" : ""}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

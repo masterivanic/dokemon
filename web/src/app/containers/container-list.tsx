@@ -1,4 +1,4 @@
-import { PlayIcon, StopIcon, ArrowPathIcon } from "@heroicons/react/24/solid"
+import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 import Loading from "@/components/widgets/loading"
 import {
   Breadcrumb,
@@ -38,6 +38,7 @@ import {
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
+import { Input } from "@/components/ui/input"
 
 export default function ContainerList() {
   const { nodeId } = useParams()
@@ -49,8 +50,19 @@ export default function ContainerList() {
   const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] =
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
 
   if (isLoading) return <Loading />
+
+  const filteredContainers = containers?.items?.filter((item) => {
+    if (!searchTerm) return true
+    return (
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.image.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.id.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })
 
   const handleStartContainer = async (id: string) => {
     try {
@@ -203,6 +215,20 @@ export default function ContainerList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
+      <div className="mb-4 flex items-center">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10"
+              placeholder="Search containers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -218,9 +244,9 @@ export default function ContainerList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {containers?.items?.length === 0 && <TableNoData colSpan={5} />}
-            {containers?.items &&
-              containers?.items.map((item) => (
+            {filteredContainers?.length === 0 && <TableNoData colSpan={5} />}
+            {filteredContainers &&
+              filteredContainers.map((item) => (
                 <TableRow
                   key={item.id}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
