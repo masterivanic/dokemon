@@ -88,7 +88,7 @@ func (s *SqlComposeLibraryStore) DeleteById(id uint) error {
 
 func (s *SqlComposeLibraryStore) GetList() ([]model.ComposeLibraryItem, int64, error) {
 	var (
-		l []model.ComposeLibraryItem
+		l     []model.ComposeLibraryItem
 		count int64
 	)
 
@@ -105,7 +105,7 @@ func (s *SqlComposeLibraryStore) IsUniqueName(name string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlComposeLibraryStore) IsUniqueNameExcludeItself(name string, id uint) (bool, error) {
@@ -115,5 +115,5 @@ func (s *SqlComposeLibraryStore) IsUniqueNameExcludeItself(name string, id uint)
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }

@@ -3,23 +3,23 @@ package handler
 import "github.com/dokemon-ng/dokemon/pkg/server/model"
 
 type composeLibraryItemHead struct {
-	Id			*uint	`json:"id"`
-	ProjectName string 	`json:"projectName"`
-	Type 		string	`json:"type"` // github, local
+	Id          *uint  `json:"id"`
+	ProjectName string `json:"projectName"`
+	Type        string `json:"type"` // github, local
 }
 
 func newComposeLibraryItemHead(m *model.ComposeLibraryItem) composeLibraryItemHead {
 	var id uint = m.Id
 	ret := composeLibraryItemHead{
-		Id: &id,
+		Id:          &id,
 		ProjectName: m.ProjectName,
-		Type: m.Type,
+		Type:        m.Type,
 	}
 
 	if m.Id == 0 {
 		ret.Id = nil
 	}
-	
+
 	return ret
 }
 
@@ -39,22 +39,22 @@ type fileSystemComposeLibraryItem struct {
 func newFileSystemComposeLibraryItem(m *model.FileSystemComposeLibraryItem) fileSystemComposeLibraryItem {
 	return fileSystemComposeLibraryItem{
 		ProjectName: m.ProjectName,
-		Definition: m.Definition,
+		Definition:  m.Definition,
 	}
 }
 
 type gitHubComposeLibraryItem struct {
-	Id				uint	`json:"id"`
-	CredentialId	*uint	`json:"credentialId"`
-	ProjectName 	string 	`json:"projectName"`
-	Url 			string 	`json:"url"`
+	Id           uint   `json:"id"`
+	CredentialId *uint  `json:"credentialId"`
+	ProjectName  string `json:"projectName"`
+	Url          string `json:"url"`
 }
 
 func newGitHubComposeLibraryItem(m *model.ComposeLibraryItem) gitHubComposeLibraryItem {
 	return gitHubComposeLibraryItem{
-		Id: m.Id,
+		Id:           m.Id,
 		CredentialId: m.CredentialId,
-		ProjectName: m.ProjectName,
-		Url: m.Url,
+		ProjectName:  m.ProjectName,
+		Url:          m.Url,
 	}
 }

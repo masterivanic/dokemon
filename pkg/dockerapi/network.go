@@ -25,7 +25,7 @@ func NetworkList(req *DockerNetworkList) (*DockerNetworkListResponse, error) {
 		if c.NetworkSettings != nil {
 			for _, n := range c.NetworkSettings.Networks {
 				usedNetworks[n.NetworkID] = nil
-			}	
+			}
 		}
 	}
 
@@ -38,22 +38,22 @@ func NetworkList(req *DockerNetworkList) (*DockerNetworkListResponse, error) {
 	for i, item := range dnetworks {
 		_, inUse := usedNetworks[item.ID]
 		networks[i] = Network{
-			Id:		item.ID,
-			Name: 	item.Name,
+			Id:     item.ID,
+			Name:   item.Name,
 			Driver: item.Driver,
-			Scope: 	item.Scope,
-			InUse: 	inUse,
+			Scope:  item.Scope,
+			InUse:  inUse,
 		}
 	}
 
 	sort.Slice(networks, func(i, j int) bool {
 		return networks[i].Name < networks[j].Name
-	  })
+	})
 
 	return &DockerNetworkListResponse{Items: networks}, nil
 }
 
-func NetworkRemove(req *DockerNetworkRemove) (error) {
+func NetworkRemove(req *DockerNetworkRemove) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err

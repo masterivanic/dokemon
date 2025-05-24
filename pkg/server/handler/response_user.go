@@ -31,7 +31,7 @@ func newUserHeadList(rows []model.User) []userHead {
 }
 
 type userCountResponse struct {
-	Count int64   `json:"count"`
+	Count int64 `json:"count"`
 }
 
 func newUserCountResponse(count int64) *userCountResponse {

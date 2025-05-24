@@ -38,7 +38,7 @@ export default function Root() {
               <span className="ml-3 mr-5 pt-[3px] text-sm">v{VERSION}</span>
               <ModeToggle />
             </div>
-            
+
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>

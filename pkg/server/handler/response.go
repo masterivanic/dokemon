@@ -10,14 +10,14 @@ import (
 // General
 
 type pageResponse[T any] struct {
-	Items []T 			`json:"items"`
-	PageNo uint 		`json:"pageNo"`
-	PageSize uint 		`json:"pageSize"`
-	TotalRows uint 		`json:"totalRows"`
+	Items     []T  `json:"items"`
+	PageNo    uint `json:"pageNo"`
+	PageSize  uint `json:"pageSize"`
+	TotalRows uint `json:"totalRows"`
 }
 
 type entityCreatedResponse struct {
-	Id any 		`json:"id"`
+	Id any `json:"id"`
 }
 
 type uniqueResponse struct {
@@ -26,9 +26,9 @@ type uniqueResponse struct {
 
 func newPageResponse[T any](rows []T, pageNo, pageSize, totalRows uint) *pageResponse[T] {
 	return &pageResponse[T]{
-		Items: rows,
-		PageNo: pageNo,
-		PageSize: pageSize,
+		Items:     rows,
+		PageNo:    pageNo,
+		PageSize:  pageSize,
 		TotalRows: totalRows,
 	}
 }

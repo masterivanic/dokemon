@@ -199,5 +199,3 @@ function getAgentVersion(nodeHead: INodeHead) {
   if (nodeHead.agentVersion) return nodeHead.agentVersion
   return "-"
 }
-
-

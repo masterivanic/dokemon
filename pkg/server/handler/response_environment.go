@@ -5,8 +5,8 @@ import (
 )
 
 type environmentResponse struct {
-	Id   uint		`json:"id"`
-	Name string 	`json:"name"`
+	Id   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 func newEnvironmentResponse(m *model.Environment) *environmentResponse {
@@ -14,13 +14,13 @@ func newEnvironmentResponse(m *model.Environment) *environmentResponse {
 }
 
 type environmentHead struct {
-	Id   				uint	`json:"id"`
-	Name 				string 	`json:"name"`
+	Id   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 func newEnvironmentHead(m *model.Environment) environmentHead {
 	return environmentHead{
-		Id: m.Id,
+		Id:   m.Id,
 		Name: m.Name,
 	}
 }

@@ -17,8 +17,8 @@ type variableHead struct {
 
 func newVariableResponse(m *model.Variable) *variableResponse {
 	return &variableResponse{
-		Id: m.Id,
-		Name: m.Name,
+		Id:       m.Id,
+		Name:     m.Name,
 		IsSecret: m.IsSecret,
 	}
 }

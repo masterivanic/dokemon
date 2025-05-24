@@ -59,7 +59,7 @@ func (s *SqlNodeComposeProjectVariableStore) DeleteById(nodeComposeProjectId uin
 
 func (s *SqlNodeComposeProjectVariableStore) GetList(nodeComposeProjectId uint, pageNo, pageSize uint) ([]model.NodeComposeProjectVariable, int64, error) {
 	var (
-		l []model.NodeComposeProjectVariable
+		l     []model.NodeComposeProjectVariable
 		count int64
 	)
 
@@ -73,22 +73,22 @@ func (s *SqlNodeComposeProjectVariableStore) IsUniqueName(nodeComposeProjectId u
 	var count int64
 
 	if err := s.db.Model(&model.NodeComposeProjectVariable{}).
-					Where("node_compose_project_id = ? COLLATE NOCASE and name = ?", nodeComposeProjectId, name).
-					Count(&count).Error; err != nil {
+		Where("node_compose_project_id = ? COLLATE NOCASE and name = ?", nodeComposeProjectId, name).
+		Count(&count).Error; err != nil {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlNodeComposeProjectVariableStore) IsUniqueNameExcludeItself(nodeComposeProjectId uint, name string, id uint) (bool, error) {
 	var count int64
 
 	if err := s.db.Model(&model.NodeComposeProjectVariable{}).
-					Where("node_compose_project_id = ? and name = ? COLLATE NOCASE and id <> ?", nodeComposeProjectId, name, id).
-					Count(&count).Error; err != nil {
+		Where("node_compose_project_id = ? and name = ? COLLATE NOCASE and id <> ?", nodeComposeProjectId, name, id).
+		Count(&count).Error; err != nil {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }

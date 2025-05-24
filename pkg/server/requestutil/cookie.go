@@ -2,6 +2,7 @@ package requestutil
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -43,6 +44,10 @@ func GetAuthCookie(c echo.Context) (*AuthCookieContent, error) {
 		return nil, err
 	}
 
+	if cookie.Value == "" {
+		return nil, errors.New("auth cookie is empty")
+	}
+
 	ccText, err := ske.Decrypt(cookie.Value)
 	if err != nil {
 		return nil, err
@@ -63,6 +68,6 @@ func DeleteAuthCookie(c echo.Context) {
 	cookie.Name = AUTH_COOKIE_NAME
 	cookie.Value = ""
 	cookie.HttpOnly = true
-	cookie.Expires =  time.Unix(0, 0)
+	cookie.Expires = time.Unix(0, 0)
 	c.SetCookie(cookie)
 }

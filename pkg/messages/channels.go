@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	TaskQueue   = make(map[uint]chan TaskQueuedMessage) 	// NodeId is the map key
-	TaskResponses  = make(map[string]chan string)         	// Task GUID is the map key
-	TaskSockets  = make(map[string]*websocket.Conn)    		// Task GUID is the map key
+	TaskQueue     = make(map[uint]chan TaskQueuedMessage) // NodeId is the map key
+	TaskResponses = make(map[string]chan string)          // Task GUID is the map key
+	TaskSockets   = make(map[string]*websocket.Conn)      // Task GUID is the map key
 )
 
 func queueTask[T interface{}](nodeId uint, message T, ws *websocket.Conn) string {
@@ -38,7 +38,7 @@ func ProcessTaskWithResponse[T interface{}, R interface{}](nodeId uint, message 
 	taskId := queueTask(nodeId, message, nil)
 	log.Debug().Str("taskId", taskId).Msg("Task queued")
 
-	defer func ()  {
+	defer func() {
 		delete(TaskResponses, taskId)
 	}()
 
@@ -50,12 +50,12 @@ func ProcessTaskWithResponse[T interface{}, R interface{}](nodeId uint, message 
 			if err != nil {
 				panic(err)
 			}
-	
+
 			if strings.HasPrefix(taskStatusMessage.Status, "CompletedWithSuccess") {
 				if taskStatusMessage.Result == nil {
 					return nil, nil
 				}
-				
+
 				res, err := Parse[R](*taskStatusMessage.Result)
 				if err != nil {
 					return nil, err
@@ -64,7 +64,7 @@ func ProcessTaskWithResponse[T interface{}, R interface{}](nodeId uint, message 
 			} else {
 				return nil, errors.New(*taskStatusMessage.Result)
 			}
-			
+
 		case <-afterCh:
 			return nil, errors.New("timeout")
 		}
@@ -75,7 +75,7 @@ func ProcessTask[T interface{}](nodeId uint, message T, timeout time.Duration) e
 	taskId := queueTask(nodeId, message, nil)
 	log.Debug().Str("taskId", taskId).Msg("Task queued")
 
-	defer func ()  {
+	defer func() {
 		delete(TaskResponses, taskId)
 	}()
 
@@ -87,13 +87,13 @@ func ProcessTask[T interface{}](nodeId uint, message T, timeout time.Duration) e
 			if err != nil {
 				panic(err)
 			}
-	
+
 			if strings.HasPrefix(taskStatusMessage.Status, "CompletedWithSuccess") {
 				return nil
 			} else {
 				return errors.New(*taskStatusMessage.Result)
 			}
-			
+
 		case <-afterCh:
 			return errors.New("timeout")
 		}
@@ -104,7 +104,7 @@ func ProcessStreamTask[T interface{}](nodeId uint, message T, ws *websocket.Conn
 	taskId := queueTask(nodeId, message, ws)
 	log.Debug().Str("taskId", taskId).Msg("Task queued")
 
-	defer func ()  {
+	defer func() {
 		delete(TaskResponses, taskId)
 	}()
 
@@ -115,7 +115,7 @@ func ProcessStreamTask[T interface{}](nodeId uint, message T, ws *websocket.Conn
 		}
 
 		log.Debug().Str("taskId", taskId).Int("nodeId", int(nodeId)).Msg("Compose logs session ended as client closed connection")
-		
+
 		if strings.HasPrefix(taskStatusMessage.Status, "CompletedWithSuccess") {
 			return nil
 		} else {

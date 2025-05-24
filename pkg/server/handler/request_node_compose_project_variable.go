@@ -8,10 +8,10 @@ import (
 )
 
 type nodeComposeProjectVariableCreateRequest struct {
-	NodeComposeProjectId 	uint	`json:"nodeComposeProjectId"`
-	Name      				string 	`json:"name" validate:"required,max=100"`
-	IsSecret  				bool   	`json:"isSecret"`
-	Value      				string 	`json:"value"`
+	NodeComposeProjectId uint   `json:"nodeComposeProjectId"`
+	Name                 string `json:"name" validate:"required,max=100"`
+	IsSecret             bool   `json:"isSecret"`
+	Value                string `json:"value"`
 }
 
 func (r *nodeComposeProjectVariableCreateRequest) bind(c echo.Context, m *model.NodeComposeProjectVariable) error {
@@ -37,11 +37,11 @@ func (r *nodeComposeProjectVariableCreateRequest) bind(c echo.Context, m *model.
 }
 
 type nodeComposeProjectVariableUpdateRequest struct {
-	Id        				uint   	`json:"id" validate:"required"`
-	NodeComposeProjectId 	uint	`json:"nodeComposeProjectId"`
-	Name      				string 	`json:"name" validate:"required,max=100"`
-	IsSecret  				bool   	`json:"isSecret"`
-	Value      				string 	`json:"value"`
+	Id                   uint   `json:"id" validate:"required"`
+	NodeComposeProjectId uint   `json:"nodeComposeProjectId"`
+	Name                 string `json:"name" validate:"required,max=100"`
+	IsSecret             bool   `json:"isSecret"`
+	Value                string `json:"value"`
 }
 
 func (r *nodeComposeProjectVariableUpdateRequest) bind(c echo.Context, m *model.NodeComposeProjectVariable) error {
@@ -57,7 +57,7 @@ func (r *nodeComposeProjectVariableUpdateRequest) bind(c echo.Context, m *model.
 	m.NodeComposeProjectId = r.NodeComposeProjectId
 	m.Name = r.Name
 	m.IsSecret = r.IsSecret
-	
+
 	enryptedValue, err := ske.Encrypt(r.Value)
 	if err != nil {
 		return err

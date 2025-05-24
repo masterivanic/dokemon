@@ -40,7 +40,7 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 		panic(err)
 	}
 
-	rows := make([]model.ComposeLibraryItem, len(rows_db) + len(rows_local))
+	rows := make([]model.ComposeLibraryItem, len(rows_db)+len(rows_local))
 	i := 0
 	for _, row := range rows_db {
 		rows[i] = row
@@ -48,18 +48,18 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 	}
 	for _, row := range rows_local {
 		rows[i] = model.ComposeLibraryItem{
-			Id: 0,
+			Id:           0,
 			CredentialId: nil,
-			ProjectName: row.ProjectName,
-			Type: "filesystem",
-			Url: "",
+			ProjectName:  row.ProjectName,
+			Type:         "filesystem",
+			Url:          "",
 		}
 		i++
 	}
 
 	sort.Slice(rows, func(i, j int) bool {
 		return rows[i].ProjectName < rows[j].ProjectName
-	  })
+	})
 
 	return ok(c, newPageResponse[composeLibraryItemHead](newComposeLibraryItemHeadList(rows), uint(p), uint(s), uint(totalRows)))
 }
@@ -99,12 +99,12 @@ func (h *Handler) isUniqueComposeProjectNameExcludeItselfAcrossAllTypes(newValue
 		unique_local, err = h.fileSystemComposeLibraryStore.IsUniqueNameExcludeItself(newValue, currentValue)
 		if err != nil {
 			return false, err
-		}	
+		}
 	} else {
 		unique_local, err = h.fileSystemComposeLibraryStore.IsUniqueName(newValue)
 		if err != nil {
 			return false, err
-		}	
+		}
 	}
 
 	return unique_github && unique_local, nil
@@ -246,15 +246,15 @@ func (h *Handler) UpdateGitHubComposeProject(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.composeLibraryStore.GetById(uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "ComposeLibraryItem")
-	}	
+	}
 
 	r := &githubComposeProjectUpdateRequest{Id: uint(id)}
 	if err := r.bind(c, m); err != nil {

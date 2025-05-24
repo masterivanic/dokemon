@@ -26,3 +26,6 @@ make-agent.sh
 # App Binaries in root directory
 /agent
 /server
+
+# env secret 🤪
+.env

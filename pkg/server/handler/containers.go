@@ -40,7 +40,7 @@ func (h *Handler) GetContainerList(c echo.Context) error {
 
 	if err != nil {
 		return unprocessableEntity(c, err)
-	}	
+	}
 
 	return ok(c, res)
 }
@@ -53,7 +53,7 @@ func (h *Handler) StartContainer(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
 	}
 
-	m :=  dockerapi.DockerContainerStart{}
+	m := dockerapi.DockerContainerStart{}
 	r := &dockerContainerStartRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
@@ -80,7 +80,7 @@ func (h *Handler) StopContainer(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
 	}
 
-	m :=  dockerapi.DockerContainerStop{}
+	m := dockerapi.DockerContainerStop{}
 	r := &dockerContainerStopRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
@@ -107,7 +107,7 @@ func (h *Handler) RestartContainer(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
 	}
 
-	m :=  dockerapi.DockerContainerRestart{}
+	m := dockerapi.DockerContainerRestart{}
 	r := &dockerContainerRestartRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
@@ -134,7 +134,7 @@ func (h *Handler) RemoveContainer(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
 	}
 
-	m :=  dockerapi.DockerContainerRemove{}
+	m := dockerapi.DockerContainerRemove{}
 	r := &dockerContainerRemoveRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)

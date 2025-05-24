@@ -28,8 +28,8 @@ func (h *Handler) HandleWebSocket(c echo.Context) error {
 	switch messageType {
 	case "ConnectMessage":
 		handleConnect(h, ws, messageString)
-	 case "TaskSessionMessage":
-	 	handleTaskSession(h, ws, messageString)
+	case "TaskSessionMessage":
+		handleTaskSession(h, ws, messageString)
 	default:
 		ws.Close()
 		return errors.New("invalid message")
@@ -64,12 +64,12 @@ func handleConnect(h *Handler, ws *websocket.Conn, messageString string) {
 
 	connectionClosed := make(chan bool)
 
-	go func ()  {
+	go func() {
 		for {
 			_, err := messages.Receive[messages.Ping](ws)
 			if err != nil {
 				log.Info().Uint("nodeId", token.NodeId).Msg("Agent disconnected")
-				err := h.nodeStore.UpdateLastPing(token.NodeId, time.Now().Add(-2 * time.Minute))
+				err := h.nodeStore.UpdateLastPing(token.NodeId, time.Now().Add(-2*time.Minute))
 				if err != nil {
 					log.Error().Err(err).Msg("Error while updating ping time after agent disconnected")
 				}
@@ -81,7 +81,7 @@ func handleConnect(h *Handler, ws *websocket.Conn, messageString string) {
 					log.Error().Err(err).Msg("Error while updating ping time")
 				}
 			}
-		}			
+		}
 	}()
 
 	nodeId := token.NodeId
@@ -90,12 +90,12 @@ func handleConnect(h *Handler, ws *websocket.Conn, messageString string) {
 		messages.TaskQueue[nodeId] = make(chan messages.TaskQueuedMessage)
 	}
 
-	outer:
-	for  {
+outer:
+	for {
 		select {
 		case <-connectionClosed:
 			break outer
-		case queuedTask := <- messages.TaskQueue[nodeId]:
+		case queuedTask := <-messages.TaskQueue[nodeId]:
 			log.Debug().Str("taskId", queuedTask.TaskId).Msg("Sending task")
 			err := messages.Send[messages.TaskQueuedMessage](ws, queuedTask)
 			if err != nil {
@@ -108,7 +108,7 @@ func handleConnect(h *Handler, ws *websocket.Conn, messageString string) {
 
 func handleTaskSession(h *Handler, wsAgent *websocket.Conn, messageString string) {
 	defer wsAgent.Close()
-	
+
 	tsm, _ := messages.Parse[messages.TaskSessionMessage](messageString)
 
 	_, ok := validateConnection(h, wsAgent, tsm.ConnectionToken)
@@ -135,7 +135,7 @@ func handleTaskSession(h *Handler, wsAgent *websocket.Conn, messageString string
 				m, _ := messages.Parse[messages.TaskStatusMessage](messageString)
 				if strings.HasPrefix(m.Status, "Completed") {
 					messages.TaskResponses[tsm.TaskId] <- messageString
-					return	
+					return
 				}
 			default:
 				log.Error().Str("messageType", messageType).Msg("Unexpected message type received from agent in Task Session")
@@ -148,7 +148,7 @@ func handleTaskSession(h *Handler, wsAgent *websocket.Conn, messageString string
 		var taskStatusMessage messages.TaskStatusMessage
 
 		browseClosedSession := false
-		go func ()  {
+		go func() {
 			// Read from browser and send to agent
 			for {
 				mt, dat, err := wsBrowser.ReadMessage()
@@ -180,11 +180,11 @@ func handleTaskSession(h *Handler, wsAgent *websocket.Conn, messageString string
 		}()
 
 		// Read from agent and send to browser
-		outer:
+	outer:
 		for {
 			mt, dat, err := wsAgent.ReadMessage()
 			if err != nil {
-				if browseClosedSession  {
+				if browseClosedSession {
 					log.Debug().Err(err).Msg("Browser closed connection")
 				}
 				if err == io.EOF {
@@ -192,7 +192,7 @@ func handleTaskSession(h *Handler, wsAgent *websocket.Conn, messageString string
 					taskStatusMessage = messages.TaskStatusMessage{Status: "CompletedWithSuccess", Result: &message}
 					break outer
 				}
-				
+
 				log.Debug().Err(err).Msg("Error while reading streaming message from agent")
 				message := err.Error()
 				taskStatusMessage = messages.TaskStatusMessage{Status: "CompletedWithFailure", Result: &message}

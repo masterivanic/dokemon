@@ -13,7 +13,8 @@ func handleDockerNetworkList(c *websocket.Conn, messageString string) {
 	if err != nil {
 		err := completedWithFailure(c, "Error parsing request message")
 		if err != nil {
-			log.Debug().Err(err).Msg("Error sending message to client")		}
+			log.Debug().Err(err).Msg("Error sending message to client")
+		}
 		return
 	}
 
@@ -21,7 +22,8 @@ func handleDockerNetworkList(c *websocket.Conn, messageString string) {
 	if err != nil {
 		err := completedWithFailure(c, err.Error())
 		if err != nil {
-			log.Debug().Err(err).Msg("Error sending message to client")		}
+			log.Debug().Err(err).Msg("Error sending message to client")
+		}
 		return
 	}
 

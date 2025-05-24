@@ -72,10 +72,10 @@ func ComposeList(req *DockerComposeList) (*DockerComposeListResponse, error) {
 	items := make([]ComposeItem, len(itemsInternal))
 	for i, itemInternal := range itemsInternal {
 		items[i] = ComposeItem{
-			Name: itemInternal.Name,
-			Status: itemInternal.Status,
+			Name:        itemInternal.Name,
+			Status:      itemInternal.Status,
 			ConfigFiles: itemInternal.ConfigFiles,
-			Stale: composeGetStaleStatus(itemInternal.Name),
+			Stale:       composeGetStaleStatus(itemInternal.Name),
 		}
 	}
 
@@ -90,7 +90,7 @@ func ComposeGet(req *DockerComposeGet) (*ComposeItem, error) {
 	}
 
 	var ret ComposeItem
-	idx := slices.IndexFunc(l.Items, func (item ComposeItem) bool { return item.Name == req.ProjectName })
+	idx := slices.IndexFunc(l.Items, func(item ComposeItem) bool { return item.Name == req.ProjectName })
 	if idx != -1 {
 		ret = l.Items[idx]
 	} else {
@@ -111,7 +111,7 @@ func ComposeContainerList(req *DockerComposeContainerList) (*DockerComposeContai
 	}
 
 	var items []ComposeContainer
-	
+
 	scanner := bufio.NewScanner(&outb)
 	for scanner.Scan() {
 		item := ComposeContainerInternal{}
@@ -124,16 +124,16 @@ func ComposeContainerList(req *DockerComposeContainerList) (*DockerComposeContai
 			stale = StaleStatusProcessing
 		}
 		items = append(items, ComposeContainer{
-			Id: item.Id,
-			Name: item.Name,
-			Image: item.Image,
+			Id:      item.Id,
+			Name:    item.Name,
+			Image:   item.Image,
 			Service: item.Service,
-			Status: item.Status,
-			State: item.State,
-			Ports: item.Ports,
-			Stale: stale,
+			Status:  item.Status,
+			State:   item.State,
+			Ports:   item.Ports,
+			Stale:   stale,
 		})
-    }
+	}
 
 	sort.Slice(items, func(i, j int) bool {
 		return items[i].Name < items[j].Name
@@ -143,6 +143,7 @@ func ComposeContainerList(req *DockerComposeContainerList) (*DockerComposeContai
 }
 
 var composeLogsSessionId uint = 0
+
 func ComposeLogs(req *DockerComposeLogs, ws *websocket.Conn) error {
 	composeLogsSessionId += 1
 	sessionId := composeLogsSessionId
@@ -171,25 +172,25 @@ func ComposeLogs(req *DockerComposeLogs, ws *websocket.Conn) error {
 
 	b := make([]byte, 1024)
 	for {
-			n, err := f.Read(b)
-			if clientClosedConnection {
-				log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs session ended as client closed connection")
-				break
+		n, err := f.Read(b)
+		if clientClosedConnection {
+			log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs session ended as client closed connection")
+			break
+		}
+		if n == 0 || err != nil {
+			log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs read error")
+			break
+		}
+		mu.Lock()
+		err = ws.WriteMessage(websocket.BinaryMessage, b[:n])
+		if err != nil {
+			if err.Error() != "websocket: close sent" {
+				log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs write error")
 			}
-			if n == 0 || err != nil {
-				log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs read error")
-				break
-			}
-			mu.Lock()
-			err = ws.WriteMessage(websocket.BinaryMessage, b[:n])
-			if err != nil {
-				if err.Error() != "websocket: close sent" {
-					log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs write error")
-				}
-				log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs session ended as client closed connection")
-				return err
-			}
-			mu.Unlock()
+			log.Debug().Err(err).Int("sessionId", int(sessionId)).Msg("Compose logs session ended as client closed connection")
+			return err
+		}
+		mu.Unlock()
 	}
 
 	return nil
@@ -209,7 +210,7 @@ func createTempComposeFile(projectName string, definition string, variables map[
 		return "", "", "", err
 	}
 
-	_ , err = composeFile.WriteString(definition)
+	_, err = composeFile.WriteString(definition)
 	if err != nil {
 		log.Error().Err(err).Msg("Error while writing to temp compose file")
 		return "", "", "", err
@@ -221,10 +222,10 @@ func createTempComposeFile(projectName string, definition string, variables map[
 		log.Error().Err(err).Msg("Error while creating temp compose file")
 		return "", "", "", err
 	}
-	
+
 	envVars := toEnvFormat(variables)
 	for _, v := range envVars {
-		_ , err = envFile.WriteString(v + "\r\n")
+		_, err = envFile.WriteString(v + "\r\n")
 		if err != nil {
 			log.Error().Err(err).Msg("Error while writing to temp .env file")
 			return "", "", "", err
@@ -234,7 +235,7 @@ func createTempComposeFile(projectName string, definition string, variables map[
 	return dir, composeFilename, envFilename, nil
 }
 
-func toEnvFormat(variables map[string]store.VariableValue) ([]string) {
+func toEnvFormat(variables map[string]store.VariableValue) []string {
 	var ret = make([]string, len(variables))
 
 	i := 0
@@ -274,9 +275,9 @@ func performComposeAction(action string, projectName string, definition string, 
 	if err != nil {
 		return err
 	}
-	defer func() { 
+	defer func() {
 		log.Debug().Str("fileName", composefile).Msg("Deleting temporary compose file and .env file")
-		os.RemoveAll(dir) 
+		os.RemoveAll(dir)
 	}()
 
 	var cmd *exec.Cmd
@@ -291,7 +292,7 @@ func performComposeAction(action string, projectName string, definition string, 
 		panic(fmt.Errorf("unknown compose action %s", action))
 	}
 	logVars(cmd, variables, ws, printVars)
-	
+
 	ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("\n*** STARTING ACTION: %s ***\n\n", action)))
 	f, err := pty.Start(cmd)
 	if err != nil {
@@ -312,8 +313,8 @@ func performComposeAction(action string, projectName string, definition string, 
 			break
 		}
 		_ = ws.WriteMessage(websocket.BinaryMessage, b[:n])
-		// We ignore websocket write errors. This is because 
-		// we don't want to terminate the command execution in between 
+		// We ignore websocket write errors. This is because
+		// we don't want to terminate the command execution in between
 		// causing unexpected state
 	}
 

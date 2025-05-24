@@ -7,27 +7,27 @@ import (
 )
 
 type nodeResponse struct {
-	Id   			uint	`json:"id"`
-	Name 			string 	`json:"name"`
-	EnvironmentId 	*uint 	`json:"environmentId"`
+	Id            uint   `json:"id"`
+	Name          string `json:"name"`
+	EnvironmentId *uint  `json:"environmentId"`
 }
 
 func newNodeResponse(m *model.Node) *nodeResponse {
 	return &nodeResponse{
-		Id: m.Id,
-		Name: m.Name,
+		Id:            m.Id,
+		Name:          m.Name,
 		EnvironmentId: m.EnvironmentId,
 	}
 }
 
 type nodeHead struct {
-	Id   				uint	`json:"id"`
-	Name 				string 	`json:"name"`
-	AgentVersion		string	`json:"agentVersion"`
-	Environment 		string 	`json:"environment"`
-	Online 				bool 	`json:"online"`
-	Registered 			bool 	`json:"registered"`
-	ContainerBaseUrl 	*string `json:"containerBaseUrl"`
+	Id               uint    `json:"id"`
+	Name             string  `json:"name"`
+	AgentVersion     string  `json:"agentVersion"`
+	Environment      string  `json:"environment"`
+	Online           bool    `json:"online"`
+	Registered       bool    `json:"registered"`
+	ContainerBaseUrl *string `json:"containerBaseUrl"`
 }
 
 func newNodeHead(m *model.Node) nodeHead {
@@ -41,12 +41,12 @@ func newNodeHead(m *model.Node) nodeHead {
 		environment = m.Environment.Name
 	}
 	return nodeHead{
-		Id: m.Id,
-		Name: m.Name,
-		AgentVersion: m.AgentVersion,
-		Environment: environment,
-		Online: online,
-		Registered: m.LastPing != nil,
+		Id:               m.Id,
+		Name:             m.Name,
+		AgentVersion:     m.AgentVersion,
+		Environment:      environment,
+		Online:           online,
+		Registered:       m.LastPing != nil,
 		ContainerBaseUrl: m.ContainerBaseUrl,
 	}
 }
@@ -60,7 +60,7 @@ func newNodeHeadList(rows []model.Node) []nodeHead {
 }
 
 type agentRegistrationTokenResponse struct {
-	Token 		string  `json:"token"`
+	Token string `json:"token"`
 }
 
 func newAgentRegistrationTokenResponse(token string) *agentRegistrationTokenResponse {

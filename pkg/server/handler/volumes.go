@@ -17,7 +17,7 @@ func (h *Handler) GetVolumeList(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
 	}
-	
+
 	req := dockerapi.DockerVolumeList{}
 
 	var res *dockerapi.DockerVolumeListResponse
@@ -29,7 +29,7 @@ func (h *Handler) GetVolumeList(c echo.Context) error {
 
 	if err != nil {
 		return unprocessableEntity(c, err)
-	}	
+	}
 
 	return ok(c, res)
 }

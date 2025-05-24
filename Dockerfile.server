@@ -103,11 +103,14 @@ RUN mkdir -p /data
 # Final stage
 FROM gcr.io/distroless/base-debian11
 
+ARG DOKEMON_PORT
+ENV DOKEMON_PORT=$DOKEMON_PORT
+
 WORKDIR /
 COPY --from=build-stage /dokemon /dokemon
 COPY --from=build-stage /data /data
 COPY --from=build-stage /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=build-stage /usr/local/bin/docker-compose /usr/local/bin/docker-compose
 
-EXPOSE 9090
+EXPOSE ${DOKEMON_PORT}
 ENTRYPOINT ["/dokemon"]

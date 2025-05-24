@@ -6,10 +6,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 type settingUpdateRequest struct {
-	Id        string   `json:"id" validate:"required,max=100"`
-	Value     string   `json:"value"`
+	Id    string `json:"id" validate:"required,max=100"`
+	Value string `json:"value"`
 }
 
 func (r *settingUpdateRequest) bind(c echo.Context, m *model.Setting) error {

@@ -5,20 +5,20 @@ import "github.com/dokemon-ng/dokemon/pkg/server/store"
 // Containers
 
 type Port struct {
-	IP string `json:"ip"`
-	PrivatePort uint16 `json:"privatePort"`	// Container
-	PublicPort uint16 `json:"publicPort"`	// Host
-	Type string `json:"type"`
+	IP          string `json:"ip"`
+	PrivatePort uint16 `json:"privatePort"` // Container
+	PublicPort  uint16 `json:"publicPort"`  // Host
+	Type        string `json:"type"`
 }
 
 type Container struct {
-	Id     	string `json:"id"`
-	Name   	string `json:"name"`
-	Image   string `json:"image"`
-	Status 	string `json:"status"`
-	State  	string `json:"state"`
-	Ports  	[]Port `json:"ports"`
-	Stale 	string `json:"stale"`	// yes, no, error, processing
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Image  string `json:"image"`
+	Status string `json:"status"`
+	State  string `json:"state"`
+	Ports  []Port `json:"ports"`
+	Stale  string `json:"stale"` // yes, no, error, processing
 }
 
 type DockerContainerList struct {
@@ -57,13 +57,13 @@ type DockerContainerTerminal struct {
 // Images
 
 type Image struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	Tag     string `json:"tag"`
-	Size    int64  `json:"size"`
-	Dangling bool  `json:"dangling"`
-	Created int64  `json:"created"`
-	InUse   bool   `json:"inUse"`
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Tag      string `json:"tag"`
+	Size     int64  `json:"size"`
+	Dangling bool   `json:"dangling"`
+	Created  int64  `json:"created"`
+	InUse    bool   `json:"inUse"`
 }
 
 type DockerImageList struct {
@@ -95,16 +95,16 @@ type DockerImagesPruneDeletedItem struct {
 
 type DockerImagesPruneResponse struct {
 	ImagesDeleted  []DockerImagesPruneDeletedItem `json:"imagesDeleted"`
-	SpaceReclaimed uint64                        `json:"spaceReclaimed"`
+	SpaceReclaimed uint64                         `json:"spaceReclaimed"`
 }
 
 type DockerVolumeList struct {
 }
 
 type Volume struct {
-	Driver 	string `json:"driver"`
-	Name 	string `json:"name"`
-	InUse   bool   `json:"inUse"`
+	Driver string `json:"driver"`
+	Name   string `json:"name"`
+	InUse  bool   `json:"inUse"`
 }
 
 type DockerVolumeListResponse struct {
@@ -112,7 +112,7 @@ type DockerVolumeListResponse struct {
 }
 
 type DockerVolumeRemove struct {
-	Name    string `json:"name"`
+	Name string `json:"name"`
 }
 
 type DockerVolumesPrune struct {
@@ -120,19 +120,19 @@ type DockerVolumesPrune struct {
 }
 
 type DockerVolumesPruneResponse struct {
-	VolumesDeleted  []string `json:"volumesDeleted"`
-	SpaceReclaimed uint64    `json:"spaceReclaimed"`
+	VolumesDeleted []string `json:"volumesDeleted"`
+	SpaceReclaimed uint64   `json:"spaceReclaimed"`
 }
 
 type DockerNetworkList struct {
 }
 
 type Network struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
 	Driver string `json:"driver"`
-	Scope string `json:"scope"`
-	InUse   bool   `json:"inUse"`
+	Scope  string `json:"scope"`
+	InUse  bool   `json:"inUse"`
 }
 
 type DockerNetworkListResponse struct {
@@ -140,14 +140,14 @@ type DockerNetworkListResponse struct {
 }
 
 type DockerNetworkRemove struct {
-	Id    string `json:"id"`
+	Id string `json:"id"`
 }
 
 type DockerNetworksPrune struct {
 }
 
 type DockerNetworksPruneResponse struct {
-	NetworksDeleted  []string `json:"networksDeleted"`
+	NetworksDeleted []string `json:"networksDeleted"`
 }
 
 type DockerComposeList struct {
@@ -158,16 +158,16 @@ type DockerComposeGet struct {
 }
 
 type ComposeItemInternal struct {
-	Name string `json:"Name"`
-	Status string `json:"Status"`
+	Name        string `json:"Name"`
+	Status      string `json:"Status"`
 	ConfigFiles string `json:"ConfigFiles"`
 }
 
 type ComposeItem struct {
-	Name string `json:"name"`
-	Status string `json:"status"`
+	Name        string `json:"name"`
+	Status      string `json:"status"`
 	ConfigFiles string `json:"configFiles"`
-	Stale string `json:"stale"`
+	Stale       string `json:"stale"`
 }
 
 type DockerComposeListResponse struct {
@@ -179,24 +179,24 @@ type DockerComposeContainerList struct {
 }
 
 type ComposeContainerInternal struct {
-	Id string `json:"ID"`
-	Name string `json:"Name"`
-	Image string `json:"Image"`
+	Id      string `json:"ID"`
+	Name    string `json:"Name"`
+	Image   string `json:"Image"`
 	Service string `json:"Service"`
-	Status string `json:"Status"`
-	State string `json:"State"`
-	Ports string `json:"Ports"`
+	Status  string `json:"Status"`
+	State   string `json:"State"`
+	Ports   string `json:"Ports"`
 }
 
 type ComposeContainer struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Image string `json:"image"`
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Image   string `json:"image"`
 	Service string `json:"service"`
-	Status string `json:"status"`
-	State string `json:"state"`
-	Ports string `json:"ports"`
-	Stale string `json:"stale"`
+	Status  string `json:"status"`
+	State   string `json:"state"`
+	Ports   string `json:"ports"`
+	Stale   string `json:"stale"`
 }
 
 type DockerComposeContainerListResponse struct {
@@ -208,21 +208,21 @@ type DockerComposeLogs struct {
 }
 
 type DockerComposeDeploy struct {
-	ProjectName string `json:"projectName"`
-	Definition string `json:"definition"`
-	Variables map[string]store.VariableValue `json:"variables"`
+	ProjectName string                         `json:"projectName"`
+	Definition  string                         `json:"definition"`
+	Variables   map[string]store.VariableValue `json:"variables"`
 }
 
 type DockerComposePull struct {
-	ProjectName string `json:"projectName"`
-	Definition string `json:"definition"`
-	Variables map[string]store.VariableValue `json:"variables"`
+	ProjectName string                         `json:"projectName"`
+	Definition  string                         `json:"definition"`
+	Variables   map[string]store.VariableValue `json:"variables"`
 }
 
 type DockerComposeUp struct {
-	ProjectName string `json:"projectName"`
-	Definition string `json:"definition"`
-	Variables map[string]store.VariableValue `json:"variables"`
+	ProjectName string                         `json:"projectName"`
+	Definition  string                         `json:"definition"`
+	Variables   map[string]store.VariableValue `json:"variables"`
 }
 
 type DockerComposeDown struct {
@@ -239,12 +239,12 @@ type DockerComposeProjectUnique struct {
 
 type DockerComposeProjectCreate struct {
 	ProjectName string `json:"projectName"`
-	Definition string `json:"definition"`
+	Definition  string `json:"definition"`
 }
 
 type DockerComposeProjectUpdate struct {
 	ProjectName string `json:"projectName"`
-	Definition string `json:"definition"`
+	Definition  string `json:"definition"`
 }
 
 type DockerComposeProjectDelete struct {
@@ -257,5 +257,5 @@ type DockerComposeProjectDefinition struct {
 
 type DockerComposeProjectDefinitionResponse struct {
 	ProjectName string `json:"projectName"`
-	Definition string `json:"definition"`
+	Definition  string `json:"definition"`
 }

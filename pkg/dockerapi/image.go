@@ -33,7 +33,7 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 		name := "<none>"
 		tag := "<none>"
 		inUse := slices.ContainsFunc(dcontainers, func(c types.Container) bool { return c.ImageID == item.ID })
-		untagged := len(item.RepoTags) == 0 
+		untagged := len(item.RepoTags) == 0
 
 		if untagged {
 			if len(item.RepoDigests) >= 1 {
@@ -48,24 +48,24 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 		}
 
 		images[i] = Image{
-			Id:			item.ID,
-			Name: 		name,
-			Tag: 		tag,
-			Size:   	item.Size,
-			Dangling: 	untagged && !inUse,
-			Created: 	item.Created,
-			InUse: 		inUse,
+			Id:       item.ID,
+			Name:     name,
+			Tag:      tag,
+			Size:     item.Size,
+			Dangling: untagged && !inUse,
+			Created:  item.Created,
+			InUse:    inUse,
 		}
 	}
 
 	sort.Slice(images, func(i, j int) bool {
 		return images[i].Name < images[j].Name
-	  })
+	})
 
 	return &DockerImageListResponse{Items: images}, nil
 }
 
-func ImageRemove(req *DockerImageRemove) (error) {
+func ImageRemove(req *DockerImageRemove) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err

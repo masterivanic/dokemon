@@ -7,8 +7,8 @@ import (
 )
 
 type userCreateRequest struct {
-	UserName    string `json:"userName" validate:"max=255"`
-	Password 	string `json:"password" validate:"min=8,max=255"`
+	UserName string `json:"userName" validate:"max=255"`
+	Password string `json:"password" validate:"min=8,max=255"`
 }
 
 func (r *userCreateRequest) bind(c echo.Context, m *model.User) error {
@@ -27,8 +27,8 @@ func (r *userCreateRequest) bind(c echo.Context, m *model.User) error {
 }
 
 type userLoginRequest struct {
-	UserName    string `json:"userName" validate:"max=255"`
-	Password 	string `json:"password" validate:"max=255"`
+	UserName string `json:"userName" validate:"max=255"`
+	Password string `json:"password" validate:"max=255"`
 }
 
 func (r *userLoginRequest) bind(c echo.Context, m *model.User) error {
@@ -47,8 +47,8 @@ func (r *userLoginRequest) bind(c echo.Context, m *model.User) error {
 }
 
 type userUpdateRequest struct {
-	Id           uint   `json:"id" validate:"required"`
-	UserName     string `json:"userName" validate:"max=255"`
+	Id       uint   `json:"id" validate:"required"`
+	UserName string `json:"userName" validate:"max=255"`
 }
 
 func (r *userUpdateRequest) bind(c echo.Context, m *model.User) error {
@@ -65,7 +65,6 @@ func (r *userUpdateRequest) bind(c echo.Context, m *model.User) error {
 
 	return nil
 }
-
 
 type userChangePasswordRequest struct {
 	CurrentPassword string `json:"currentPassword" validate:"max=255"`

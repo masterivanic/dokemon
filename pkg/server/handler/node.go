@@ -42,15 +42,15 @@ func (h *Handler) UpdateNode(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.nodeStore.GetById(uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "Node")
-	}	
+	}
 
 	r := &nodeUpdateRequest{Id: uint(id)}
 	if err := r.bind(c, m); err != nil {
@@ -78,12 +78,12 @@ func (h *Handler) UpdateNodeContainerBaseUrl(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.nodeStore.GetById(uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "Node")
 	}
@@ -92,7 +92,7 @@ func (h *Handler) UpdateNodeContainerBaseUrl(c echo.Context) error {
 	if err := r.bind(c, m); err != nil {
 		return unprocessableEntity(c, err)
 	}
-	
+
 	if err := h.nodeStore.UpdateContainerBaseUrl(uint(id), &r.ContainerBaseUrl); err != nil {
 		panic(err)
 	}
@@ -247,12 +247,12 @@ func (h *Handler) GenerateRegistrationToken(c echo.Context) error {
 	if id == 1 {
 		return unprocessableEntity(c, errors.New("Token cannot be generated for this node"))
 	}
-	
+
 	m, err := h.nodeStore.GetById(uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "Node")
 	}

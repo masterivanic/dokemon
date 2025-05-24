@@ -7,8 +7,8 @@ import (
 )
 
 type variableCreateRequest struct {
-	Name      string `json:"name" validate:"required,max=100"`
-	IsSecret  bool   `json:"isSecret"`
+	Name     string `json:"name" validate:"required,max=100"`
+	IsSecret bool   `json:"isSecret"`
 }
 
 func (r *variableCreateRequest) bind(c echo.Context, m *model.Variable) error {
@@ -27,9 +27,9 @@ func (r *variableCreateRequest) bind(c echo.Context, m *model.Variable) error {
 }
 
 type variableUpdateRequest struct {
-	Id        uint   `json:"id" validate:"required"`
-	Name      string `json:"name" validate:"required,max=100"`
-	IsSecret  bool   `json:"isSecret"`
+	Id       uint   `json:"id" validate:"required"`
+	Name     string `json:"name" validate:"required,max=100"`
+	IsSecret bool   `json:"isSecret"`
 }
 
 func (r *variableUpdateRequest) bind(c echo.Context, m *model.Variable) error {

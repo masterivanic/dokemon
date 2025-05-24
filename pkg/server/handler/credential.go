@@ -37,15 +37,15 @@ func (h *Handler) UpdateCredentialDetails(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.credentialStore.GetById(uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "Credential")
-	}	
+	}
 
 	r := &credentialUpdateDetailsRequest{Id: uint(id)}
 	if err := r.bind(c, m); err != nil {
@@ -73,15 +73,15 @@ func (h *Handler) UpdateCredentialSecret(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.credentialStore.GetById(uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "Credential")
-	}	
+	}
 
 	r := &credentialUpdateSecretRequest{Id: uint(id)}
 	if err := r.bind(c, m); err != nil {

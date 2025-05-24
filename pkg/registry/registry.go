@@ -21,7 +21,7 @@ func GetImageDigest(imageName string) (string, error) {
 	}
 
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 30 * time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
 	digest, err := docker.GetDigest(ctx, &types.SystemContext{}, ref)

@@ -29,13 +29,13 @@ import (
 )
 
 type Server struct {
-	Echo *echo.Echo
-	handler *handler.Handler
-	dataPath string
+	Echo       *echo.Echo
+	handler    *handler.Handler
+	dataPath   string
 	sslEnabled bool
 }
 
-func NewServer(dbConnectionString string, dataPath string, logLevel string, sslEnabled string, stalenessCheck string) (*Server) {
+func NewServer(dbConnectionString string, dataPath string, logLevel string, sslEnabled string, stalenessCheck string) *Server {
 	s := Server{}
 
 	setLogLevel(logLevel)
@@ -49,7 +49,7 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 	if dbConnectionString == "" {
 		dbConnectionString = dataPath + "/db"
 	}
-	
+
 	s.sslEnabled = sslEnabled == "1"
 
 	composeProjectsPath := path.Join(dataPath, "/compose")
@@ -75,7 +75,7 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 		store.NewSqlVariableStore(db),
 		store.NewSqlVariableValueStore(db),
 		store.NewLocalFileSystemComposeLibraryStore(db, composeProjectsPath),
-		)
+	)
 
 	err = sqlNodeComposeProjectStore.UpdateOldVersionRecords()
 	if err != nil {
@@ -94,7 +94,7 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 	s.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowHeaders: []string{"*"},
-		AllowMethods: []string{"*"}, 
+		AllowMethods: []string{"*"},
 	}))
 	h.Register(s.Echo)
 
@@ -109,8 +109,8 @@ func initEncryption(dataPath string) {
 	keyFile := dataPath + "/key"
 	if _, err := os.Stat(keyFile); errors.Is(err, os.ErrNotExist) {
 		log.Info().Msg("key file does not exist. Generating new key.")
- 		f, err := os.Create(keyFile)
-		if(err != nil){
+		f, err := os.Create(keyFile)
+		if err != nil {
 			log.Fatal().Err(err).Msg("Error while creating key file")
 		}
 		key, err := ske.GenerateRandomKey()
@@ -118,7 +118,7 @@ func initEncryption(dataPath string) {
 			log.Fatal().Err(err).Msg("Error while generating random key")
 		}
 		f.WriteString(key)
- 	}
+	}
 
 	keyBytes, err := os.ReadFile(keyFile)
 	if err != nil {
@@ -164,10 +164,6 @@ func initDatabase(dbConnectionString string) (*gorm.DB, error) {
 }
 
 func (s *Server) Run(addr string) {
-	if addr == "" {
-		addr = ":9090"
-	}
-
 	var err error
 	if s.sslEnabled {
 		certsDirPath := path.Join(s.dataPath, "certs")
@@ -193,6 +189,7 @@ func (s *Server) authMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		cc, err := requestutil.GetAuthCookie(c)
 		if err != nil {
+			log.Warn().Err(err).Msg("Invalid or missing auth cookie")
 			return c.NoContent(http.StatusUnauthorized)
 		}
 

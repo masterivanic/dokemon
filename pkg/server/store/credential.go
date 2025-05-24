@@ -82,7 +82,7 @@ func (s *SqlCredentialStore) DeleteById(id uint) error {
 
 func (s *SqlCredentialStore) GetList(pageNo, pageSize uint) ([]model.Credential, int64, error) {
 	var (
-		l []model.Credential
+		l     []model.Credential
 		count int64
 	)
 
@@ -99,7 +99,7 @@ func (s *SqlCredentialStore) IsUniqueName(name string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlCredentialStore) IsUniqueNameExcludeItself(name string, id uint) (bool, error) {
@@ -109,5 +109,5 @@ func (s *SqlCredentialStore) IsUniqueNameExcludeItself(name string, id uint) (bo
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
