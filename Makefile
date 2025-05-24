@@ -31,6 +31,11 @@ run-traefik-compose:
 	sudo docker compose --env-file .env -f compose/dokemon-traefik-compose-dev.yml build \
 	&& sudo docker compose --env-file .env -f compose/dokemon-traefik-compose-dev.yml up -d
 
+run-website:
+    sudo docker compose --env-file .env -f compose/dokemon-website.yml build \
+	&& sudo docker compose --env-file .env -f compose/dokemon-website.yml up -d
+
+
 run-agent: ## Build and run the Docker agent locally
 	@rm -f ./agent
 
