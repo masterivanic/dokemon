@@ -29,9 +29,9 @@ func (r *fileSystemComposeProjectCreateRequest) bind(c echo.Context, m *model.Fi
 }
 
 type fileSystemComposeProjectUpdateRequest struct {
-	ProjectName string `json:"projectName" validate:"required,max=100"`
+	ProjectName    string `json:"projectName" validate:"required,max=100"`
 	NewProjectName string `json:"newProjectName" validate:"required,max=100"`
-	Definition  string `json:"definition"`
+	Definition     string `json:"definition"`
 }
 
 func (r *fileSystemComposeProjectUpdateRequest) bind(c echo.Context, m *model.FileSystemComposeLibraryItemUpdate) error {
@@ -53,9 +53,9 @@ func (r *fileSystemComposeProjectUpdateRequest) bind(c echo.Context, m *model.Fi
 // GitHub
 
 type githubComposeProjectCreateRequest struct {
-	ProjectName 	string 	`json:"projectName" validate:"required,max=100"`
-	CredentialId  	*uint 	`json:"credentialId"`
-	Url 			string 	`json:"url" validate:"required,max=255"`
+	ProjectName  string `json:"projectName" validate:"required,max=100"`
+	CredentialId *uint  `json:"credentialId"`
+	Url          string `json:"url" validate:"required,max=255"`
 }
 
 func (r *githubComposeProjectCreateRequest) bind(c echo.Context, m *model.ComposeLibraryItem) error {
@@ -76,10 +76,10 @@ func (r *githubComposeProjectCreateRequest) bind(c echo.Context, m *model.Compos
 }
 
 type githubComposeProjectUpdateRequest struct {
-	Id        		uint     `json:"id" validate:"required"`
-	ProjectName 	string 	`json:"projectName" validate:"required,max=100"`
-	CredentialId  	*uint 	`json:"credentialId"`
-	Url 			string 	`json:"url" validate:"required,max=255"`
+	Id           uint   `json:"id" validate:"required"`
+	ProjectName  string `json:"projectName" validate:"required,max=100"`
+	CredentialId *uint  `json:"credentialId"`
+	Url          string `json:"url" validate:"required,max=255"`
 }
 
 func (r *githubComposeProjectUpdateRequest) bind(c echo.Context, m *model.ComposeLibraryItem) error {

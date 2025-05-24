@@ -2,6 +2,7 @@ package dockerapi
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -12,11 +13,12 @@ import (
 )
 
 var containerStaleStatus map[string]string
+
 const (
 	StaleStatusProcessing = "processing"
-	StaleStatusYes = "yes"
-	StaleStatusNo = "no"
-	StaleStatusError = "error"
+	StaleStatusYes        = "yes"
+	StaleStatusNo         = "no"
+	StaleStatusError      = "error"
 )
 
 func isContainerImageStale(imageAndTag string, imageId string, cli *client.Client) (bool, error) {
@@ -27,12 +29,19 @@ func isContainerImageStale(imageAndTag string, imageId string, cli *client.Clien
 
 	imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageId)
 	if err != nil {
-		return	false, err
+		return false, err
+	}
+	if len(imageInspect.RepoDigests) == 0 {
+		return false, fmt.Errorf("no RepoDigests found for image ID %s (image: %s)", imageId, imageAndTag)
 	}
 
 	currentDigest := imageInspect.RepoDigests[0]
 	if strings.Contains(currentDigest, "@") {
-		currentDigest = strings.Split(currentDigest, "@")[1]
+		currentDigestParts := strings.Split(currentDigest, "@")
+		if len(currentDigestParts) != 2 {
+			return false, fmt.Errorf("invalid RepoDigest format: %s", currentDigest)
+		}
+		currentDigest = currentDigestParts[1]
 	}
 
 	isStale := currentDigest != latestDigest
@@ -51,7 +60,6 @@ func ContainerRefreshStaleStatus() error {
 	if containerStaleStatus == nil {
 		containerStaleStatus = make(map[string]string)
 	}
-
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
@@ -70,7 +78,12 @@ func ContainerRefreshStaleStatus() error {
 	}
 
 	for _, c := range dcontainers {
-		image := strings.Split(c.Image, "@")[0]
+		image := c.Image
+		if image == "" {
+			log.Warn().Str("containerId", c.ID).Msg("Skipping container with empty image name")
+			continue
+		}
+
 		stale := StaleStatusProcessing
 		isStale, err := isContainerImageStale(image, c.ImageID, cli)
 		if err != nil {
@@ -81,10 +94,10 @@ func ContainerRefreshStaleStatus() error {
 				stale = StaleStatusYes
 			} else {
 				stale = StaleStatusNo
-			}	
+			}
 		}
 		containerStaleStatus[c.ID] = stale
-		containerStaleStatus[c.ID[:12]] = stale	// docker compose -p PROJECT ps --format json returns 12 chars of ID. So need this.
+		containerStaleStatus[c.ID[:12]] = stale // Safe since Docker IDs are always >=12 chars
 	}
 
 	return nil

@@ -63,6 +63,6 @@ func normalizeTaggedDigestedNamed(named reference.Named) (reference.Named, error
 	if err != nil {
 		return named, err
 	}
-	
+
 	return newNamed, nil
 }

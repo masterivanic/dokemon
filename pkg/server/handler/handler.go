@@ -12,18 +12,18 @@ import (
 )
 
 type Handler struct {
-	composeProjectsPath string
-	composeLibraryStore store.ComposeLibraryStore
-	credentialStore store.CredentialStore
-	environmentStore store.EnvironmentStore
-	userStore store.UserStore
-	nodeStore store.NodeStore
-	nodeComposeProjectStore store.NodeComposeProjectStore
+	composeProjectsPath             string
+	composeLibraryStore             store.ComposeLibraryStore
+	credentialStore                 store.CredentialStore
+	environmentStore                store.EnvironmentStore
+	userStore                       store.UserStore
+	nodeStore                       store.NodeStore
+	nodeComposeProjectStore         store.NodeComposeProjectStore
 	nodeComposeProjectVariableStore store.NodeComposeProjectVariableStore
-	settingStore store.SettingStore
-	variableStore store.VariableStore
-	variableValueStore store.VariableValueStore
-	fileSystemComposeLibraryStore store.FileSystemComposeLibraryStore
+	settingStore                    store.SettingStore
+	variableStore                   store.VariableStore
+	variableValueStore              store.VariableValueStore
+	fileSystemComposeLibraryStore   store.FileSystemComposeLibraryStore
 }
 
 var (
@@ -43,21 +43,21 @@ func NewHandler(
 	variableStore store.VariableStore,
 	variableValueStore store.VariableValueStore,
 	fileSystemComposeLibraryStore store.FileSystemComposeLibraryStore,
-	) *Handler {
-		return &Handler{
-		composeProjectsPath: composeProjectsPath,
-		composeLibraryStore: composeLibraryStore,
-		credentialStore: credentialStore,
-		environmentStore: environmentStore,
-		userStore: userStore,
-		nodeStore: nodeStore,
-		nodeComposeProjectStore: nodeComposeProjectStore,
+) *Handler {
+	return &Handler{
+		composeProjectsPath:             composeProjectsPath,
+		composeLibraryStore:             composeLibraryStore,
+		credentialStore:                 credentialStore,
+		environmentStore:                environmentStore,
+		userStore:                       userStore,
+		nodeStore:                       nodeStore,
+		nodeComposeProjectStore:         nodeComposeProjectStore,
 		nodeComposeProjectVariableStore: nodeComposeProjectVariableStore,
-		settingStore: settingStore,
-		variableStore: variableStore,
-		variableValueStore: variableValueStore,
-		fileSystemComposeLibraryStore: fileSystemComposeLibraryStore,
-		}
+		settingStore:                    settingStore,
+		variableStore:                   variableStore,
+		variableValueStore:              variableValueStore,
+		fileSystemComposeLibraryStore:   fileSystemComposeLibraryStore,
+	}
 }
 
 func (h *Handler) Register(e *echo.Echo) {
@@ -65,7 +65,7 @@ func (h *Handler) Register(e *echo.Echo) {
 		return c.String(http.StatusOK, "OK")
 	})
 
-	e.GET("/ws", h.HandleWebSocket)	// This won't have versioning as we can't expect customers to update agents for new versions
+	e.GET("/ws", h.HandleWebSocket) // This won't have versioning as we can't expect customers to update agents for new versions
 
 	v1 := e.Group("/api/v1")
 
@@ -202,4 +202,3 @@ func (h *Handler) Register(e *echo.Echo) {
 	// React App
 	web.RegisterHandlers(e)
 }
-

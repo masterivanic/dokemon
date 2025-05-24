@@ -74,7 +74,7 @@ func (s *SqlUserStore) DeleteById(id uint) error {
 
 func (s *SqlUserStore) GetList(pageNo, pageSize uint) ([]model.User, int64, error) {
 	var (
-		l []model.User
+		l     []model.User
 		count int64
 	)
 
@@ -91,7 +91,7 @@ func (s *SqlUserStore) IsUniqueUserName(userName string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlUserStore) IsUniqueUserNameExcludeItself(userName string, id uint) (bool, error) {
@@ -101,7 +101,7 @@ func (s *SqlUserStore) IsUniqueUserNameExcludeItself(userName string, id uint) (
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlUserStore) IsUniqueEmail(email string) (bool, error) {
@@ -111,7 +111,7 @@ func (s *SqlUserStore) IsUniqueEmail(email string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlUserStore) IsUniqueEmailExcludeItself(email string, id uint) (bool, error) {
@@ -121,7 +121,7 @@ func (s *SqlUserStore) IsUniqueEmailExcludeItself(email string, id uint) (bool, 
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlUserStore) Count() (int64, error) {

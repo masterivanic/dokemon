@@ -41,19 +41,19 @@ func VolumeList(req *DockerVolumeList) (*DockerVolumeListResponse, error) {
 		_, inUse := usedVolumes[item.Name]
 		volumes[i] = Volume{
 			Driver: item.Driver,
-			Name: item.Name,
-			InUse: inUse,
+			Name:   item.Name,
+			InUse:  inUse,
 		}
 	}
 
 	sort.Slice(volumes, func(i, j int) bool {
 		return volumes[i].Name < volumes[j].Name
-	  })
+	})
 
 	return &DockerVolumeListResponse{Items: volumes}, nil
 }
 
-func VolumeRemove(req *DockerVolumeRemove) (error) {
+func VolumeRemove(req *DockerVolumeRemove) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err

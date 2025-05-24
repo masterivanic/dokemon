@@ -5,17 +5,17 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
 	"github.com/google/go-github/v57/github"
 	"github.com/labstack/echo/v4"
-	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
 	"github.com/rs/zerolog/log"
 )
 
 type gitHubUrlParts struct {
 	Owner string
-	Repo string
-	Ref string
-	Path string
+	Repo  string
+	Ref   string
+	Path  string
 }
 
 func getGitHubUrlParts(url string) (*gitHubUrlParts, error) {
@@ -77,7 +77,7 @@ func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
 		if err != nil {
 			return unprocessableEntity(c, errors.New("Credentials not found"))
 		}
-		
+
 		decryptedSecret, err = ske.Decrypt(credential.Secret)
 		if err != nil {
 			panic(err)

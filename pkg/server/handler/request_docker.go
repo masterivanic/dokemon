@@ -14,7 +14,7 @@ func (r *dockerContainerStartRequest) bind(c echo.Context, m *dockerapi.DockerCo
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (r *dockerContainerStopRequest) bind(c echo.Context, m *dockerapi.DockerCon
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (r *dockerContainerRestartRequest) bind(c echo.Context, m *dockerapi.Docker
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -58,15 +58,15 @@ func (r *dockerContainerRestartRequest) bind(c echo.Context, m *dockerapi.Docker
 }
 
 type dockerContainerRemoveRequest struct {
-	Id     	string	`json:"id" validate:"required,max=100"`
-	Force   bool	`json:"force" validate:"required"`
+	Id    string `json:"id" validate:"required,max=100"`
+	Force bool   `json:"force" validate:"required"`
 }
 
 func (r *dockerContainerRemoveRequest) bind(c echo.Context, m *dockerapi.DockerContainerRemove) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -77,15 +77,15 @@ func (r *dockerContainerRemoveRequest) bind(c echo.Context, m *dockerapi.DockerC
 }
 
 type dockerImageRemoveRequest struct {
-	Id      string  `json:"id" validate:"required,max=100"`
-	Force   bool	`json:"force"`
+	Id    string `json:"id" validate:"required,max=100"`
+	Force bool   `json:"force"`
 }
 
 func (r *dockerImageRemoveRequest) bind(c echo.Context, m *dockerapi.DockerImageRemove) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -96,14 +96,14 @@ func (r *dockerImageRemoveRequest) bind(c echo.Context, m *dockerapi.DockerImage
 }
 
 type dockerImagesPruneRequest struct {
-	All      bool  `json:"all" validate:"required"`
+	All bool `json:"all" validate:"required"`
 }
 
 func (r *dockerImagesPruneRequest) bind(c echo.Context, m *dockerapi.DockerImagesPrune) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -113,14 +113,14 @@ func (r *dockerImagesPruneRequest) bind(c echo.Context, m *dockerapi.DockerImage
 }
 
 type dockerVolumeRemoveRequest struct {
-	Name      string  `json:"name" validate:"required,max=200"`
+	Name string `json:"name" validate:"required,max=200"`
 }
 
 func (r *dockerVolumeRemoveRequest) bind(c echo.Context, m *dockerapi.DockerVolumeRemove) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -130,14 +130,14 @@ func (r *dockerVolumeRemoveRequest) bind(c echo.Context, m *dockerapi.DockerVolu
 }
 
 type dockerVolumePruneRequest struct {
-	All      bool  `json:"all" validate:"required"`
+	All bool `json:"all" validate:"required"`
 }
 
 func (r *dockerVolumePruneRequest) bind(c echo.Context, m *dockerapi.DockerVolumesPrune) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -147,14 +147,14 @@ func (r *dockerVolumePruneRequest) bind(c echo.Context, m *dockerapi.DockerVolum
 }
 
 type dockerNetworkRemoveRequest struct {
-	Id      string  `json:"id" validate:"required,max=100"`
+	Id string `json:"id" validate:"required,max=100"`
 }
 
 func (r *dockerNetworkRemoveRequest) bind(c echo.Context, m *dockerapi.DockerNetworkRemove) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -165,14 +165,14 @@ func (r *dockerNetworkRemoveRequest) bind(c echo.Context, m *dockerapi.DockerNet
 
 type dockerComposeProjectCreateRequest struct {
 	ProjectName string `json:"projectName" validate:"required,max=100"`
-	Definition string `json:"definition"`
+	Definition  string `json:"definition"`
 }
 
 func (r *dockerComposeProjectCreateRequest) bind(c echo.Context, m *dockerapi.DockerComposeProjectCreate) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}
@@ -184,14 +184,14 @@ func (r *dockerComposeProjectCreateRequest) bind(c echo.Context, m *dockerapi.Do
 
 type dockerComposeProjectUpdateRequest struct {
 	ProjectName string `json:"projectName" validate:"required,max=100"`
-	Definition string `json:"definition"`
+	Definition  string `json:"definition"`
 }
 
 func (r *dockerComposeProjectUpdateRequest) bind(c echo.Context, m *dockerapi.DockerComposeProjectUpdate) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
-	
+
 	if err := c.Validate(r); err != nil {
 		return err
 	}

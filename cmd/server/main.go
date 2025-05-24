@@ -14,5 +14,11 @@ func main() {
 		os.Getenv("SSL_ENABLED"),
 		os.Getenv("STALENESS_CHECK"),
 	)
-	s.Run(os.Getenv("BIND_ADDRESS"))
+
+	port := os.Getenv("DOKEMON_PORT")
+	if port == "" {
+		port = "9092"
+	}
+	bindAddr := ":" + port
+	s.Run(bindAddr)
 }

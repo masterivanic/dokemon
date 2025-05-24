@@ -8,11 +8,11 @@ import (
 )
 
 type credentialCreateRequest struct {
-	Name      	string  `json:"name" validate:"required,max=50"`
-	Service   	*string	`json:"service" validate:"omitempty,max=50"`
-	Type      	string  `json:"type" validate:"required,max=50"`
-	UserName 	*string `json:"userName" validate:"omitempty,max=100"`
-	Secret     	string  `json:"secret" validate:"required"`
+	Name     string  `json:"name" validate:"required,max=50"`
+	Service  *string `json:"service" validate:"omitempty,max=50"`
+	Type     string  `json:"type" validate:"required,max=50"`
+	UserName *string `json:"userName" validate:"omitempty,max=100"`
+	Secret   string  `json:"secret" validate:"required"`
 }
 
 func (r *credentialCreateRequest) bind(c echo.Context, m *model.Credential) error {
@@ -38,11 +38,11 @@ func (r *credentialCreateRequest) bind(c echo.Context, m *model.Credential) erro
 }
 
 type credentialUpdateDetailsRequest struct {
-	Id        	uint     `json:"id" validate:"required"`
-	Name      	string   `json:"name" validate:"required,max=50"`
-	Service   	*string	`json:"service" validate:"omitempty,max=50"`
-	Type      	string  `json:"type" validate:"required,max=50"`
-	UserName 	*string `json:"userName" validate:"omitempty,max=100"` 
+	Id       uint    `json:"id" validate:"required"`
+	Name     string  `json:"name" validate:"required,max=50"`
+	Service  *string `json:"service" validate:"omitempty,max=50"`
+	Type     string  `json:"type" validate:"required,max=50"`
+	UserName *string `json:"userName" validate:"omitempty,max=100"`
 }
 
 func (r *credentialUpdateDetailsRequest) bind(c echo.Context, m *model.Credential) error {
@@ -59,13 +59,13 @@ func (r *credentialUpdateDetailsRequest) bind(c echo.Context, m *model.Credentia
 	m.Service = r.Service
 	m.Type = r.Type
 	m.UserName = r.UserName
-	
+
 	return nil
 }
 
 type credentialUpdateSecretRequest struct {
-	Id      uint	`json:"id" validate:"required"`
-	Secret	string  `json:"secret" validate:"required"`
+	Id     uint   `json:"id" validate:"required"`
+	Secret string `json:"secret" validate:"required"`
 }
 
 func (r *credentialUpdateSecretRequest) bind(c echo.Context, m *model.Credential) error {

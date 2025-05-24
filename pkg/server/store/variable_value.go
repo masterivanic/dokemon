@@ -41,7 +41,7 @@ func (s *SqlVariableValueStore) Get(variableId, environmentId uint) (*model.Vari
 	if err := s.db.Where("variable_id = ? and environment_id = ?", variableId, environmentId).First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
-		}  else {
+		} else {
 			return nil, err
 		}
 	}
@@ -50,8 +50,8 @@ func (s *SqlVariableValueStore) Get(variableId, environmentId uint) (*model.Vari
 }
 
 type envToValue struct {
-	Id 		uint
-	Value 	*string
+	Id    uint
+	Value *string
 }
 
 func (s *SqlVariableValueStore) GetMap(variableId uint) (map[string]string, error) {
@@ -60,9 +60,9 @@ func (s *SqlVariableValueStore) GetMap(variableId uint) (map[string]string, erro
 	var v []envToValue
 
 	if err := s.db.Model(&model.Environment{}).
-				Select("environments.id, variable_values.value").
-				Joins("left join variable_values on environments.id = variable_values.environment_id and variable_values.variable_id = ?", variableId).
-				Scan(&v).Error; err != nil {
+		Select("environments.id, variable_values.value").
+		Joins("left join variable_values on environments.id = variable_values.environment_id and variable_values.variable_id = ?", variableId).
+		Scan(&v).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
@@ -84,13 +84,13 @@ func (s *SqlVariableValueStore) GetMap(variableId uint) (map[string]string, erro
 }
 
 type variable struct {
-	Name 	string
-	Value 	*string
+	Name     string
+	Value    *string
 	IsSecret bool
 }
 
 type VariableValue struct {
-	Value 	*string
+	Value    *string
 	IsSecret bool
 }
 
@@ -100,9 +100,9 @@ func (s *SqlVariableValueStore) GetMapByEnvironment(environmentId uint) (map[str
 	var variables []variable
 
 	if err := s.db.Model(&model.Variable{}).
-				Select("variables.name, variable_values.value, variables.is_secret").
-				Joins("left join variable_values on variable_values.variable_id = variables.id and variable_values.environment_id = ?", environmentId).
-				Scan(&variables).Error; err != nil {
+		Select("variables.name, variable_values.value, variables.is_secret").
+		Joins("left join variable_values on variable_values.variable_id = variables.id and variable_values.environment_id = ?", environmentId).
+		Scan(&variables).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
@@ -120,7 +120,7 @@ func (s *SqlVariableValueStore) GetMapByEnvironment(environmentId uint) (map[str
 		}
 
 		ret[variable.Name] = VariableValue{
-			Value: &value,
+			Value:    &value,
 			IsSecret: variable.IsSecret,
 		}
 	}

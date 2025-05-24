@@ -1,0 +1,37 @@
+services:
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      - "--log.level=${TRAEFIK_LOG_LEVEL}"
+      - "--accesslog=${TRAEFIK_ACCESS_LOG}"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.dokemon.acme.tlschallenge=true"
+      - "--certificatesresolvers.dokemon.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.dokemon.acme.storage=/letsencrypt/dokemon.json"
+    ports:
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  dokemon:
+    image: javastraat/dokemon-server:latest
+    container_name: dokemon-server
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dokemon.rule=Host(`${DOKEMON_DOMAIN}`)"
+      - "traefik.http.routers.dokemon.entrypoints=websecure"
+      - "traefik.http.routers.dokemon.tls.certresolver=dokemon"
+    ports:
+      - ${DOKEMON_PORT}:${DOKEMON_PORT}
+    environment:
+      - DOKEMON_PORT=${DOKEMON_PORT}
+    volumes:
+      - /dokemondata:/data
+      - /var/run/docker.sock:/var/run/docker.sock

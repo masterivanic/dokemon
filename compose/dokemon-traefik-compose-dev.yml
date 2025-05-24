@@ -1,0 +1,35 @@
+services:
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      - "--log.level=${TRAEFIK_LOG_LEVEL}"
+      - "--accesslog=${TRAEFIK_ACCESS_LOG}"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  dokemon:
+    image: javastraat/dokemon-server:latest
+    build:
+      context: ../
+      dockerfile: Dockerfile.server
+    container_name: dokemon-server
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dokemon.rule=Host(`${DOKEMON_DOMAIN}`)"
+      - "traefik.http.routers.dokemon.entrypoints=web"
+    ports:
+      - ${DOKEMON_PORT}:${DOKEMON_PORT}
+    environment:
+      - DOKEMON_PORT=${DOKEMON_PORT}
+    volumes:
+      - /dokemondata:/data
+      - /var/run/docker.sock:/var/run/docker.sock

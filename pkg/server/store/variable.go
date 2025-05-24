@@ -43,7 +43,7 @@ func (s *SqlVariableStore) GetById(id uint) (*model.Variable, error) {
 func (s *SqlVariableStore) Exists(id uint) (bool, error) {
 	var count int64
 
-	if err := s.db.Model(&model.Variable{}).Where("id = ?",  id).Count(&count).Error; err != nil {
+	if err := s.db.Model(&model.Variable{}).Where("id = ?", id).Count(&count).Error; err != nil {
 		return false, err
 	}
 
@@ -51,7 +51,7 @@ func (s *SqlVariableStore) Exists(id uint) (bool, error) {
 }
 
 func (s *SqlVariableStore) DeleteById(id uint) error {
-	return s.db.Transaction(func(tx *gorm.DB) error { 
+	return s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("variable_id = ?", id).Delete(&model.VariableValue{}).Error; err != nil {
 			return err
 		}
@@ -66,7 +66,7 @@ func (s *SqlVariableStore) DeleteById(id uint) error {
 
 func (s *SqlVariableStore) GetList(pageNo, pageSize uint) ([]model.Variable, int64, error) {
 	var (
-		l []model.Variable
+		l     []model.Variable
 		count int64
 	)
 
@@ -83,7 +83,7 @@ func (s *SqlVariableStore) IsUniqueName(name string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlVariableStore) IsUniqueNameExcludeItself(name string, id uint) (bool, error) {
@@ -93,5 +93,5 @@ func (s *SqlVariableStore) IsUniqueNameExcludeItself(name string, id uint) (bool
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }

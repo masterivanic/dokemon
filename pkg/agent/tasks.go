@@ -21,12 +21,12 @@ func startTaskSession(tqm messages.TaskQueuedMessage) {
 
 	stream := false
 	steamMessageTypes := []string{"DockerContainerLogs", "DockerContainerTerminal",
-									"DockerComposeDeploy", "DockerComposePull","DockerComposePull", "DockerComposeUp", "DockerComposeDown", "DockerComposeLogs"}
-	if slices.Contains(steamMessageTypes, messageType) {	
+		"DockerComposeDeploy", "DockerComposePull", "DockerComposePull", "DockerComposeUp", "DockerComposeDown", "DockerComposeLogs"}
+	if slices.Contains(steamMessageTypes, messageType) {
 		stream = true
 	}
 
-	messages.Send(c, messages.TaskSessionMessage{ConnectionToken:  token, TaskId: tqm.TaskId, Stream: stream})
+	messages.Send(c, messages.TaskSessionMessage{ConnectionToken: token, TaskId: tqm.TaskId, Stream: stream})
 	taskSessionResponseMessage, err := messages.Receive[messages.TaskSessionResponseMessage](c)
 	if err != nil {
 		log.Error().Str("taskId", tqm.TaskId).Msg("Error while receiving task session response")

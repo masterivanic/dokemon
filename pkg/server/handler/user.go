@@ -40,7 +40,7 @@ func (h *Handler) CreateUser(c echo.Context) error {
 
 	cc := requestutil.AuthCookieContent{
 		UserName: m.UserName,
-		Expiry: time.Now().Add(24 * time.Hour),
+		Expiry:   time.Now().Add(24 * time.Hour),
 	}
 	requestutil.SetAuthCookie(c, cc)
 
@@ -71,13 +71,12 @@ func (h *Handler) UserLogin(c echo.Context) error {
 
 	cc := requestutil.AuthCookieContent{
 		UserName: existingUser.UserName,
-		Expiry: time.Now().Add(24 * time.Hour),
+		Expiry:   time.Now().Add(24 * time.Hour),
 	}
 	requestutil.SetAuthCookie(c, cc)
 
 	return noContent(c)
 }
-
 
 func (h *Handler) UserLogout(c echo.Context) error {
 	requestutil.DeleteAuthCookie(c)

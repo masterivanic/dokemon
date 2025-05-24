@@ -13,13 +13,13 @@ import (
 )
 
 type LocalFileSystemComposeLibraryStore struct {
-	db *gorm.DB
+	db                 *gorm.DB
 	composeLibraryPath string
 }
 
 func NewLocalFileSystemComposeLibraryStore(db *gorm.DB, composeLibraryPath string) *LocalFileSystemComposeLibraryStore {
 	return &LocalFileSystemComposeLibraryStore{
-		db: db,
+		db:                 db,
 		composeLibraryPath: composeLibraryPath,
 	}
 }
@@ -32,7 +32,7 @@ func (s *LocalFileSystemComposeLibraryStore) Create(m *model.FileSystemComposeLi
 		if err != nil {
 			return err
 		}
-	
+
 		filename := filepath.Join(p, "compose.yaml")
 
 		f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
@@ -125,7 +125,7 @@ func (s *LocalFileSystemComposeLibraryStore) GetByName(projectName string) (*mod
 			return nil, errors.New("Compose definition does not exist")
 		} else {
 			return nil, err
-		}	
+		}
 	}
 
 	definitionBytes, err := os.ReadFile(composeProjectFilePath)
@@ -175,7 +175,7 @@ func (s *LocalFileSystemComposeLibraryStore) GetList() ([]model.FileSystemCompos
 	for i, entry := range entries {
 		composeItemHeads[i] = model.FileSystemComposeLibraryItemHead{ProjectName: entry.Name()}
 	}
-	
+
 	return composeItemHeads, int64(len(entries)), nil
 }
 
@@ -190,7 +190,7 @@ func (s *LocalFileSystemComposeLibraryStore) IsUniqueName(projectName string) (b
 		}
 	}
 
-	return false, nil 
+	return false, nil
 }
 
 func (s *LocalFileSystemComposeLibraryStore) IsUniqueNameExcludeItself(newProjectName string, existingProjectName string) (bool, error) {
@@ -208,7 +208,5 @@ func (s *LocalFileSystemComposeLibraryStore) IsUniqueNameExcludeItself(newProjec
 		}
 	}
 
-	return false, nil 
+	return false, nil
 }
-
-

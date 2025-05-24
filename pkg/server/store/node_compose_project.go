@@ -9,13 +9,13 @@ import (
 )
 
 type SqlNodeComposeProjectStore struct {
-	db *gorm.DB
+	db                 *gorm.DB
 	composeLibraryPath string
 }
 
 func NewSqlNodeComposeProjectStore(db *gorm.DB, composeLibraryPath string) *SqlNodeComposeProjectStore {
 	return &SqlNodeComposeProjectStore{
-		db: db,
+		db:                 db,
 		composeLibraryPath: composeLibraryPath,
 	}
 }
@@ -61,7 +61,7 @@ func (s *SqlNodeComposeProjectStore) DeleteById(nodeId uint, id uint) error {
 
 func (s *SqlNodeComposeProjectStore) GetList(nodeId uint, pageNo, pageSize uint) ([]model.NodeComposeProject, int64, error) {
 	var (
-		l []model.NodeComposeProject
+		l     []model.NodeComposeProject
 		count int64
 	)
 
@@ -78,19 +78,19 @@ func (s *SqlNodeComposeProjectStore) IsUniqueName(nodeId uint, name string) (boo
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlNodeComposeProjectStore) IsUniqueNameExcludeItself(nodeId uint, name string, id uint) (bool, error) {
 	var count int64
 
 	if err := s.db.Model(&model.NodeComposeProject{}).
-					Where("node_id = ? and project_name = ? COLLATE NOCASE and id <> ?", nodeId, name, id).
-					Count(&count).Error; err != nil {
+		Where("node_id = ? and project_name = ? COLLATE NOCASE and id <> ?", nodeId, name, id).
+		Count(&count).Error; err != nil {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlNodeComposeProjectStore) UpdateOldVersionRecords() error {

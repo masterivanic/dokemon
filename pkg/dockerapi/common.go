@@ -25,9 +25,9 @@ func discardIncomingMessages(ws *websocket.Conn) {
 	}
 }
 
-func setupPinging(ws *websocket.Conn, connectionClosed *chan bool) (*sync.Mutex) {
+func setupPinging(ws *websocket.Conn, connectionClosed *chan bool) *sync.Mutex {
 	var mu sync.Mutex
-	
+
 	ws.SetReadDeadline(time.Now().Add(pongWait))
 	ws.SetPongHandler(func(string) error { ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 

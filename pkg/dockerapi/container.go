@@ -41,22 +41,22 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 		containers[i] = Container{
 			Id:     c.ID,
 			Name:   c.Names[0][1:],
-			Image: image,
+			Image:  image,
 			Status: c.Status,
-			State: c.State,
-			Ports: ports,
-			Stale: stale,
+			State:  c.State,
+			Ports:  ports,
+			Stale:  stale,
 		}
 	}
 
 	sort.Slice(containers, func(i, j int) bool {
 		return containers[i].Name < containers[j].Name
-	  })
-	  
+	})
+
 	return &DockerContainerListResponse{Items: containers}, nil
 }
 
-func ContainerStart(req *DockerContainerStart) (error) {
+func ContainerStart(req *DockerContainerStart) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func ContainerStart(req *DockerContainerStart) (error) {
 	return nil
 }
 
-func ContainerStop(req *DockerContainerStop) (error) {
+func ContainerStop(req *DockerContainerStop) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func ContainerStop(req *DockerContainerStop) (error) {
 	return nil
 }
 
-func ContainerRestart(req *DockerContainerRestart) (error) {
+func ContainerRestart(req *DockerContainerRestart) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func ContainerRestart(req *DockerContainerRestart) (error) {
 	return nil
 }
 
-func ContainerRemove(req *DockerContainerRemove) (error) {
+func ContainerRemove(req *DockerContainerRemove) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
@@ -121,8 +121,8 @@ func ContainerLogs(req *DockerContainerLogs, ws *websocket.Conn) error {
 	o := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
-		Follow: true,
-		Tail: "40",
+		Follow:     true,
+		Tail:       "40",
 	}
 
 	r, err := cli.ContainerLogs(context.Background(), req.Id, o)
@@ -138,7 +138,7 @@ func ContainerLogs(req *DockerContainerLogs, ws *websocket.Conn) error {
 			if err == io.EOF {
 				return nil
 			} else {
-				panic(err)				
+				panic(err)
 			}
 		}
 
@@ -149,10 +149,10 @@ func ContainerLogs(req *DockerContainerLogs, ws *websocket.Conn) error {
 			if err == io.EOF {
 				return nil
 			} else {
-				panic(err)				
+				panic(err)
 			}
 		}
-		
+
 		err = ws.WriteMessage(websocket.BinaryMessage, dat)
 		if err != nil {
 			if err.Error() != "websocket: close sent" {
@@ -165,7 +165,8 @@ func ContainerLogs(req *DockerContainerLogs, ws *websocket.Conn) error {
 }
 
 var terminalSessionId uint = 0
-func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) (error) {
+
+func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) error {
 	terminalSessionId += 1
 	sessionId := terminalSessionId
 	log.Debug().Uint("sessionId", terminalSessionId).Msg("Starting terminal session")
@@ -206,7 +207,7 @@ func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) 
 			hijackedResponse.Conn.Close()
 			wsBrowser.Close()
 			browserClosedConnection = true
-			return 
+			return
 		}
 	}()
 
@@ -224,7 +225,7 @@ func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) 
 	}()
 
 	for {
-        outputBytesBuffer := make([]byte, 1024)
+		outputBytesBuffer := make([]byte, 1024)
 		n, err := hijackedResponse.Conn.Read(outputBytesBuffer)
 		if err != nil {
 			if !browserClosedConnection {

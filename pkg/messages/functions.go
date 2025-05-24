@@ -64,6 +64,6 @@ func GetMessageJson[T interface{}](messageOnWireString string) (m []byte, _ erro
 	}
 
 	messageJson := []byte(messageOnWireString[len(messageTypeName):])
-	
+
 	return messageJson, nil
 }

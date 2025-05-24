@@ -79,7 +79,7 @@ func (s *SqlEnvironmentStore) DeleteById(id uint) error {
 
 func (s *SqlEnvironmentStore) GetList(pageNo, pageSize uint) ([]model.Environment, int64, error) {
 	var (
-		l []model.Environment
+		l     []model.Environment
 		count int64
 	)
 
@@ -96,7 +96,7 @@ func (s *SqlEnvironmentStore) IsUniqueName(name string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlEnvironmentStore) IsUniqueNameExcludeItself(name string, id uint) (bool, error) {
@@ -106,7 +106,7 @@ func (s *SqlEnvironmentStore) IsUniqueNameExcludeItself(name string, id uint) (b
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlEnvironmentStore) GetMap() (map[string]string, error) {

@@ -11,10 +11,10 @@ func (h *Handler) UpdateSetting(c echo.Context) error {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "Setting")
-	}	
+	}
 
 	r := &settingUpdateRequest{Id: id}
 	if err := r.bind(c, m); err != nil {

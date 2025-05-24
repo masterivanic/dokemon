@@ -5,8 +5,8 @@ import (
 )
 
 type gitHubfileContentRetrieveRequest struct {
-	CredentialId	*uint `json:"credentialId"`
-	Url     		string	`json:"url" validate:"required"`
+	CredentialId *uint  `json:"credentialId"`
+	Url          string `json:"url" validate:"required"`
 }
 
 func (r *gitHubfileContentRetrieveRequest) bind(c echo.Context) error {

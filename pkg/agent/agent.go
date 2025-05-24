@@ -18,14 +18,14 @@ import (
 )
 
 var (
-	logLevel string
-	wsUrl string
-	token string
+	logLevel       string
+	wsUrl          string
+	token          string
 	stalenessCheck string = "ON"
 )
 
 func Main() {
- 	parseArgs()
+	parseArgs()
 	setLogLevel(logLevel)
 	if stalenessCheck != "OFF" {
 		go dockerapi.ContainerScheduleRefreshStaleStatus()
@@ -96,16 +96,16 @@ func openWithPing() (*websocket.Conn, *sync.Mutex) {
 	return c, mu
 }
 
-func setupPinging(ws *websocket.Conn) (*sync.Mutex) {
+func setupPinging(ws *websocket.Conn) *sync.Mutex {
 	pongWait := 10 * time.Second
 	pingPeriod := (pongWait * 9) / 10
 
 	var mu sync.Mutex
-	
-	ws.SetPongHandler(func(string) error { 
+
+	ws.SetPongHandler(func(string) error {
 		log.Trace().Msg("Pong received")
 		ws.SetReadDeadline(time.Now().Add(pongWait))
-		return nil 
+		return nil
 	})
 
 	pingTicker := time.NewTicker(pingPeriod)
@@ -122,7 +122,7 @@ func setupPinging(ws *websocket.Conn) (*sync.Mutex) {
 				}
 				return
 			}
-			
+
 			mu.Lock()
 			err = messages.Send[messages.Ping](ws, messages.Ping{})
 			mu.Unlock()
@@ -141,35 +141,35 @@ func setupPinging(ws *websocket.Conn) (*sync.Mutex) {
 func listen() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
-	
+
 	log.Info().Msg("Connecting to server")
 	c, mu := openWithPing()
 	defer c.Close()
-	
+
 	mu.Lock()
 	initialConnectMessage := messages.ConnectMessage{
 		ConnectionToken: token,
-		AgentVersion: common.Version,
+		AgentVersion:    common.Version,
 	}
 	messages.Send[messages.ConnectMessage](c, initialConnectMessage)
 	mu.Unlock()
-	
+
 	connectResponse, err := messages.Receive[messages.ConnectResponseMessage](c)
- 	if err != nil {
- 		log.Fatal().Err(err)
- 	}
+	if err != nil {
+		log.Fatal().Err(err)
+	}
 	if connectResponse == nil {
 		log.Fatal().Msg("Connection with server failed")
 	} else if !connectResponse.Success {
- 		log.Fatal().Msg(connectResponse.Message)
- 	}
+		log.Fatal().Msg(connectResponse.Message)
+	}
 
 	log.Info().Msg("Listening for tasks")
 	done := make(chan struct{})
- 	go func() {
- 		defer close(done)
- 		listenForTasks(c)
- 	}()
+	go func() {
+		defer close(done)
+		listenForTasks(c)
+	}()
 
 	for {
 		select {
@@ -189,22 +189,22 @@ func listenForTasks(c *websocket.Conn) {
 
 	for {
 		_, message, err := c.ReadMessage()
-			if err != nil {
-				log.Error().Err(err).Msg("Connection lost to server")
-				return
-			}
-			log.Debug().Str("message", string(message)).Msg("Task received")
-			taskChan <- string(message)
+		if err != nil {
+			log.Error().Err(err).Msg("Connection lost to server")
+			return
+		}
+		log.Debug().Str("message", string(message)).Msg("Task received")
+		taskChan <- string(message)
 	}
 }
 
 func worker(taskChan <-chan string) {
 	for task := range taskChan {
-	taskQueuedMessage, err := messages.Parse[messages.TaskQueuedMessage](task)
-		if(err != nil) {
+		taskQueuedMessage, err := messages.Parse[messages.TaskQueuedMessage](task)
+		if err != nil {
 			continue
 		}
 
-		go startTaskSession(*taskQueuedMessage)	
-    }
+		go startTaskSession(*taskQueuedMessage)
+	}
 }

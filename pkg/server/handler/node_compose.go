@@ -57,7 +57,7 @@ func (h *Handler) GetNodeComposeProjectList(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, err)
 	}
-	
+
 	return ok(c, newPageResponse(newNodeComposeProjectItemList(rows, res.Items), uint(p), uint(s), uint(totalRows)))
 }
 
@@ -131,7 +131,7 @@ func (h *Handler) GetNodeComposeContainerList(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, err)
 	}
-	
+
 	return ok(c, res)
 }
 
@@ -201,15 +201,15 @@ func (h *Handler) UpdateGitHubNodeComposeProject(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "NodeComposeProject")
-	}	
+	}
 
 	r := &nodeComposeGitHubUpdateRequest{Id: uint(id)}
 	if err := r.bind(c, m); err != nil {
@@ -247,15 +247,15 @@ func (h *Handler) UpdateLocalNodeComposeProject(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
-	
+
 	m, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
 	if err != nil {
 		panic(err)
 	}
-	
+
 	if m == nil {
 		return resourceNotFound(c, "NodeComposeProject")
-	}	
+	}
 
 	r := &nodeComposeLocalUpdateRequest{Id: uint(id)}
 	if err := r.bind(c, m); err != nil {
@@ -366,7 +366,7 @@ func (h *Handler) getComposeProjectDefinitionFromLibrary(ncp *model.NodeComposeP
 		clp, err := h.fileSystemComposeLibraryStore.GetByName(*ncp.LibraryProjectName)
 		if err != nil {
 			return "", nil, nil, errors.New("Library Project not found")
-		}	
+		}
 		definition = clp.Definition
 		credentialId = nil
 		url = nil
@@ -382,7 +382,7 @@ func (h *Handler) getComposeProjectDefinitionFromLibrary(ncp *model.NodeComposeP
 			if err != nil {
 				return "", nil, nil, errors.New("Credentials not found")
 			}
-			
+
 			decryptedSecret, err = ske.Decrypt(credential.Secret)
 			if err != nil {
 				panic(err)
@@ -393,7 +393,7 @@ func (h *Handler) getComposeProjectDefinitionFromLibrary(ncp *model.NodeComposeP
 		if err != nil {
 			return "", nil, nil, errors.New("Error while retrieving file content from GitHub")
 		}
-		
+
 		definition = content
 		credentialId = gclp.CredentialId
 		url = &gclp.Url
@@ -420,7 +420,7 @@ func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (st
 			if err != nil {
 				return "", errors.New("Credentials not found")
 			}
-			
+
 			decryptedSecret, err = ske.Decrypt(credential.Secret)
 			if err != nil {
 				panic(err)
@@ -431,7 +431,7 @@ func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (st
 		if err != nil {
 			return "", errors.New("Error while retrieving file content from GitHub")
 		}
-		
+
 		definition = content
 	}
 
@@ -462,7 +462,7 @@ func (h *Handler) getComposeVariables(environmentId *uint, nodeComposeProjectId 
 
 		variables[v.Name] = store.VariableValue{
 			IsSecret: v.IsSecret,
-			Value: &decryptedValue,
+			Value:    &decryptedValue,
 		}
 	}
 
@@ -591,7 +591,7 @@ func (h *Handler) GetNodeComposeUp(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, errors.New("id should be an integer"))
 	}
-	
+
 	ncp, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
 	if err != nil {
 		return unprocessableEntity(c, errors.New("Project not found"))

@@ -5,9 +5,9 @@ import (
 )
 
 type Image struct {
-	Domain  string
-	Path    string
-	Tag     string
+	Domain string
+	Path   string
+	Tag    string
 
 	named reference.Named
 }

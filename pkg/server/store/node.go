@@ -69,7 +69,7 @@ func (s *SqlNodeStore) Exists(id uint) (bool, error) {
 }
 
 func (s *SqlNodeStore) DeleteById(id uint) error {
-	return s.db.Transaction(func(tx *gorm.DB) error { 
+	return s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("node_id = ?", id).Delete(&model.NodeComposeProject{}).Error; err != nil {
 			return err
 		}
@@ -84,7 +84,7 @@ func (s *SqlNodeStore) DeleteById(id uint) error {
 
 func (s *SqlNodeStore) GetList(pageNo, pageSize uint) ([]model.Node, int64, error) {
 	var (
-		l []model.Node
+		l     []model.Node
 		count int64
 	)
 
@@ -101,7 +101,7 @@ func (s *SqlNodeStore) IsUniqueName(name string) (bool, error) {
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }
 
 func (s *SqlNodeStore) IsUniqueNameExcludeItself(name string, id uint) (bool, error) {
@@ -111,5 +111,5 @@ func (s *SqlNodeStore) IsUniqueNameExcludeItself(name string, id uint) (bool, er
 		return false, err
 	}
 
-	return count == 0, nil 
+	return count == 0, nil
 }

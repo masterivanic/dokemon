@@ -8,7 +8,7 @@ build-server: ## Build server for production or local
 	else \
 		sudo docker buildx build -t javastraat/dokemon-server:latest -f Dockerfile.server .; \
 	fi
-    
+
 build-agent: ## Build agent for production or local
 	@if [ "$(env-target)" = "prod" ]; then \
 		sudo docker buildx build --platform linux/amd64,linux/arm64 -t javastraat/dokemon-agent:latest  --push -f Dockerfile.agent .; \
@@ -26,6 +26,15 @@ run-server: ## Run Docker server locally
 		-v /dokemondata:/data \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		javastraat/dokemon-server:latest
+
+run-traefik-compose: ## Run dokemon localy using traefik
+	sudo docker compose --env-file .env -f compose/dokemon-traefik-compose-dev.yml build \
+	&& sudo docker compose --env-file .env -f compose/dokemon-traefik-compose-dev.yml up -d
+
+run-website: ## Run dokemon website localy
+	sudo docker compose --env-file .env -f compose/dokemon-website.yml build \
+	&& sudo docker compose --env-file .env -f compose/dokemon-website.yml up -d
+
 
 run-agent: ## Build and run the Docker agent locally
 	@rm -f ./agent

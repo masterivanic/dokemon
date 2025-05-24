@@ -1,0 +1,7 @@
+services:
+  dokemon-site:
+    container_name: dokemon-site
+    image: javastraat/dokemon-site:latest
+    ports:
+      - "${DOKEMON_PORT_WEBSITE}:${DOKEMON_PORT_WEBSITE}"
+    restart: unless-stopped
