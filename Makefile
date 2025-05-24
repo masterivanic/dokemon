@@ -27,12 +27,12 @@ run-server: ## Run Docker server locally
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		javastraat/dokemon-server:latest
 
-run-traefik-compose:
+run-traefik-compose: ## Run dokemon localy using traefik
 	sudo docker compose --env-file .env -f compose/dokemon-traefik-compose-dev.yml build \
 	&& sudo docker compose --env-file .env -f compose/dokemon-traefik-compose-dev.yml up -d
 
-run-website:
-    sudo docker compose --env-file .env -f compose/dokemon-website.yml build \
+run-website: ## Run dokemon website localy
+	sudo docker compose --env-file .env -f compose/dokemon-website.yml build \
 	&& sudo docker compose --env-file .env -f compose/dokemon-website.yml up -d
 
 

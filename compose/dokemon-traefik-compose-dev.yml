@@ -28,6 +28,8 @@ services:
       - "traefik.http.routers.dokemon.entrypoints=web"
     ports:
       - ${DOKEMON_PORT}:${DOKEMON_PORT}
+    environment:
+      - DOKEMON_PORT=${DOKEMON_PORT}
     volumes:
       - /dokemondata:/data
       - /var/run/docker.sock:/var/run/docker.sock
