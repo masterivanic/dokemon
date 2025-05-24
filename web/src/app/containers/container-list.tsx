@@ -51,6 +51,10 @@ export default function ContainerList() {
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [sortConfig, setSortConfig] = useState<{
+    key: "name" | "state";
+    direction: "asc" | "desc";
+  }>({ key: "name", direction: "asc" });
 
   if (isLoading) return <Loading />
 
@@ -63,6 +67,24 @@ export default function ContainerList() {
       item.id.toLowerCase().includes(searchTerm.toLowerCase())
     )
   })
+
+  const sortedContainers = [...(filteredContainers || [])].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const requestSort = (key: "name" | "state") => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleStartContainer = async (id: string) => {
     try {
@@ -215,14 +237,14 @@ export default function ContainerList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-      <div className="mb-4 flex items-center">
+        <div className="mb-4 flex items-center justify-end">
           <div className="relative w-full max-w-md">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
             </div>
             <Input
               type="text"
-              className="pl-10"
+              className="pl-10 pl-10"
               placeholder="Search containers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -232,21 +254,47 @@ export default function ContainerList() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Name</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("name")}
+              >
+                <div className="flex items-center">
+                  Name
+                  {sortConfig.key === "name" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col" className="hidden 2xl:block">
                 Image
               </TableHead>
               <TableHead scope="col">Ports</TableHead>
-              <TableHead scope="col">State</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("state")}
+              >
+                <div className="flex items-center">
+                  State
+                  {sortConfig.key === "state" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredContainers?.length === 0 && <TableNoData colSpan={5} />}
-            {filteredContainers &&
-              filteredContainers.map((item) => (
+            {sortedContainers?.length === 0 && <TableNoData colSpan={5} />}
+            {sortedContainers &&
+              sortedContainers.map((item) => (
                 <TableRow
                   key={item.id}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
