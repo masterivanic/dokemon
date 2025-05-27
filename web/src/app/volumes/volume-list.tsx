@@ -24,9 +24,12 @@ import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import { Input } from "@/components/ui/input"
 import DeleteDialog from "@/components/delete-dialog"
 import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
+import { useFilterAndSort } from "@/lib/useFilterAndSort"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 
 export default function VolumeList() {
   const { nodeId } = useParams()
@@ -38,6 +41,19 @@ export default function VolumeList() {
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortedItems: sortedVolumes = [],
+    requestSort,
+    sortConfig
+  } = useFilterAndSort<IVolume>(volumes?.items || [], {
+    initialSortKey: "driver",
+    initialSortDirection: "asc",
+    filterKeys: ['driver', 'name', 'inUse'] as (keyof IVolume)[]
+  });
+
 
   if (isLoading) return <Loading />
 
@@ -88,11 +104,10 @@ export default function VolumeList() {
       const r = await response.json()
       let description = "Nothing found to delete"
       if (r.volumesDeleted?.length > 0) {
-        description = `${
-          r.volumesDeleted.length
-        } unused volumes deleted. Space reclaimed: ${convertByteToMb(
-          r.spaceReclaimed
-        )}`
+        description = `${r.volumesDeleted.length
+          } unused volumes deleted. Space reclaimed: ${convertByteToMb(
+            r.spaceReclaimed
+          )}`
       }
       setTimeout(async () => {
         toastSuccess(description)
@@ -134,21 +149,75 @@ export default function VolumeList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10 pl-10"
+              placeholder="Search volumes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Driver</TableHead>
-              <TableHead scope="col">Name</TableHead>
-              <TableHead scope="col">Status</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("driver")}
+              >
+                <div className="flex items-center">
+                  Driver
+                  {sortConfig.key === "driver" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("name")}
+              >
+                <div className="flex items-center">
+                  Name
+                  {sortConfig.key === "name" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("inUse")}
+              >
+                <div className="flex items-center">
+                  Status
+                  {sortConfig.key === "inUse" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {volumes?.items?.length === 0 && <TableNoData colSpan={3} />}
-            {volumes?.items &&
-              volumes?.items.map((item) => (
+            {sortedVolumes.length === 0 ? (
+              <TableNoData colSpan={4} />
+            ) : (
+              sortedVolumes.map((item) => (
                 <TableRow key={item.name}>
                   <TableCell>{item.driver}</TableCell>
                   <TableCell>{item.name}</TableCell>
@@ -164,7 +233,8 @@ export default function VolumeList() {
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>

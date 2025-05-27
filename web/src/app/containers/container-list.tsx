@@ -39,52 +39,30 @@ import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
 import { Input } from "@/components/ui/input"
+import { useFilterAndSort } from "@/lib/useFilterAndSort"
 
 export default function ContainerList() {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
-
   const navigate = useNavigate()
   const { isLoading, mutateContainers, containers } = useContainers(nodeId!)
   const [container, setContainer] = useState<IContainer | null>(null)
-  const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] =
-    useState(false)
+  const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortConfig, setSortConfig] = useState<{
-    key: "name" | "state";
-    direction: "asc" | "desc";
-  }>({ key: "name", direction: "asc" });
 
-  if (isLoading) return <Loading />
-
-  const filteredContainers = containers?.items?.filter((item) => {
-    if (!searchTerm) return true
-    return (
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.image.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.id.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })
-
-  const sortedContainers = [...(filteredContainers || [])].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === "asc" ? -1 : 1;
-    }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === "asc" ? 1 : -1;
-    }
-    return 0;
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortedItems: sortedContainers = [],
+    requestSort,
+    sortConfig
+  } = useFilterAndSort<IContainer>(containers?.items || [], {
+    initialSortKey: "name",
+    initialSortDirection: "asc",
+    filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
 
-  const requestSort = (key: "name" | "state") => {
-    let direction: "asc" | "desc" = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
+  if (isLoading) return <Loading />
 
   const handleStartContainer = async (id: string) => {
     try {
@@ -292,8 +270,9 @@ export default function ContainerList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedContainers?.length === 0 && <TableNoData colSpan={5} />}
-            {sortedContainers &&
+            {sortedContainers.length === 0 ? (
+              <TableNoData colSpan={5} />
+            ) : (
               sortedContainers.map((item) => (
                 <TableRow
                   key={item.id}
@@ -376,7 +355,8 @@ export default function ContainerList() {
                     </>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>
