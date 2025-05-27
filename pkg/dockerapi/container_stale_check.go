@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/dokemon-ng/dokemon/pkg/registry"
 	"github.com/rs/zerolog/log"
@@ -27,7 +27,7 @@ func isContainerImageStale(imageAndTag string, imageId string, cli *client.Clien
 		return false, err
 	}
 
-	imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageId)
+	imageInspect, err := cli.ImageInspect(context.Background(), imageId)
 	if err != nil {
 		return false, err
 	}
@@ -55,7 +55,6 @@ func ContainerScheduleRefreshStaleStatus() {
 		time.Sleep(24 * time.Hour)
 	}
 }
-
 func ContainerRefreshStaleStatus() error {
 	if containerStaleStatus == nil {
 		containerStaleStatus = make(map[string]string)
@@ -65,7 +64,7 @@ func ContainerRefreshStaleStatus() error {
 		return err
 	}
 
-	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	dcontainers, err := cli.ContainerList(context.Background(), container.ListOptions{All: true})
 	if err != nil {
 		return err
 	}
