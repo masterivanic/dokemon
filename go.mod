@@ -15,7 +15,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.11.3
 	github.com/labstack/gommon v0.4.2
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.34.0
 	golang.org/x/crypto v0.16.0
 	gorm.io/gorm v1.25.7
 )
