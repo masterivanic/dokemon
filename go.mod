@@ -12,7 +12,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/google/go-github/v57 v57.0.0
 	github.com/google/uuid v1.4.0
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.11.3
 	github.com/labstack/gommon v0.4.0
 	github.com/rs/zerolog v1.31.0
