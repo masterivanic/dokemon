@@ -27,6 +27,9 @@ import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
 import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
+import { useFilterAndSort } from "@/lib/useFilterAndSort"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+import { Input } from "@/components/ui/input"
 
 export default function ImageList() {
   const { nodeId } = useParams()
@@ -37,6 +40,18 @@ export default function ImageList() {
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortedItems: sortedImages = [],
+    requestSort,
+    sortConfig
+  } = useFilterAndSort<IImage>(images?.items || [], {
+    initialSortKey: "name",
+    initialSortDirection: "asc",
+    filterKeys: ['name', 'status', 'inUse'] as (keyof IImage)[]
+  });
 
   if (isLoading) return <Loading />
 
@@ -131,13 +146,53 @@ export default function ImageList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10 pl-10"
+              placeholder="Search images..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead scope="col">Id</TableHead>
-              <TableHead scope="col">Name</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("name")}
+              >
+                <div className="flex items-center">
+                  Name
+                  {sortConfig.key === "name" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">Tag</TableHead>
-              <TableHead scope="col">Status</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("inUse")}
+              >
+                <div className="flex items-center">
+                  Status
+                  {sortConfig.key === "inUse" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">Size</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
@@ -145,18 +200,17 @@ export default function ImageList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {images?.items?.length === 0 && <TableNoData colSpan={5} />}
-            {images?.items &&
-              images?.items.map((item) => (
+            {sortedImages.length === 0 ? (
+              <TableNoData colSpan={5} />
+            ) : (
+              sortedImages.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.id.substring(7, 19)}</TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>
                     {item.tag}{" "}
-                    {item.dangling ? (
+                    {item.dangling && (
                       <span className="text-xs text-red-400"> (Dangling)</span>
-                    ) : (
-                      ""
                     )}
                   </TableCell>
                   <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
@@ -172,7 +226,8 @@ export default function ImageList() {
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>
