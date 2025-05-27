@@ -27,6 +27,9 @@ import { TableNoData } from "@/components/widgets/table-no-data"
 import { toastFailed, toastSuccess } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
+import { useFilterAndSort } from "@/lib/useFilterAndSort"
+import { Input } from "@/components/ui/input"
+import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
 
 const systemNetwoks = [
   "none",
@@ -47,6 +50,18 @@ export default function NetworkList() {
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortedItems: sortedNetworks = [],
+    requestSort,
+    sortConfig
+  } = useFilterAndSort<INetwork>(networks?.items || [], {
+    initialSortKey: "name",
+    initialSortDirection: "asc",
+    filterKeys: ['name', 'driver', 'inUse'] as (keyof INetwork)[]
+  });
 
   if (isLoading) return <Loading />
 
@@ -139,23 +154,77 @@ export default function NetworkList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10 pl-10"
+              placeholder="Search networks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead scope="col">Id</TableHead>
-              <TableHead scope="col">Name</TableHead>
-              <TableHead scope="col">Driver</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("name")}
+              >
+                <div className="flex items-center">
+                  Name
+                  {sortConfig.key === "name" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("driver")}
+              >
+                <div className="flex items-center">
+                  Driver
+                  {sortConfig.key === "driver" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">Scope</TableHead>
-              <TableHead scope="col">Status</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("inUse")}
+              >
+                <div className="flex items-center">
+                  Status
+                  {sortConfig.key === "inUse" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {networks?.items?.length === 0 && <TableNoData colSpan={5} />}
-            {networks?.items &&
-              networks?.items.map((item) => (
+            {sortedNetworks.length === 0 ? (
+              <TableNoData colSpan={5} />
+            ) : (
+              sortedNetworks.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.id.substring(0, 12)}</TableCell>
                   <TableCell>{item.name}</TableCell>
@@ -173,7 +242,8 @@ export default function NetworkList() {
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>
