@@ -8,7 +8,7 @@ require (
 	github.com/distribution/reference v0.5.0
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/gabemarshall/pty v0.0.0-20220927143247-d84f0bb0c17e
-	github.com/glebarez/sqlite v1.10.0
+	github.com/glebarez/sqlite v1.11.0
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/google/go-github/v57 v57.0.0
 	github.com/google/uuid v1.4.0
@@ -17,7 +17,7 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/rs/zerolog v1.31.0
 	golang.org/x/crypto v0.16.0
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.7
 )
 
 require (
