@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/gorilla/websocket"
@@ -19,8 +18,9 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 	if err != nil {
 		return nil, err
 	}
-
-	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: req.All})
+	dcontainers, err := cli.ContainerList(context.Background(), container.ListOptions{
+		All: req.All,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func ContainerStart(req *DockerContainerStart) error {
 		return err
 	}
 
-	err = cli.ContainerStart(context.Background(), req.Id, types.ContainerStartOptions{})
+	err = cli.ContainerStart(context.Background(), req.Id, container.StartOptions{})
 	if err != nil {
 		return err
 	}
@@ -103,8 +103,7 @@ func ContainerRemove(req *DockerContainerRemove) error {
 	if err != nil {
 		return err
 	}
-
-	err = cli.ContainerRemove(context.Background(), req.Id, types.ContainerRemoveOptions{Force: req.Force})
+	err = cli.ContainerRemove(context.Background(), req.Id, container.RemoveOptions{Force: req.Force})
 	if err != nil {
 		return err
 	}
@@ -118,7 +117,7 @@ func ContainerLogs(req *DockerContainerLogs, ws *websocket.Conn) error {
 		return err
 	}
 
-	o := types.ContainerLogsOptions{
+	o := container.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
@@ -176,7 +175,7 @@ func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) 
 		return err
 	}
 
-	execConfig := types.ExecConfig{
+	execConfig := container.ExecOptions{
 		Tty:          true,
 		Detach:       false,
 		AttachStdin:  true,
@@ -190,8 +189,11 @@ func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) 
 		log.Error().Uint("sessionId", sessionId).Msg("Error while calling ContainerExecCreate")
 		return err
 	}
-
-	hijackedResponse, err := cli.ContainerExecAttach(context.Background(), idResponse.ID, types.ExecStartCheck{Tty: true})
+	hijackedResponse, err := cli.ContainerExecAttach(
+		context.Background(),
+		idResponse.ID,
+		container.ExecStartOptions{Tty: true},
+	)
 	if err != nil {
 		log.Error().Uint("sessionId", sessionId).Msg("Error while calling ContainerExecAttach")
 		return err

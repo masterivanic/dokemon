@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/volume"
@@ -17,7 +17,7 @@ func VolumeList(req *DockerVolumeList) (*DockerVolumeListResponse, error) {
 		return nil, err
 	}
 
-	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	dcontainers, err := cli.ContainerList(context.Background(), container.ListOptions{All: true})
 	if err != nil {
 		return nil, err
 	}

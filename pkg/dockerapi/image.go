@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
 
@@ -18,12 +20,12 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 		return nil, err
 	}
 
-	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	dcontainers, err := cli.ContainerList(context.Background(), container.ListOptions{All: true})
 	if err != nil {
 		return nil, err
 	}
 
-	dimages, err := cli.ImageList(context.Background(), types.ImageListOptions{All: req.All})
+	dimages, err := cli.ImageList(context.Background(), image.ListOptions{All: req.All})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,7 @@ func ImageRemove(req *DockerImageRemove) error {
 		return err
 	}
 
-	response, err := cli.ImageRemove(context.Background(), req.Id, types.ImageRemoveOptions{Force: req.Force})
+	response, err := cli.ImageRemove(context.Background(), req.Id, image.RemoveOptions{Force: req.Force})
 	if err != nil {
 		return err
 	}
