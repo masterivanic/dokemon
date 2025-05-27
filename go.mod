@@ -9,14 +9,14 @@ require (
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/gabemarshall/pty v0.0.0-20220927143247-d84f0bb0c17e
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-playground/validator/v10 v10.14.0
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/google/go-github/v57 v57.0.0
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/labstack/echo/v4 v4.11.3
 	github.com/labstack/gommon v0.4.2
 	github.com/rs/zerolog v1.31.0
-	golang.org/x/crypto v0.23.0
+	golang.org/x/crypto v0.33.0
 	gorm.io/gorm v1.30.0
 )
 
@@ -32,7 +32,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -48,7 +48,7 @@ require (
 	github.com/klauspost/compress v1.17.3 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
-	github.com/leodido/go-urn v1.2.4 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/moby/sys/mountinfo v0.7.1 // indirect
@@ -69,10 +69,10 @@ require (
 	github.com/vbatts/tar-split v0.11.5 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
