@@ -19,13 +19,13 @@ import { useEffect, useMemo, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { z } from "zod"
-
+import { Eye, EyeOff } from "lucide-react"
 export default function Setup() {
   const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const { theme } = useTheme()
-
+  const [showPassword, setShowPassword] = useState(false)
   useEffect(() => {
     async function setupComplete() {
       try {
@@ -140,9 +140,25 @@ export default function Setup() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="password" />
-                        </FormControl>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type={showPassword ? "text" : "password"}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
