@@ -18,11 +18,14 @@ import { useMemo, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { z } from "zod"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function ChangePassword() {
   const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
   const { theme } = useTheme()
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
 
   const formSchema = z.object({
     currentPassword: z.preprocess(trimString, z.string()),
@@ -96,9 +99,26 @@ export default function ChangePassword() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Current Password</FormLabel>
-                        <FormControl>
-                          <Input autoFocus {...field} type="password" />
-                        </FormControl>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              autoFocus
+                              {...field}
+                              type={showCurrentPassword ? "text" : "password"}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          >
+                            {showCurrentPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -110,10 +130,26 @@ export default function ChangePassword() {
                     name="newPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="password" />
-                        </FormControl>
+                        <FormLabel>New Password</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type={showNewPassword ? "text" : "password"}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                          >
+                            {showNewPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
