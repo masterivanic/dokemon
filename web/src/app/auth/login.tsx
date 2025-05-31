@@ -184,7 +184,9 @@ export default function Login() {
           </Form>
         </div>
       </div>
-      <span className="ml-3 mr-5 pt-[3px] text-sm text-center">Version: {VERSION}</span>
+      <center>
+	<span className="ml-3 mr-5 pt-[3px] text-sm text-center">Version: {VERSION}</span>
+      </center>
     </>
   )
 }
