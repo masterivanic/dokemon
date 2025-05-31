@@ -20,6 +20,7 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { z } from "zod"
 import { Eye, EyeOff } from "lucide-react"
+import { VERSION } from "@/lib/version"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -183,6 +184,7 @@ export default function Login() {
           </Form>
         </div>
       </div>
+              <span className="ml-3 mr-5 pt-[3px] text-sm">v{VERSION}</span>
     </>
   )
 }
