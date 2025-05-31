@@ -184,7 +184,9 @@ export default function Login() {
           </Form>
         </div>
       </div>
-              <span className="ml-3 mr-5 pt-[3px] text-sm">v{VERSION}</span>
+      <h3 className="mt-10 text-center text-xl leading-9 tracking-tight text-foreground">
+      Version: {VERSION}
+      </h3>
     </>
   )
 }
