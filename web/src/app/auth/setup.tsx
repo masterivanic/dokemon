@@ -104,7 +104,7 @@ export default function Setup() {
               src={`/assets/images/${
                 theme === "light"
                   ? "dokemon-light.svg"
-                  : "dokemon-dark-small.svg"
+                  : "dokemon-dark-small.png"
               }`}
               alt="Dokémon"
             />

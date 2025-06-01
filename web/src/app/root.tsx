@@ -32,7 +32,7 @@ export default function Root() {
             <div className="flex h-16 shrink-0 items-center text-white">
               <img
                 className="ml-9 w-24"
-                src="/assets/images/dokemon-dark-small.svg"
+                src="/assets/images/dokemon-dark-small.png"
                 alt="Dokémon"
               />
               <span className="ml-3 mr-5 pt-[3px] text-sm">v{VERSION}</span>
