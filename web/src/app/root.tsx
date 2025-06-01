@@ -31,7 +31,7 @@ export default function Root() {
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-0 dark:bg-gray-950">
             <div className="flex h-16 shrink-0 items-center text-white">
               <img
-                className="ml-9 w-24""
+                className="ml-9 w-24"
                 src="/assets/images/dokemon-dark-small.png"
                 alt="Dokémon"
               />
