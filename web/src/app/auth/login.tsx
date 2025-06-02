@@ -106,7 +106,7 @@ export default function Login() {
               className="mx-auto"
               src={`/assets/images/${
                 theme === "light"
-                  ? "dokemon-light.svg"
+                  ? "dokemon-light.png"
                   : "dokemon-dark-small.png"
               }`}
               alt="Dokémon"
