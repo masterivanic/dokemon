@@ -103,7 +103,7 @@ export default function Setup() {
               className="mx-auto h-8 w-32"
               src={`/assets/images/${
                 theme === "light"
-                  ? "dokemon-light.svg"
+                  ? "dokemon-light.png"
                   : "dokemon-dark-small.png"
               }`}
               alt="Dokémon"
