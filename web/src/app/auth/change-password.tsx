@@ -77,7 +77,7 @@ export default function ChangePassword() {
               className="mx-auto"
               src={`/assets/images/${
                 theme === "light"
-                  ? "dokemon-light.svg"
+                  ? "dokemon-light.png"
                   : "dokemon-dark-small.png"
               }`}
               alt="Dokémon"
