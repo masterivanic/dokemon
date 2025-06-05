@@ -112,5 +112,6 @@ COPY --from=build-stage /data /data
 COPY --from=build-stage /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=build-stage /usr/local/bin/docker-compose /usr/local/bin/docker-compose
 
+VOLUME /var/run/docker.sock
 EXPOSE ${DOKEMON_PORT}
 ENTRYPOINT ["/dokemon"]
