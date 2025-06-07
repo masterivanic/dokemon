@@ -126,11 +126,13 @@ func (h *Handler) Register(e *echo.Echo) {
 	volumes.GET("", h.GetVolumeList)
 	volumes.POST("/remove", h.RemoveVolume)
 	volumes.POST("/prune", h.PruneVolumes)
+	volumes.POST("/create", h.CreateVolume)
 
 	networks := nodes.Group("/:nodeId/networks")
 	networks.GET("", h.GetNetworkList)
 	networks.POST("/remove", h.RemoveNetwork)
 	networks.POST("/prune", h.PruneNetworks)
+	networks.POST("/create", h.CreateNetwork)
 
 	composelibrary := v1.Group("/composelibrary")
 	composelibrary.GET("", h.GetComposeProjectList)

@@ -10,6 +10,32 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (h *Handler) CreateVolume(c echo.Context) error {
+    nodeId, err := strconv.Atoi(c.Param("nodeId"))
+    if err != nil {
+        return unprocessableEntity(c, errors.New("nodeId should be an integer"))
+    }
+
+    m := dockerapi.DockerVolumeCreate{}
+    if err := c.Bind(&m); err != nil {
+        return unprocessableEntity(c, err)
+    }
+
+    var res *dockerapi.DockerVolumeCreateResponse
+    if nodeId == 1 {
+        res, err = dockerapi.VolumeCreate(&m)
+    } else {
+        res, err = messages.ProcessTaskWithResponse[dockerapi.DockerVolumeCreate, dockerapi.DockerVolumeCreateResponse](
+            uint(nodeId), m, defaultTimeout)
+    }
+
+    if err != nil {
+        return unprocessableEntity(c, err)
+    }
+
+    return created(c, res)
+}
+
 func (h *Handler) GetVolumeList(c echo.Context) error {
 	var err error
 
