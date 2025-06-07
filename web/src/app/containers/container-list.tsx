@@ -283,7 +283,6 @@ export default function ContainerList() {
                 >
                   <TableCell>
                     <span className="font-bold" title={`Image: ${item.image}`}>
-                      <StaleStatusIcon status={item.stale} />
                       {item.name}
                       <br />
                       <span className="ml-4 text-xs">
@@ -292,7 +291,9 @@ export default function ContainerList() {
                     </span>
                   </TableCell>
                   <TableCell className="hidden 2xl:block">
+                    <StaleStatusIcon status={item.stale} />
                     {item.image}
+                    
                   </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
                   <TableCell>
