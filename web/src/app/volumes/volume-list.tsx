@@ -1,10 +1,12 @@
-import Loading from "@/components/widgets/loading"
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import {
   Breadcrumb,
   BreadcrumbCurrent,
   BreadcrumbLink,
   BreadcrumbSeparator,
-} from "@/components/widgets/breadcrumb"
+} from "@/components/widgets/breadcrumb";
 import {
   Table,
   TableBody,
@@ -12,35 +14,46 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { IVolume } from "@/lib/api-models"
-import { useState } from "react"
-import MainArea from "@/components/widgets/main-area"
-import TopBar from "@/components/widgets/top-bar"
-import TopBarActions from "@/components/widgets/top-bar-actions"
-import MainContent from "@/components/widgets/main-content"
-import useVolumes from "@/hooks/useVolumes"
-import { useParams } from "react-router-dom"
-import useNodeHead from "@/hooks/useNodeHead"
-import TableButtonDelete from "@/components/widgets/table-button-delete"
-import { TableNoData } from "@/components/widgets/table-no-data"
-import { Input } from "@/components/ui/input"
-import DeleteDialog from "@/components/delete-dialog"
-import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils"
-import apiBaseUrl from "@/lib/api-base-url"
-import { useFilterAndSort } from "@/lib/useFilterAndSort"
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import Loading from "@/components/widgets/loading";
+import MainArea from "@/components/widgets/main-area";
+import TopBar from "@/components/widgets/top-bar";
+import TopBarActions from "@/components/widgets/top-bar-actions";
+import MainContent from "@/components/widgets/main-content";
+import TableButtonDelete from "@/components/widgets/table-button-delete";
+import { TableNoData } from "@/components/widgets/table-no-data";
+import DeleteDialog from "@/components/delete-dialog";
+import useVolumes from "@/hooks/useVolumes";
+import useNodeHead from "@/hooks/useNodeHead";
+import { IVolume } from "@/lib/api-models";
+import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils";
+import apiBaseUrl from "@/lib/api-base-url";
+import { useFilterAndSort } from "@/lib/useFilterAndSort";
 
 export default function VolumeList() {
-  const { nodeId } = useParams()
-  const { nodeHead } = useNodeHead(nodeId!)
-  const { isLoading, volumes, mutateVolumes } = useVolumes(nodeId!)
+  const { nodeId } = useParams();
+  const { nodeHead } = useNodeHead(nodeId!);
+  const { isLoading, volumes, mutateVolumes } = useVolumes(nodeId!);
 
-  const [volume, setVolume] = useState<IVolume | null>(null)
-  const [deleteVolumeOpenConfirmation, setDeleteVolumeOpenConfirmation] =
-    useState(false)
-  const [deleteInProgress, setDeleteInProgress] = useState(false)
-  const [pruneInProgress, setPruneInProgress] = useState(false)
+  const [volume, setVolume] = useState<IVolume | null>(null);
+  const [deleteVolumeOpenConfirmation, setDeleteVolumeOpenConfirmation] = useState(false);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [pruneInProgress, setPruneInProgress] = useState(false);
+  const [createVolumeOpen, setCreateVolumeOpen] = useState(false);
+  const [createInProgress, setCreateInProgress] = useState(false);
+  const [volumeName, setVolumeName] = useState("");
+  const [driver, setDriver] = useState("local");
 
   const {
     searchTerm,
@@ -54,16 +67,15 @@ export default function VolumeList() {
     filterKeys: ['driver', 'name', 'inUse'] as (keyof IVolume)[]
   });
 
-
-  if (isLoading) return <Loading />
+  if (isLoading) return <Loading />;
 
   const handleDeleteVolumeConfirmation = (volume: IVolume) => {
-    setVolume({ ...volume })
-    setDeleteVolumeOpenConfirmation(true)
-  }
+    setVolume({ ...volume });
+    setDeleteVolumeOpenConfirmation(true);
+  };
 
   const handleDelete = async () => {
-    setDeleteInProgress(true)
+    setDeleteInProgress(true);
     const response = await fetch(
       `${apiBaseUrl()}/nodes/${nodeId}/volumes/remove`,
       {
@@ -71,23 +83,23 @@ export default function VolumeList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: volume?.name }),
       }
-    )
+    );
     if (!response.ok) {
-      const r = await response.json()
-      setDeleteVolumeOpenConfirmation(false)
-      toastFailed(r.errors?.body)
+      const r = await response.json();
+      setDeleteVolumeOpenConfirmation(false);
+      toastFailed(r.errors?.body);
     } else {
-      mutateVolumes()
+      mutateVolumes();
       setTimeout(() => {
-        setDeleteVolumeOpenConfirmation(false)
-        toastSuccess("Volume deleted.")
-      }, 500)
+        setDeleteVolumeOpenConfirmation(false);
+        toastSuccess("Volume deleted.");
+      }, 500);
     }
-    setDeleteInProgress(false)
-  }
+    setDeleteInProgress(false);
+  };
 
   const handlePrune = async () => {
-    setPruneInProgress(true)
+    setPruneInProgress(true);
     const response = await fetch(
       `${apiBaseUrl()}/nodes/${nodeId}/volumes/prune`,
       {
@@ -95,26 +107,54 @@ export default function VolumeList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ all: true }),
       }
-    )
+    );
     if (!response.ok) {
-      const r = await response.json()
-      toastFailed(r.errors?.body)
+      const r = await response.json();
+      toastFailed(r.errors?.body);
     } else {
-      mutateVolumes()
-      const r = await response.json()
-      let description = "Nothing found to delete"
+      mutateVolumes();
+      const r = await response.json();
+      let description = "Nothing found to delete";
       if (r.volumesDeleted?.length > 0) {
         description = `${r.volumesDeleted.length
           } unused volumes deleted. Space reclaimed: ${convertByteToMb(
             r.spaceReclaimed
-          )}`
+          )}`;
       }
       setTimeout(async () => {
-        toastSuccess(description)
-      }, 500)
+        toastSuccess(description);
+      }, 500);
     }
-    setPruneInProgress(false)
-  }
+    setPruneInProgress(false);
+  };
+
+  const handleCreateVolume = async () => {
+    setCreateInProgress(true);
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/volumes/create`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          name: volumeName,
+          driver: driver
+        }),
+      }
+    );
+    if (!response.ok) {
+      const r = await response.json();
+      toastFailed(r.errors?.body);
+    } else {
+      mutateVolumes();
+      setTimeout(() => {
+        setCreateVolumeOpen(false);
+        setVolumeName("");
+        setDriver("local");
+        toastSuccess("Volume created successfully.");
+      }, 500);
+    }
+    setCreateInProgress(false);
+  };
 
   return (
     <MainArea>
@@ -126,9 +166,56 @@ export default function VolumeList() {
           deleteHandler={handleDelete}
           isProcessing={deleteInProgress}
           title="Delete Volume"
-          message={`Are you sure you want to delete volume '${volume?.name}?'`}
+          message={`Are you sure you want to delete volume '${volume?.name}'?`}
         />
       )}
+      
+      <Dialog open={createVolumeOpen} onOpenChange={setCreateVolumeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Volume</DialogTitle>
+            <DialogDescription>
+              Create a new Docker volume
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={volumeName}
+                onChange={(e) => setVolumeName(e.target.value)}
+                className="col-span-3"
+                placeholder="volume-name"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="driver" className="text-right">
+                Driver
+              </Label>
+              <Input
+                id="driver"
+                value={driver}
+                onChange={(e) => setDriver(e.target.value)}
+                className="col-span-3"
+                placeholder="local"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              type="submit"
+              onClick={handleCreateVolume}
+              disabled={createInProgress || !volumeName}
+            >
+              {createInProgress ? "Creating..." : "Create Volume"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <TopBar>
         <Breadcrumb>
           <BreadcrumbLink to="/nodes">Nodes</BreadcrumbLink>
@@ -138,6 +225,13 @@ export default function VolumeList() {
           <BreadcrumbCurrent>Volumes</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
+          <Button 
+            variant="default" 
+            className="mr-2"
+            onClick={() => setCreateVolumeOpen(true)}
+          >
+            Create Volume
+          </Button>
           <DeleteDialog
             widthClass="w-42"
             deleteCaption="Delete Unused (Prune All)"
@@ -148,6 +242,7 @@ export default function VolumeList() {
           />
         </TopBarActions>
       </TopBar>
+
       <MainContent>
         <div className="mb-4 flex items-center justify-end">
           <div className="relative w-full max-w-md">
@@ -156,7 +251,7 @@ export default function VolumeList() {
             </div>
             <Input
               type="text"
-              className="pl-10 pl-10"
+              className="pl-10"
               placeholder="Search volumes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -226,8 +321,8 @@ export default function VolumeList() {
                     {!item.inUse && (
                       <TableButtonDelete
                         onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteVolumeConfirmation(item)
+                          e.stopPropagation();
+                          handleDeleteVolumeConfirmation(item);
                         }}
                       />
                     )}
@@ -239,5 +334,5 @@ export default function VolumeList() {
         </Table>
       </MainContent>
     </MainArea>
-  )
+  );
 }
