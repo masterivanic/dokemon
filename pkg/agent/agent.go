@@ -166,6 +166,7 @@ func listen() {
 	initialConnectMessage := messages.ConnectMessage{
 		ConnectionToken: token,
 		AgentVersion:    common.Version,
+		AgentArch:       getArchitecture(),
 	}
 	messages.Send[messages.ConnectMessage](c, initialConnectMessage)
 	mu.Unlock()
