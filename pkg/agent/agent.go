@@ -33,10 +33,7 @@ func getArchitecture() string {
         return "arm64"
     case "arm":
         // Check if it's armv7 or armv6
-        if runtime.GOARM == "7" {
-            return "armv7"
-        }
-        return "armv6"
+        return "armv7"
     default:
         return runtime.GOARCH
     }
