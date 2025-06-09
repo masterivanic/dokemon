@@ -11,4 +11,6 @@ type Node struct {
 	TokenHash        *string `gorm:"unique;size:100"`
 	LastPing         *time.Time
 	ContainerBaseUrl *string `gorm:"size:255"`
+	Architecture string `json:"architecture" gorm:"-"`
+
 }

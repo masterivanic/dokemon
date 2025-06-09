@@ -195,7 +195,10 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 }
 
 function getAgentVersion(nodeHead: INodeHead) {
-  if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
+  // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
+  if (isDokemonNode(nodeHead)) {
+    return `Dokémon Server v${VERSION} (${nodeHead.architecture || unknown'})`
+  }
 
   if (nodeHead.agentVersion) {
     // For other nodes - assuming agentVersion already includes arch (e.g., "armv7-1.6.0b")

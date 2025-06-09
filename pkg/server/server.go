@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 	"time"
+	"runtime"
 
 	"github.com/dokemon-ng/dokemon/pkg/common"
 	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
@@ -40,7 +41,9 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 	s := Server{}
 
 	setLogLevel(logLevel)
-	log.Info().Msg("Starting Dokemon v" + common.Version)
+//	log.Info().Msg("Starting Dokemon v" + common.Version)
+
+	log.Info().Msgf("Starting Dokémon v%s (%s/%s)", common.Version, runtime.GOOS, runtime.GOARCH)
 
 	if dataPath == "" {
 		dataPath = "/data"
