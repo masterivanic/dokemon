@@ -40,7 +40,7 @@ func getArchitecture() string {
 }
 
 func getFullVersion() string {
-    return fmt.Sprintf("%s v%s", getArchitecture(), common.Version)
+    return fmt.Sprintf("%s-%s", getArchitecture(), common.Version)
 }
 
 func Main() {
@@ -72,8 +72,8 @@ func parseArgs() {
 	wsUrl = fmt.Sprintf("%s://%s/ws", serverScheme, host)
 
 	// log.Info().Str("url", wsUrl).Msg("Starting Dokemon Agent v" + common.Version)
-	//log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s-%s", getArchitecture(), common.Version)
-	log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s", getFullVersion())
+	log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s-%s", getArchitecture(), common.Version)
+	// log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s", getFullVersion())
 	log.Info().Str("url", wsUrl).Msg("Server set to URL")
 }
 

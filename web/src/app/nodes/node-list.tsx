@@ -195,15 +195,18 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 }
 
 function getAgentVersion(nodeHead: INodeHead) {
-  // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
-   if (isDokemonNode(nodeHead)) {
-    // For Dokemon server node
-    const arch = window.navigator.userAgent.includes('amd64') ? 'amd64' : 
-                 window.navigator.userAgent.includes('arm64') ? 'arm64' : 
-                 window.navigator.userAgent.includes('armv7') ? 'armv7' : 'unknown';
-    return `Dokémon Server ${arch} v${VERSION}`;
-  } 
+  if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
 
-  if (nodeHead.agentVersion) return nodeHead.agentVersion
+  if (nodeHead.agentVersion) {
+    // For other nodes - assuming agentVersion already includes arch (e.g., "armv7-1.6.0b")
+    const versionParts = nodeHead.agentVersion.split('-');
+    if (versionParts.length >= 2) {
+      // Format as "arch vX.Y.Z"
+      return `${versionParts[0]} v${versionParts.slice(1).join('-')}`;
+    }
+    return nodeHead.agentVersion;
+  }
+
+  //if (nodeHead.agentVersion) return nodeHead.agentVersion
   return "-"
 }
