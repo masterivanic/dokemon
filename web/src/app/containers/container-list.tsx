@@ -290,7 +290,7 @@ export default function ContainerList() {
                       </span>
                     </span>
                   </TableCell>
-                  <TableCell className="hidden 2xl:block">
+                  <TableCell>
                     <StaleStatusIcon status={item.stale} />
                     {item.image}
 
