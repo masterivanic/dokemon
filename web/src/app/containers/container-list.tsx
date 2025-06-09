@@ -286,7 +286,7 @@ export default function ContainerList() {
                       {item.name}
                       <br />
                       <span className="ml-4 text-xs">
-                        {item.id.substring(0, 12)}
+                      id: {item.id.substring(0, 12)}
                       </span>
                     </span>
                   </TableCell>
