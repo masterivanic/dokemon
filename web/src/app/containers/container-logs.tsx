@@ -10,12 +10,13 @@ import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import { FitAddon } from "@xterm/addon-fit"
 import { useParams } from "react-router-dom"
-// import "/node_modules/xterm/css/xterm.css"
+import "@xterm/xterm/css/xterm.css"
 import { useEffect, useState } from "react"
 import { wsApiBaseUrl } from "@/lib/api-base-url"
 import {
   downloadTerminalTextAsFile,
   newTerminal,
+  printDokemonLogo,
   recreateTerminalElement,
 } from "@/lib/utils"
 import { AttachAddon } from "@xterm/addon-attach"
@@ -32,6 +33,7 @@ export default function ContainerLogs() {
   useEffect(() => {
     const t = newTerminal()
     setTerminal(t)
+    printDokemonLogo(t)
 
     if (socket) socket.close()
     const s = new WebSocket(

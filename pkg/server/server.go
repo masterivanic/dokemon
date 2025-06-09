@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"path"
@@ -189,6 +190,7 @@ func (s *Server) authMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		cc, err := requestutil.GetAuthCookie(c)
 		if err != nil {
+			fmt.Println(err.Error())
 			log.Warn().Err(err).Msg("Invalid or missing auth cookie")
 			return c.NoContent(http.StatusUnauthorized)
 		}

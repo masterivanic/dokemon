@@ -89,6 +89,7 @@ export function newTerminal(convertToEol?: boolean) {
   })
 }
 
+
 export function downloadTerminalTextAsFile(
   terminal: Terminal,
   filename: string
@@ -158,4 +159,21 @@ export function download(filename: string, text: string) {
   element.click()
 
   document.body.removeChild(element)
+}
+
+
+export function printDokemonLogo(t: Terminal) {
+  const logo = `
+              ##         .
+        ## ## ##        ==
+     ## ## ## ## ##    ===
+ /""""""""""""""""\\___/ ===
+{                       /  ===-
+ \\______ O           __/
+  \\    \\         __/
+   \\____\\_______/
+  ____||____||____
+ /____||____||____
+`
+  t.writeln(logo)
 }

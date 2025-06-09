@@ -1,5 +1,4 @@
 import Loading from "@/components/widgets/loading"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -32,22 +31,7 @@ import { useFilterAndSort } from "@/lib/useFilterAndSort"
 import { Input } from "@/components/ui/input"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import NetworkCreateDialog from "./network-create"
 
 const systemNetworks = [
   "none",
@@ -56,15 +40,6 @@ const systemNetworks = [
   "ingress",
   "docker_gwbridge",
   "docker_volumes-backup-extension-desktop-extension_default",
-]
-
-const NETWORK_DRIVERS = [
-  { value: "bridge", label: "Bridge" },
-  { value: "host", label: "Host" },
-  { value: "overlay", label: "Overlay" },
-  { value: "macvlan", label: "Macvlan" },
-  { value: "ipvlan", label: "IPvlan" },
-  { value: "none", label: "None" },
 ]
 
 export default function NetworkList() {
@@ -78,12 +53,6 @@ export default function NetworkList() {
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
   const [createNetworkOpen, setCreateNetworkOpen] = useState(false)
-  const [createInProgress, setCreateInProgress] = useState(false)
-  const [networkName, setNetworkName] = useState("")
-  const [driver, setDriver] = useState("bridge")
-  const [internal, setInternal] = useState(false)
-  const [attachable, setAttachable] = useState(false)
-  const [ingress, setIngress] = useState(false)
 
   const {
     searchTerm,
@@ -155,55 +124,6 @@ export default function NetworkList() {
     setPruneInProgress(false)
   }
 
-  const handleCreateNetwork = async () => {
-    setCreateInProgress(true)
-    try {
-      const response = await fetch(
-        `${apiBaseUrl()}/nodes/${nodeId}/networks/create`,
-        {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({ 
-            name: networkName,
-            driver: driver,
-            internal: internal,
-            attachable: attachable,
-            ingress: ingress,
-            ipam: {
-              driver: "default",
-              config: []
-            }
-          }),
-        }
-      )
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to create network")
-      }
-
-      mutateNetworks()
-      setCreateNetworkOpen(false)
-      setNetworkName("")
-      setDriver("bridge")
-      setInternal(false)
-      setAttachable(false)
-      setIngress(false)
-      toastSuccess("Network created successfully")
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toastFailed(error.message)
-      } else {
-        toastFailed("An unknown error occurred")
-      }
-    } finally {
-      setCreateInProgress(false)
-    }
-  }
-
   return (
     <MainArea>
       {deleteNetworkOpenConfirmation && (
@@ -218,88 +138,10 @@ export default function NetworkList() {
         />
       )}
 
-      <Dialog open={createNetworkOpen} onOpenChange={setCreateNetworkOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Network</DialogTitle>
-            <DialogDescription>
-              Create a new Docker network
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={networkName}
-                onChange={(e) => setNetworkName(e.target.value)}
-                className="col-span-3"
-                placeholder="network-name"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="driver" className="text-right">
-                Driver
-              </Label>
-              <Select 
-                value={driver} 
-                onValueChange={setDriver}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select driver" />
-                </SelectTrigger>
-                <SelectContent>
-                  {NETWORK_DRIVERS.map((driver) => (
-                    <SelectItem key={driver.value} value={driver.value}>
-                      {driver.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="internal" className="text-right">
-                Internal
-              </Label>
-              <Checkbox
-                id="internal"
-                checked={internal}
-                onCheckedChange={(checked) => setInternal(checked === true)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="attachable" className="text-right">
-                Attachable
-              </Label>
-              <Checkbox
-                id="attachable"
-                checked={attachable}
-                onCheckedChange={(checked) => setAttachable(checked === true)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="ingress" className="text-right">
-                Ingress
-              </Label>
-              <Checkbox
-                id="ingress"
-                checked={ingress}
-                onCheckedChange={(checked) => setIngress(checked === true)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              onClick={handleCreateNetwork}
-              disabled={createInProgress || !networkName}
-            >
-              {createInProgress ? "Creating..." : "Create Network"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <NetworkCreateDialog
+        open={createNetworkOpen}
+        onOpenChange={setCreateNetworkOpen}
+      />
 
       <TopBar>
         <Breadcrumb>
@@ -310,8 +152,8 @@ export default function NetworkList() {
           <BreadcrumbCurrent>Networks</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
-          <Button 
-            variant="default" 
+          <Button
+            variant="default"
             className="mr-2"
             onClick={() => setCreateNetworkOpen(true)}
           >

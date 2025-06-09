@@ -135,7 +135,7 @@ export default function VolumeList() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           name: volumeName,
           driver: driver
         }),
@@ -169,7 +169,7 @@ export default function VolumeList() {
           message={`Are you sure you want to delete volume '${volume?.name}'?`}
         />
       )}
-      
+
       <Dialog open={createVolumeOpen} onOpenChange={setCreateVolumeOpen}>
         <DialogContent>
           <DialogHeader>
@@ -205,7 +205,7 @@ export default function VolumeList() {
             </div>
           </div>
           <DialogFooter>
-            <Button 
+            <Button
               type="submit"
               onClick={handleCreateVolume}
               disabled={createInProgress || !volumeName}
@@ -225,8 +225,8 @@ export default function VolumeList() {
           <BreadcrumbCurrent>Volumes</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
-          <Button 
-            variant="default" 
+          <Button
+            variant="default"
             className="mr-2"
             onClick={() => setCreateVolumeOpen(true)}
           >
