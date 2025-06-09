@@ -265,7 +265,7 @@ export default function ContainerList() {
                 </div>
               </TableHead>
               <TableHead scope="col">
-                <span className="sr-only">Actions</span>
+                Actions
               </TableHead>
             </TableRow>
           </TableHeader>
