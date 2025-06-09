@@ -202,7 +202,7 @@ function getAgentVersion(nodeHead: INodeHead) {
     const versionParts = nodeHead.agentVersion.split('-');
     if (versionParts.length >= 2) {
       // Format as "arch vX.Y.Z"
-      return `${versionParts[0]} v${versionParts.slice(1).join('-')}`;
+      return `v${versionParts[0]} (${versionParts.slice(1).join('-')})`;
     }
     return nodeHead.agentVersion;
   }
