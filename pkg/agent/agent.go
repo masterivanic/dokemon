@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"runtime"
 
 	"github.com/dokemon-ng/dokemon/pkg/common"
 	"github.com/dokemon-ng/dokemon/pkg/dockerapi"
@@ -23,6 +24,23 @@ var (
 	token          string
 	stalenessCheck string = "ON"
 )
+
+func getArchitecture() string {
+    switch runtime.GOARCH {
+    case "amd64":
+        return "amd64"
+    case "arm64":
+        return "arm64"
+    case "arm":
+        // Check if it's armv7 or armv6
+        if runtime.GOARM == "7" {
+            return "armv7"
+        }
+        return "armv6"
+    default:
+        return runtime.GOARCH
+    }
+}
 
 func Main() {
 	parseArgs()
@@ -52,7 +70,8 @@ func parseArgs() {
 	host := urlParts[1]
 	wsUrl = fmt.Sprintf("%s://%s/ws", serverScheme, host)
 
-	log.Info().Str("url", wsUrl).Msg("Starting Dokemon Agent v" + common.Version)
+	// log.Info().Str("url", wsUrl).Msg("Starting Dokemon Agent v" + common.Version)
+	log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s-%s", getArchitecture(), common.Version)
 	log.Info().Str("url", wsUrl).Msg("Server set to URL")
 }
 
