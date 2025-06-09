@@ -13,7 +13,7 @@ import useContainers from "@/hooks/useContainers"
 import useNodeHead from "@/hooks/useNodeHead"
 import { wsApiBaseUrl } from "@/lib/api-base-url"
 import { IContainer } from "@/lib/api-models"
-import { newTerminal, recreateTerminalElement } from "@/lib/utils"
+import { newTerminal, recreateTerminalElement, printDokemonLogo } from "@/lib/utils"
 import { AttachAddon } from "@xterm/addon-attach"
 import { FitAddon } from "@xterm/addon-fit"
 import { useEffect, useState } from "react"
@@ -59,6 +59,7 @@ export default function ContainerTerminal() {
         "terminal"
       )
       terminal.open(terminalEl!)
+      printDokemonLogo(terminal)
       fitAddon.fit()
       addEventListener("resize", () => {
         fitAddon?.fit()
@@ -88,7 +89,7 @@ export default function ContainerTerminal() {
       </TopBar>
       <MainContent>
         {container?.state === "running" && (
-          <div id="terminalContainer">
+          <div id="terminalContainer" className="h-[calc(100vh-64px)] w-full p-2 bg-black">
             <div id="terminal" className=""></div>
           </div>
         )}

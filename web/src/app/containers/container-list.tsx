@@ -293,7 +293,7 @@ export default function ContainerList() {
                   <TableCell className="hidden 2xl:block">
                     <StaleStatusIcon status={item.stale} />
                     {item.image}
-                    
+
                   </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
                   <TableCell>

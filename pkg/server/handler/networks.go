@@ -10,31 +10,30 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 func (h *Handler) CreateNetwork(c echo.Context) error {
-    nodeId, err := strconv.Atoi(c.Param("nodeId"))
-    if err != nil {
-        return unprocessableEntity(c, errors.New("nodeId should be an integer"))
-    }
+	nodeId, err := strconv.Atoi(c.Param("nodeId"))
+	if err != nil {
+		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
+	}
 
-    m := dockerapi.DockerNetworkCreate{}
-    if err := c.Bind(&m); err != nil {
-        return unprocessableEntity(c, err)
-    }
+	m := dockerapi.DockerNetworkCreate{}
+	if err := c.Bind(&m); err != nil {
+		return unprocessableEntity(c, err)
+	}
 
-    var res *dockerapi.DockerNetworkCreateResponse
-    if nodeId == 1 {
-        res, err = dockerapi.NetworkCreate(&m)
-    } else {
-        res, err = messages.ProcessTaskWithResponse[dockerapi.DockerNetworkCreate, dockerapi.DockerNetworkCreateResponse](
-            uint(nodeId), m, defaultTimeout)
-    }
+	var res *dockerapi.DockerNetworkCreateResponse
+	if nodeId == 1 {
+		res, err = dockerapi.NetworkCreate(&m)
+	} else {
+		res, err = messages.ProcessTaskWithResponse[dockerapi.DockerNetworkCreate, dockerapi.DockerNetworkCreateResponse](
+			uint(nodeId), m, defaultTimeout)
+	}
 
-    if err != nil {
-        return unprocessableEntity(c, err)
-    }
+	if err != nil {
+		return unprocessableEntity(c, err)
+	}
 
-    return created(c, res)
+	return created(c, res)
 }
 
 func (h *Handler) GetNetworkList(c echo.Context) error {

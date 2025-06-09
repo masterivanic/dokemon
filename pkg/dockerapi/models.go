@@ -126,17 +126,17 @@ type DockerVolumesPruneResponse struct {
 
 // DockerVolumeCreate contains volume creation parameters
 type DockerVolumeCreate struct {
-    Name       string
-    Driver     string
-    DriverOpts map[string]string
-    Labels     map[string]string
+	Name       string
+	Driver     string
+	DriverOpts map[string]string
+	Labels     map[string]string
 }
 
 // DockerVolumeCreateResponse contains created volume info
 type DockerVolumeCreateResponse struct {
-    Name       string
-    Driver     string
-    Mountpoint string
+	Name       string
+	Driver     string
+	Mountpoint string
 }
 
 type DockerNetworkList struct {
@@ -172,32 +172,33 @@ type DockerComposeGet struct {
 	ProjectName string `json:"projectName"`
 }
 
-
 // Network types
 type DockerNetworkCreate struct {
-    Name       string
-    Driver     string
-    Options    map[string]string
-    Labels     map[string]string
-    IPAM       *IPAMConfig
-    Internal   bool
-    Attachable bool
-    Ingress    bool
+	Name       string
+	Driver     string
+	Options    map[string]string
+	Labels     map[string]string
+	IPAM       *IPAMConfig
+	Internal   bool
+	Attachable bool
+	Ingress    bool
+	EnableIPv6 bool
 }
 
 type DockerNetworkCreateResponse struct {
-    ID string `json:"Id"`
+	ID      string `json:"Id"`
+	Warning string
 }
 
 type IPAMConfig struct {
-    Driver string       `json:"Driver"`
-    Config []IPAMPool   `json:"Config"`
-    Options map[string]string `json:"Options"`
+	Driver  string            `json:"Driver"`
+	Config  []IPAMPool        `json:"Config"`
+	Options map[string]string `json:"Options"`
 }
 
 type IPAMPool struct {
-    Subnet  string `json:"Subnet"`
-    Gateway string `json:"Gateway"`
+	Subnet  string `json:"Subnet"`
+	Gateway string `json:"Gateway"`
 }
 
 type ComposeItemInternal struct {
