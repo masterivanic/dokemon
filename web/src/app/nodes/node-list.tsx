@@ -200,7 +200,7 @@ function getAgentVersion(nodeHead: INodeHead) {
   if (isDokemonNode(nodeHead)) {
     const arch = (nodeHead as any).architecture || 
                 (typeof process !== 'undefined' ? process.arch : 'amd64');
-    const arch2 = nodeHead.architecture || unknown'; // Default to amd64 if missing
+    const arch2 = nodeHead.architecture || 'unknown'; // Default to amd64 if missing
 
     return `Dokémon Server v${VERSION} (${arch})(${arch2})`;
   }
