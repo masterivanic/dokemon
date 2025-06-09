@@ -6,6 +6,7 @@ type Ping struct {
 type ConnectMessage struct {
 	ConnectionToken string `json:"connectionToken"`
 	AgentVersion    string `json:"agentVersion"`
+	AgentArch       string `json:"agentArch"`  // Add this line
 }
 
 type ConnectResponseMessage struct {
