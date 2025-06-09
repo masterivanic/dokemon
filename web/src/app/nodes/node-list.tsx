@@ -198,12 +198,16 @@ function getAgentVersion(nodeHead: INodeHead) {
   // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
 
   if (isDokemonNode(nodeHead)) {
-    const arch = (nodeHead as any).architecture || 
-                (typeof process !== 'undefined' ? process.arch : 'amd64');
-    const arch2 = nodeHead.architecture || 'unknown'; // Default to amd64 if missing
-
-    return `Dokémon Server v${VERSION} (${arch})(${arch2})`;
-  }
+  // Get architecture from node or default to 'amd64'
+  const arch = nodeHead.architecture || 'amd64';
+  
+  // Validate it's one of our supported architectures
+  const validArch = ['amd64', 'arm64', 'armv7'].includes(arch) 
+    ? arch 
+    : 'amd64';
+    
+  return `Dokémon Server v${VERSION} (${validArch})`;
+}
 
   if (nodeHead.agentVersion) {
     // For other nodes - assuming agentVersion already includes arch (e.g., "armv7-1.6.0b")
