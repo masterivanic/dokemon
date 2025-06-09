@@ -73,7 +73,7 @@ func parseArgs() {
 
 	// log.Info().Str("url", wsUrl).Msg("Starting Dokemon Agent v" + common.Version)
 	log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s-%s", getArchitecture(), common.Version)
-	// log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s", getFullVersion())
+	log.Info().Str("url", wsUrl).Msgf("Starting Dokemon Agent %s", getFullVersion())
 	log.Info().Str("url", wsUrl).Msg("Server set to URL")
 }
 
