@@ -246,7 +246,7 @@ export default function ContainerList() {
                   )}
                 </div>
               </TableHead>
-              <TableHead scope="col" className="hidden 2xl:block">
+              <TableHead scope="col">
                 Image
               </TableHead>
               <TableHead scope="col">Ports</TableHead>
