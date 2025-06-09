@@ -285,7 +285,7 @@ export default function ContainerList() {
                     <span className="font-bold" title={`Image: ${item.image}`}>
                       {item.name}
                       <br />
-                      <span className="ml-4 text-xs">
+                      <span className="text-xs">
                       id: {item.id.substring(0, 12)}
                       </span>
                     </span>
