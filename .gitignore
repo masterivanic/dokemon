@@ -23,6 +23,8 @@ go.work
 make-server.sh
 make-agent.sh
 git-push.sh
+make-server-windows.bat
+make-agent-windows.bat
 
 # App Binaries in root directory
 /agent
