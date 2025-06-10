@@ -197,12 +197,10 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 function getAgentVersion(nodeHead: INodeHead) {
   // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
 
-  if (isDokemonNode(nodeHead)) {
 if (isDokemonNode(nodeHead)) {
   const arch = (nodeHead as any).architecture;
   return `Dokémon Server v${VERSION}` + (arch ? ` (${arch})` : "");
 }
-  }
 
 
   if (nodeHead.agentVersion) {
