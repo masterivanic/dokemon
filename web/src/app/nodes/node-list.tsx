@@ -198,10 +198,16 @@ function getAgentVersion(nodeHead: INodeHead) {
   // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
 
   if (isDokemonNode(nodeHead)) {
-  const arch = (nodeHead as any).architecture || 
-              (typeof process !== 'undefined' ? process.arch : 'armv7');
-  
-  return `Dokémon Server v${VERSION} (${arch})`;  // Simplified output
+const getFallbackArch = () => {
+  if (typeof navigator === 'undefined') return "unknown";
+  const ua = navigator.userAgent;
+  if (ua.includes("ARM") || ua.includes("aarch64")) return "arm64";
+  if (ua.includes("x86_64") || ua.includes("Win64")) return "amd64";
+  return "unknown";
+};
+
+const arch = (nodeHead as any).architecture || getFallbackArch();
+return `Dokémon Server v${VERSION} (${arch})`;
   }
 
 
