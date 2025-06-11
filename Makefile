@@ -1,3 +1,5 @@
+GO_VER_MIN ?= 1.23.3
+
 .PHONY: help
 
 default: help
@@ -64,6 +66,17 @@ runserver: ## Build and run the server locally
 	LOG_LEVEL="DEBUG" \
 	SSL_ENABLED="0" \
 	./server
+
+
+update-go-mod: ## Update go mod
+	cp go.mod go.mod.bak
+	cp go.sum go.sum.bak
+	@echo '* Updating modules ...'
+	go get -u ./...
+	@echo '* Removing old go.mod file ...'
+	rm -f go.mod.bak
+	rm -f go.sum.bak
+	@echo 'Successfully updated modules!'
 
 
 help:
