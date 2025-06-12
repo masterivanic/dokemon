@@ -1,0 +1,13 @@
+pull_request_rules:
+  - name: Automatic merge if only on change on go.mod or go.sum
+    conditions:
+      - author=masterivanic
+      - base=main
+      - title~=^Changes
+      - and:
+        - files=go.mod
+        - files=go.sum
+      - "#files=2"
+    actions:
+      merge:
+        method: merge
