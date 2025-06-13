@@ -131,7 +131,6 @@ export default function EnvironmentAddDialog() {
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true);
-    console.log("SUBMIT", { activeTab, importedEnvs, data });
 
     try {
       if (activeTab === "add") {
@@ -146,7 +145,6 @@ export default function EnvironmentAddDialog() {
         mutateEnvironments();
         toastSuccess("New environment has been added.");
       } else {
-        console.log("Here in environment tab ------------------------------------- ", activeTab)
         if (importedEnvs.length === 0) {
           toastSomethingWentWrong("No environments found to import");
           setIsSaving(false);
@@ -167,7 +165,6 @@ export default function EnvironmentAddDialog() {
             `Skipping invalid environment names: ${invalidEnvs.map(e => e.name).join(', ')}`
           );
         }
-        console.log(validEnvs, "value of my envs imported >>>>>>>>>>>>>> ")
         const creationPromises = validEnvs.map(env =>
           fetch(`${apiBaseUrl()}/environments`, {
             method: "POST",

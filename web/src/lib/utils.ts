@@ -35,7 +35,7 @@ export function getContainerUrlFromPortMapping(
     return null
   }
 
-  let publicPort = parts[0]
+  const publicPort = parts[0]
   let hostname = portMapping.substring(0, lastColonIndex)
 
   let baseUrl = containerBaseUrl
@@ -146,7 +146,7 @@ export function toastFailed(message: string) {
 }
 
 export function download(filename: string, text: string) {
-  var element = document.createElement("a")
+  const element = document.createElement("a")
   element.setAttribute(
     "href",
     "data:text/plain;charset=utf-8," + encodeURIComponent(text)
