@@ -8,7 +8,7 @@ import {
 
 // Nodes
 
-export async function apiNodesGenerateToken(nodeId: Number) {
+export async function apiNodesGenerateToken(nodeId: number) {
   return apiPost(`${apiBaseUrl()}/nodes/${nodeId}/generatetoken`, null)
 }
 
@@ -17,20 +17,20 @@ export async function apiNodesCreate(request: INodeCreateRequest) {
 }
 
 export async function apiNodesUpdate(
-  nodeId: Number,
+  nodeId: number,
   request: INodeUpdateRequest
 ) {
   return apiPut(`${apiBaseUrl()}/nodes/${nodeId}`, request)
 }
 
 export async function apiNodesContainerBaseUrlUpdate(
-  nodeId: Number,
+  nodeId: number,
   request: INodeContainerBaseUrlUpdateRequest
 ) {
   return apiPatch(`${apiBaseUrl()}/nodes/${nodeId}`, request)
 }
 
-export async function apiNodesDelete(nodeId: Number) {
+export async function apiNodesDelete(nodeId: number) {
   return apiDelete(`${apiBaseUrl()}/nodes/${nodeId}`, null)
 }
 

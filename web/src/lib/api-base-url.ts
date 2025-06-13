@@ -1,5 +1,5 @@
 export default function apiBaseUrl() {
-  let url = window.location.origin
+  const url = window.location.origin
   return `${url}/api/v1`
 }
 

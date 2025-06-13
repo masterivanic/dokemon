@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
-	"runtime"
 
 	"github.com/dokemon-ng/dokemon/pkg/common"
 	"github.com/dokemon-ng/dokemon/pkg/dockerapi"
@@ -26,21 +26,21 @@ var (
 )
 
 func getArchitecture() string {
-    switch runtime.GOARCH {
-    case "amd64":
-        return "amd64"
-    case "arm64":
-        return "arm64"
-    case "arm":
-        // Check if it's armv7 or armv6
-        return "armv7"
-    default:
-        return runtime.GOARCH
-    }
+	switch runtime.GOARCH {
+	case "amd64":
+		return "amd64"
+	case "arm64":
+		return "arm64"
+	case "arm":
+		// Check if it's armv7 or armv6
+		return "armv7"
+	default:
+		return runtime.GOARCH
+	}
 }
 
 func getFullVersion() string {
-    return fmt.Sprintf("%s-%s", common.Version, getArchitecture())
+	return fmt.Sprintf("%s-%s", common.Version, getArchitecture())
 }
 
 func Main() {
