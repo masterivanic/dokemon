@@ -45,25 +45,35 @@ export default function EnvironmentAddDialog() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { mutateEnvironments } = useEnvironments()
 
-  const formSchema = z.object({
-    name: z.preprocess(
-      trimString,
-      z
-        .string()
-        .min(1, "Name is required")
-        .max(20)
-        .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
-        .refine(
-          async (value) =>
-            hasUniqueName(
-              `${apiBaseUrl()}/environments/uniquename?value=${value}`
-            ),
-          "Another environment with this name already exists"
-        )
-    ),
-    envFile: z.string().optional()
-  })
+  const getFormSchema = (mode: "add" | "import") => {
+    if (mode === "add") {
+      return z.object({
+        name: z.preprocess(
+          trimString,
+          z
+            .string()
+            .min(1, "Name is required")
+            .max(20)
+            .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
+            .refine(
+              async (value) =>
+                hasUniqueName(
+                  `${apiBaseUrl()}/environments/uniquename?value=${value}`
+                ),
+              "Another environment with this name already exists"
+            )
+        ),
+        envFile: z.string().optional(),
+      });
+    } else {
+      return z.object({
+        name: z.string().optional(),
+        envFile: z.string().min(1, "Please upload a valid .env file"),
+      });
+    }
+  };
 
+  const formSchema = getFormSchema(activeTab);
   type FormSchemaType = z.infer<typeof formSchema>
 
   const form = useForm<FormSchemaType>({
@@ -121,6 +131,7 @@ export default function EnvironmentAddDialog() {
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true);
+    console.log("SUBMIT", { activeTab, importedEnvs, data });
 
     try {
       if (activeTab === "add") {
@@ -135,6 +146,7 @@ export default function EnvironmentAddDialog() {
         mutateEnvironments();
         toastSuccess("New environment has been added.");
       } else {
+        console.log("Here in environment tab ------------------------------------- ", activeTab)
         if (importedEnvs.length === 0) {
           toastSomethingWentWrong("No environments found to import");
           setIsSaving(false);
@@ -155,7 +167,7 @@ export default function EnvironmentAddDialog() {
             `Skipping invalid environment names: ${invalidEnvs.map(e => e.name).join(', ')}`
           );
         }
-
+        console.log(validEnvs, "value of my envs imported >>>>>>>>>>>>>> ")
         const creationPromises = validEnvs.map(env =>
           fetch(`${apiBaseUrl()}/environments`, {
             method: "POST",
@@ -189,10 +201,19 @@ export default function EnvironmentAddDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <div className="flex gap-2">
         <DialogTrigger asChild>
-          <Button onClick={() => setActiveTab("add")}>Add Environment</Button>
+          <Button onClick={() => {
+            setActiveTab("add");
+            setImportedEnvs([]);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = "";
+            }
+          }}>Add Environment</Button>
         </DialogTrigger>
         <DialogTrigger asChild>
-          <Button onClick={() => setActiveTab("import")}>
+          <Button onClick={() => {
+            setActiveTab("import");
+            form.reset({ name: "", envFile: "" });
+          }}>
             Import Environments
           </Button>
         </DialogTrigger>
@@ -227,14 +248,17 @@ export default function EnvironmentAddDialog() {
                   <>
                     <div className="space-y-2">
                       <FormLabel>Upload .env file</FormLabel>
-                      <Input
-                        type="file"
-                        accept=".env"
-                        ref={fileInputRef}
-                        onChange={handleFileUpload}
-                        className="cursor-pointer"
-                        disabled={isParsing}
-                      />
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept=".env"
+                          ref={fileInputRef}
+                          onChange={handleFileUpload}
+                          className="cursor-pointer"
+                          disabled={isParsing}
+                        />
+                      </FormControl>
+
                       {isParsing && <p className="text-sm text-muted-foreground">Parsing file...</p>}
                       <p className="text-sm text-muted-foreground">
                         Environment names will be extracted from variable names
@@ -281,11 +305,10 @@ export default function EnvironmentAddDialog() {
                 <Button
                   className={cn(
                     "relative w-24",
-                    (isSaving || (activeTab === "import" && importedEnvs.length === 0)) &&
-                    "opacity-50 pointer-events-none"
+                    isSaving && "opacity-50 pointer-events-none"
                   )}
                   type="submit"
-                  disabled={isSaving || (activeTab === "import" && importedEnvs.length === 0)}
+                  disabled={isSaving}
                 >
                   {isSaving ? (
                     <>
