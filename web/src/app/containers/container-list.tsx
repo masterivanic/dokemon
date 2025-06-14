@@ -288,7 +288,9 @@ export default function ContainerList() {
                   </TableCell>
                   <TableCell>
                     <StaleStatusIcon status={item.stale} />
-                      {item.image.slice(0, 17)}{item.image.length > 17 ? "..." : ""}
+  {item.image.startsWith("sha256:") 
+    ? item.image.replace("sha256:", "").slice(0, 10) 
+    : item.image}
 
 
                   </TableCell>
