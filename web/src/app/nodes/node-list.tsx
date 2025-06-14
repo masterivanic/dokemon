@@ -1,5 +1,6 @@
 import Loading from "@/components/widgets/loading"
 import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
 import {
   Table,
   TableBody,
@@ -33,6 +34,8 @@ import { useState } from "react"
 import useSetting from "@/hooks/useSetting"
 import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
+import { useFilterAndSort } from "@/lib/useFilterAndSort"
+import { Input } from "@/components/ui/input"
 
 export default function NodeList() {
   const navigate = useNavigate()
@@ -45,6 +48,18 @@ export default function NodeList() {
   const [deleteNodeOpenConfirmation, setDeleteNodeOpenConfirmation] =
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortedItems: sortedNodes = [],
+    requestSort,
+    sortConfig
+  } = useFilterAndSort<INodeHead>(nodes?.items || [], {
+    initialSortKey: "name",
+    initialSortDirection: "asc",
+    filterKeys: ['name', 'environment', 'agentVersion'] as (keyof INodeHead)[]
+  });
 
   if (isLoading) return <Loading />
 
@@ -114,11 +129,36 @@ export default function NodeList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10 pl-10"
+              placeholder="Search nodes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">
-                <span className="ml-3">Name</span>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("name")}
+              >
+                <div className="flex items-center ml-3">
+                  Name
+                  {sortConfig.key === "name" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
               </TableHead>
               <TableHead scope="col">Environment</TableHead>
               <TableHead scope="col">Agent Version</TableHead>
@@ -128,9 +168,10 @@ export default function NodeList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {nodes?.totalRows === 0 && <TableNoData colSpan={4} />}
-            {nodes?.items &&
-              nodes?.items.map((item) => (
+            {sortedNodes.length === 0 ? (
+              <TableNoData colSpan={4} />
+            ) : (
+              sortedNodes.map((item) => (
                 <TableRow
                   key={item.name}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
@@ -171,7 +212,8 @@ export default function NodeList() {
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>
@@ -197,10 +239,10 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 function getAgentVersion(nodeHead: INodeHead) {
   // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
 
-if (isDokemonNode(nodeHead)) {
-  const arch = (nodeHead as any).architecture;
-  return `Dokémon Server v${VERSION}` + (arch ? ` (${arch})` : "");
-}
+  if (isDokemonNode(nodeHead)) {
+    const arch = (nodeHead as any).architecture;
+    return `Dokémon Server v${VERSION}` + (arch ? ` (${arch})` : "");
+  }
 
 
   if (nodeHead.agentVersion) {

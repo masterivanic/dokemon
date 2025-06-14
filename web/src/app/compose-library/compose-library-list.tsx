@@ -16,11 +16,28 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import { useFilterAndSort } from "@/lib/useFilterAndSort"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+import { Input } from "@/components/ui/input"
+import { Item } from "@radix-ui/react-dropdown-menu"
 
 export default function ComposeLibraryList() {
   const navigate = useNavigate()
   const { isLoading, composeLibraryItems } = useComposeLibraryItemList()
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortedItems: sortedLibraryItems = [],
+    requestSort,
+    sortConfig
+  } = useFilterAndSort<any>(composeLibraryItems?.items || [], {
+    initialSortKey: "projectName",
+    initialSortDirection: "asc",
+    filterKeys: ["projectName"]
+  });
+
 
   if (isLoading) return <Loading />
 
@@ -46,19 +63,45 @@ export default function ComposeLibraryList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10 pl-10"
+              placeholder="Search compose library..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Library Project Name</TableHead>
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("projectName")}
+              >
+                <div className="flex items-center">
+                  Library Project Name
+                  {sortConfig.key === "projectName" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">Type</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {composeLibraryItems?.totalRows === -1 && (
+            {sortedLibraryItems.length === 0 ? (
               <TableNoData colSpan={3} />
-            )}
-            {composeLibraryItems?.items &&
-              composeLibraryItems?.items.map((item) => (
+            ) : (
+              sortedLibraryItems.map((item) => (
                 <TableRow
                   key={item.projectName}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
@@ -79,7 +122,8 @@ export default function ComposeLibraryList() {
                     {item.type === "github" ? "GitHub" : ""}
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </MainContent>
