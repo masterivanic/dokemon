@@ -235,6 +235,20 @@ export default function ContainerList() {
               <TableHead
                 scope="col"
                 className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("state")}
+              >
+                <div className="flex items-center">
+                  State
+                  {sortConfig.key === "state" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead> 
+	      <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => requestSort("name")}
               >
                 <div className="flex items-center">
@@ -246,24 +260,11 @@ export default function ContainerList() {
                   )}
                 </div>
               </TableHead>
-              <TableHead scope="col">
+              
+	       <TableHead scope="col">
                 Image
               </TableHead>
               <TableHead scope="col">Ports</TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("state")}
-              >
-                <div className="flex items-center">
-                  State
-                  {sortConfig.key === "state" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
               <TableHead scope="col">
                 Actions
               </TableHead>
@@ -281,6 +282,19 @@ export default function ContainerList() {
                     navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
                   }}
                 >
+
+                  <TableCell>
+                    {item.state == "exited" ? (
+                      <Badge variant="destructive" title={item.status}>
+                        {item.state}
+                      </Badge>
+                    ) : (
+                      <Badge variant="default" title={item.status}>
+                        {item.state}
+                      </Badge>
+                    )}
+                  </TableCell>
+
                   <TableCell>
                     <span className="font-bold" title={`Image: ${item.image}`}>
                       {item.name}
@@ -295,17 +309,6 @@ export default function ContainerList() {
 
                   </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
-                  <TableCell>
-                    {item.state == "exited" ? (
-                      <Badge variant="destructive" title={item.status}>
-                        {item.state}
-                      </Badge>
-                    ) : (
-                      <Badge variant="default" title={item.status}>
-                        {item.state}
-                      </Badge>
-                    )}
-                  </TableCell>
                   <TableCell className="text-right">
                     <>
                       {item.state == "running" && (
