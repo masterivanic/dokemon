@@ -288,7 +288,8 @@ export default function ContainerList() {
                   </TableCell>
                   <TableCell>
                     <StaleStatusIcon status={item.stale} />
-                    {item.image}
+                      {item.image.slice(0, 17)}{item.image.length > 17 ? "..." : ""}
+
 
                   </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
