@@ -284,10 +284,6 @@ export default function ContainerList() {
                   <TableCell>
                     <span className="font-bold" title={`Image: ${item.image}`}>
                       {item.name}
-                      // <br />
-                      // <span className="text-xs">
-                      // id: {item.id.substring(0, 12)}
-                      // </span>
                     </span>
                   </TableCell>
                   <TableCell>
