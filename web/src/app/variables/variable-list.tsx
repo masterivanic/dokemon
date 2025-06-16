@@ -25,6 +25,9 @@ import TableButtonEdit from "@/components/widgets/table-button-edit"
 import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
 import apiBaseUrl from "@/lib/api-base-url"
+import { Button } from "@/components/ui/button"
+import { RotateCw, Trash2 } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function VariableList() {
   const { isLoading: mapIsLoading, environmentsMap } = useEnvironmentsMap()
@@ -37,6 +40,9 @@ export default function VariableList() {
   const [deleteVariableOpenConfirmation, setDeleteVariableOpenConfirmation] =
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const [selectedVariables, setSelectedVariables] = useState<string[]>([])
+  const [bulkDeleteOpenConfirmation, setBulkDeleteOpenConfirmation] = useState(false)
+  const { toast } = useToast()
 
   if (mapIsLoading || isLoading) return <Loading />
 
@@ -79,6 +85,57 @@ export default function VariableList() {
     setDeleteInProgress(false)
   }
 
+  const handleBulkDelete = async () => {
+    setDeleteInProgress(true)
+    try {
+      const responses = await Promise.all(
+        selectedVariables.map(id =>
+          fetch(`${apiBaseUrl()}/variables/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+          })
+        )
+      )
+
+      const allSuccess = responses.every(response => response.ok)
+      if (!allSuccess) {
+        throw new Error("Some deletions failed")
+      }
+
+      mutateVariables()
+      setSelectedVariables([])
+      toast({
+        title: "Success",
+        description: `${selectedVariables.length} variables deleted successfully`,
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete some variables",
+        variant: "destructive",
+      })
+    } finally {
+      setDeleteInProgress(false)
+      setBulkDeleteOpenConfirmation(false)
+    }
+  }
+
+  const toggleVariableSelection = (variableId: string) => {
+    setSelectedVariables(prev =>
+      prev.includes(variableId)
+        ? prev.filter(id => id !== variableId)
+        : [...prev, variableId]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedVariables.length === variables?.items?.length) {
+      setSelectedVariables([])
+    } else {
+      setSelectedVariables(variables?.items?.map(v => v.id!.toString()) || [])
+    }
+  }
+
   return (
     <MainArea>
       {editVariableOpen && (
@@ -107,11 +164,31 @@ export default function VariableList() {
           message={`Are you sure you want to delete variable '${variableHead?.name}?'`}
         />
       )}
+      {bulkDeleteOpenConfirmation && (
+        <DeleteDialog
+          openState={bulkDeleteOpenConfirmation}
+          setOpenState={setBulkDeleteOpenConfirmation}
+          deleteCaption=""
+          deleteHandler={handleBulkDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Variables"
+          message={`Are you sure you want to delete ${selectedVariables.length} selected variables?`}
+        />
+      )}
       <TopBar>
         <Breadcrumb>
           <BreadcrumbCurrent>Variables</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
+          {selectedVariables.length > 0 && (
+            <Button
+              variant="destructive"
+              onClick={() => setBulkDeleteOpenConfirmation(true)}
+              disabled={deleteInProgress}
+            >
+              Delete Selected ({selectedVariables.length})
+            </Button>
+          )}
           <VariableAddDialog />
         </TopBarActions>
       </TopBar>
@@ -119,6 +196,15 @@ export default function VariableList() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead scope="col" className="w-[30px]">
+                <Checkbox
+                  checked={
+                    (variables?.items?.length ?? 0) > 0 &&
+                    selectedVariables.length === (variables?.items?.length ?? 0)
+                  }
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
               <TableHead scope="col" className="w-[10px]">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -128,10 +214,16 @@ export default function VariableList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {variables?.totalRows === 0 && <TableNoData colSpan={4} />}
+            {variables?.totalRows === 0 && <TableNoData colSpan={5} />}
             {variables?.items &&
               variables?.items.map((item) => (
-                <TableRow key={item.name}>
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedVariables.includes(item.id!.toString())}
+                      onCheckedChange={() => toggleVariableSelection(item.id!.toString())}
+                    />
+                  </TableCell>
                   <TableCell>
                     <TableButtonEdit onClick={() => handleEditVariable(item)} />
                     <TableButtonDelete

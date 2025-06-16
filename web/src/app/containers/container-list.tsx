@@ -245,7 +245,7 @@ export default function ContainerList() {
                     </span>
                   )}
                 </div>
-              </TableHead> 
+              </TableHead>
 	      <TableHead
                 scope="col"
                 className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -260,7 +260,7 @@ export default function ContainerList() {
                   )}
                 </div>
               </TableHead>
-              
+
 	       <TableHead scope="col">
                 Image
               </TableHead>
@@ -302,8 +302,8 @@ export default function ContainerList() {
                   </TableCell>
                   <TableCell>
                     <StaleStatusIcon status={item.stale} />
-  {item.image.startsWith("sha256:") 
-    ? item.image.replace("sha256:", "").slice(0, 10) 
+  {item.image.startsWith("sha256:")
+    ? item.image.replace("sha256:", "").slice(0, 10)
     : item.image}
 
 
