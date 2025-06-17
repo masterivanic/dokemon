@@ -168,7 +168,6 @@ func isDockerIP(ip string) bool {
 	excludedPrefixes := []string{
 		"172.17.", "172.18.", "172.19.", "172.20.",
 		"192.168.99.", "100.", "169.254.", "127.",
-		"192.168.65.",
 	}
 	for _, prefix := range excludedPrefixes {
 		if strings.HasPrefix(ip, prefix) {

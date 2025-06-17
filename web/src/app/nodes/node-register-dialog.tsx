@@ -37,6 +37,7 @@ export default function NodeRegisterDialog({
   const script = () => {
     const c = `docker rm -f dokemon-agent > /dev/null 2>&1
 docker run \\
+    --net=host \\
     -e SERVER_URL=${setting?.value} \\
     -e TOKEN={HIDDEN} \\
     -v /var/run/docker.sock:/var/run/docker.sock \\
