@@ -161,7 +161,21 @@ export default function NodeList() {
                   )}
                 </div>
               </TableHead>
-              <TableHead scope="col">Environment</TableHead>
+
+              <TableHead
+                scope="col"
+                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                onClick={() => requestSort("environment")}
+              >
+                <div className="flex items-center ml-3">
+                  Environment
+                  {sortConfig.key === "environment" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+              </TableHead>
               <TableHead scope="col">Agent Version</TableHead>
               <TableHead scope="col">Network</TableHead>
               <TableHead scope="col">
@@ -194,7 +208,7 @@ export default function NodeList() {
 		    {getAgentVersion(item)}
                   </TableCell>
 		  <TableCell>
-		    {getAgentIPs(item)}
+		    {getAgentIPs(item) ? getAgentIPs(item) : "-"}
 		  </TableCell>
                   <TableCell className="text-right">
                     {!item.registered && (
