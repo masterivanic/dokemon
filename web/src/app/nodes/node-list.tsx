@@ -62,6 +62,7 @@ export default function NodeList() {
   });
 
   if (isLoading) return <Loading />
+  console.log("Node data structure:", nodes?.items[0])
 
   const handleRegister = async (nodeId: number, update: boolean) => {
     const response = await apiNodesGenerateToken(nodeId)
@@ -237,24 +238,33 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 }
 
 function getAgentVersion(nodeHead: INodeHead) {
-  // if (isDokemonNode(nodeHead)) return `Dokémon Server v${VERSION}`
-
+  // Handle Dokemon Server nodes
   if (isDokemonNode(nodeHead)) {
     const arch = (nodeHead as any).architecture;
     return `Dokémon Server v${VERSION}` + (arch ? ` (${arch})` : "");
   }
 
-
+  // Handle agent nodes
   if (nodeHead.agentVersion) {
-    // For other nodes - assuming agentVersion already includes arch (e.g., "armv7-1.6.0b")
-    const versionParts = nodeHead.agentVersion.split('-');
-    if (versionParts.length >= 2) {
-      // Format as "arch vX.Y.Z"
-      return `v${versionParts[0]} (${versionParts.slice(1).join('-')})`;
-    }
-    return nodeHead.agentVersion;
+    // Split into parts: [version, arch, ip] or [version, arch]
+    const parts = nodeHead.agentVersion.split(/[-@]/);
+    
+    // Version is always the first part
+    const version = parts[0];
+    
+    // Architecture is the second part (if exists)
+    const arch = parts.length > 1 ? parts[1] : null;
+    
+    // IP is the third part (if exists and contains dots)
+    const ip = parts.length > 2 && parts[2].includes('.') ? parts[2] : null;
+
+    // Build the formatted string
+    let formatted = `v${version}`;
+    if (arch) formatted += ` (${arch})`;
+    if (ip) formatted += ` ${ip}`;
+    
+    return formatted;
   }
 
-  //if (nodeHead.agentVersion) return nodeHead.agentVersion
-  return "-"
+  return "-";
 }
