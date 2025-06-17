@@ -163,6 +163,7 @@ export default function NodeList() {
               </TableHead>
               <TableHead scope="col">Environment</TableHead>
               <TableHead scope="col">Agent Version</TableHead>
+              <TableHead scope="col">Network</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -190,8 +191,10 @@ export default function NodeList() {
                     {item.environment ? item.environment : "-"}
                   </TableCell>
 		  <TableCell>
-		    <div>{getAgentVersion(item)}</div>
-		    <div>{getAgentIPs(item)}</div>
+		    {getAgentVersion(item)}
+                  </TableCell>
+		  <TableCell>
+		    {getAgentIPs(item)}
 		  </TableCell>
                   <TableCell className="text-right">
                     {!item.registered && (
@@ -285,3 +288,4 @@ function getAgentIPs(nodeHead: INodeHead): string {
 
   return ipDisplay.trim();
 }
+
