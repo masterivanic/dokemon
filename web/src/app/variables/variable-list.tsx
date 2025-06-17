@@ -26,7 +26,6 @@ import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
 import apiBaseUrl from "@/lib/api-base-url"
 import { Button } from "@/components/ui/button"
-import { RotateCw, Trash2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 export default function VariableList() {
