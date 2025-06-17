@@ -189,7 +189,10 @@ export default function NodeList() {
                   <TableCell>
                     {item.environment ? item.environment : "-"}
                   </TableCell>
-                  <TableCell>{getAgentVersion(item)}</TableCell>
+		  <TableCell>
+		    <div>{getAgentVersion(item)}</div>
+		    <div>{getAgentIPs(item)}</div>
+		  </TableCell>
                   <TableCell className="text-right">
                     {!item.registered && (
                       <Button
@@ -237,34 +240,48 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
   )
 }
 
-function getAgentVersion(nodeHead: INodeHead) {
-  // Handle Dokemon Server nodes
+
+
+// Returns version and architecture only
+function getAgentVersion(nodeHead: INodeHead): string {
   if (isDokemonNode(nodeHead)) {
     const arch = (nodeHead as any).architecture;
     return `Dokémon Server v${VERSION}` + (arch ? ` (${arch})` : "");
   }
 
-  // Handle agent nodes
   if (nodeHead.agentVersion) {
-    // Split into parts: [version, arch, ip] or [version, arch]
-    const parts = nodeHead.agentVersion.split(/[-@]/);
+    const mainParts = nodeHead.agentVersion.split('-');
+    const version = mainParts[0] || '';
+    const rest = mainParts.length > 1 ? mainParts[1] : '';
+    const arch = rest.split('@')[0] || null;
     
-    // Version is always the first part
-    const version = parts[0];
-    
-    // Architecture is the second part (if exists)
-    const arch = parts.length > 1 ? parts[1] : null;
-    
-    // IP is the third part (if exists and contains dots)
-    const ip = parts.length > 2 && parts[2].includes('.') ? parts[2] : null;
-
-    // Build the formatted string
     let formatted = `v${version}`;
     if (arch) formatted += ` (${arch})`;
-    if (ip) formatted += ` ${ip}`;
-    
     return formatted;
   }
 
   return "-";
+}
+
+// Returns only the IP addresses
+function getAgentIPs(nodeHead: INodeHead): string {
+  if (!nodeHead.agentVersion) return "-";
+  
+  const mainParts = nodeHead.agentVersion.split('-');
+  const rest = mainParts.length > 1 ? mainParts[1] : '';
+  const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
+
+  let ipDisplay = '';
+  if (ips) {
+    const ipComponents = ips.split('+');
+    for (const component of ipComponents) {
+      if (component.includes('.') && !component.startsWith('zt:') && !component.startsWith('ts:')) {
+        ipDisplay += ` ip:${component}`;
+      } else {
+        ipDisplay += ` ${component}`;
+      }
+    }
+  }
+
+  return ipDisplay.trim();
 }

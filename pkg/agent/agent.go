@@ -71,27 +71,94 @@ func logAllNetworkInterfaces() {
 }
 
 func getMainIP() string {
-	// Method 1: Get host IP via Docker bridge network
+    // Get all relevant IPs
+    localIP := getLocalNetworkIP()
+    
+    // Get all network interfaces
+    interfaces, err := net.Interfaces()
+    if err != nil {
+        return ""
+    }
+
+    // Collect all ZeroTier IPs (interfaces starting with "zt")
+    var ztIPs []string
+    // Collect all Tailscale IPs (interfaces starting with "tailscale")
+    var tsIPs []string
+
+    for _, iface := range interfaces {
+        ifaceName := iface.Name
+        
+        // Check for ZeroTier interfaces
+        if strings.HasPrefix(ifaceName, "zt") {
+            if ip := getInterfaceIP(ifaceName); ip != "" {
+                ztIPs = append(ztIPs, "zt:"+ip)
+            }
+        }
+        
+        // Check for Tailscale interfaces
+        if strings.HasPrefix(ifaceName, "tailscale") {
+            if ip := getInterfaceIP(ifaceName); ip != "" {
+                tsIPs = append(tsIPs, "ts:"+ip)
+            }
+        }
+    }
+
+    // Build the version string components
+    var components []string
+    if localIP != "" {
+        components = append(components, localIP)
+    }
+    // Add all ZeroTier IPs
+    components = append(components, ztIPs...)
+    // Add all Tailscale IPs
+    components = append(components, tsIPs...)
+    
+    if len(components) > 0 {
+        return strings.Join(components, "+")
+    }
+    return ""
+}
+func getLocalNetworkIP() string {
+	// Try Docker bridge method first
 	if ip := getHostIPViaDockerBridge(); ip != "" {
 		return ip
 	}
 
-	// Method 2: Get from host's default route (works with --net=host)
+	// Try default route method
 	if ip := getIPFromDefaultRoute(); ip != "" {
 		return ip
 	}
 
-	// Method 3: Parse host IP from docker0 bridge
+	// Try Docker bridge IP method
 	if ip := getIPFromDockerBridge(); ip != "" {
 		return ip
 	}
 
-	log.Warn().Msg("No valid IP address could be determined")
+	return ""
+}
+
+func getInterfaceIP(ifaceName string) string {
+	iface, err := net.InterfaceByName(ifaceName)
+	if err != nil {
+		return ""
+	}
+
+	addrs, err := iface.Addrs()
+	if err != nil {
+		return ""
+	}
+
+	for _, addr := range addrs {
+		ipNet, ok := addr.(*net.IPNet)
+		if !ok || ipNet.IP.To4() == nil || ipNet.IP.IsLoopback() {
+			continue
+		}
+		return ipNet.IP.String()
+	}
 	return ""
 }
 
 func getHostIPViaDockerBridge() string {
-	// This works by finding the host's IP as seen from the container's default route
 	cmd := exec.Command("sh", "-c", "ip route | awk '/default/ {print $3}'")
 	output, err := cmd.Output()
 	if err == nil {
@@ -105,7 +172,6 @@ func getHostIPViaDockerBridge() string {
 }
 
 func getIPFromDefaultRoute() string {
-	// This works when running with --net=host
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return ""
@@ -137,13 +203,11 @@ func getIPFromDefaultRoute() string {
 }
 
 func getIPFromDockerBridge() string {
-	// Parse the docker0 bridge IP which often reflects the host's network
 	cmd := exec.Command("sh", "-c", "ip -4 addr show docker0 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'")
 	output, err := cmd.Output()
 	if err == nil {
 		ip := strings.TrimSpace(string(output))
 		if net.ParseIP(ip) != nil {
-			// The docker0 IP is usually one below the host IP
 			parts := strings.Split(ip, ".")
 			if len(parts) == 4 {
 				parts[3] = fmt.Sprintf("%d", atoi(parts[3])+1)
@@ -184,12 +248,6 @@ func getFullVersion() string {
 	}
 	return fmt.Sprintf("%s-%s", common.Version, getArchitecture())
 }
-
-// [Rest of the code remains exactly the same as in previous full implementation]
-// Main(), parseArgs(), setLogLevel(), open(), openWithPing(),
-// setupPinging(), listen(), listenForTasks(), worker()
-
-
 
 func Main() {
 	parseArgs()
