@@ -27,7 +27,7 @@ import MainContent from "@/components/widgets/main-content"
 import { useNavigate, useParams } from "react-router-dom"
 import axios from "axios"
 import useNodeHead from "@/hooks/useNodeHead"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/containerbaseurl-edit-dialog"
 import {
   CLASSES_CLICKABLE_TABLE_ROW,
@@ -41,6 +41,14 @@ import DeleteDialog from "@/components/delete-dialog"
 import { Input } from "@/components/ui/input"
 import { useFilterAndSort } from "@/lib/useFilterAndSort"
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 export default function ContainerList() {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
@@ -49,6 +57,10 @@ export default function ContainerList() {
   const [container, setContainer] = useState<IContainer | null>(null)
   const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
+
+  const [pageSize, setPageSize] = useState<number>(10)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
 
   const {
     searchTerm,
@@ -61,6 +73,24 @@ export default function ContainerList() {
     initialSortDirection: "asc",
     filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
+
+  const totalItems = sortedContainers.length
+  const totalPages = Math.ceil(totalItems / pageSize)
+  const paginatedContainers = sortedContainers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  )
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value))
+    setCurrentPage(1)
+  }
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+  }
+
+
 
   if (isLoading) return <Loading />
 
@@ -245,8 +275,8 @@ export default function ContainerList() {
                     </span>
                   )}
                 </div>
-              </TableHead> 
-	      <TableHead
+              </TableHead>
+              <TableHead
                 scope="col"
                 className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => requestSort("name")}
@@ -260,8 +290,8 @@ export default function ContainerList() {
                   )}
                 </div>
               </TableHead>
-              
-	       <TableHead scope="col">
+
+              <TableHead scope="col">
                 Image
               </TableHead>
               <TableHead scope="col">Ports</TableHead>
@@ -271,10 +301,10 @@ export default function ContainerList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedContainers.length === 0 ? (
+            {paginatedContainers.length === 0 ? (
               <TableNoData colSpan={5} />
             ) : (
-              sortedContainers.map((item) => (
+              paginatedContainers.map((item) => (
                 <TableRow
                   key={item.id}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
@@ -302,9 +332,9 @@ export default function ContainerList() {
                   </TableCell>
                   <TableCell>
                     <StaleStatusIcon status={item.stale} />
-  {item.image.startsWith("sha256:") 
-    ? item.image.replace("sha256:", "").slice(0, 10) 
-    : item.image}
+                    {item.image.startsWith("sha256:")
+                      ? item.image.replace("sha256:", "").slice(0, 10)
+                      : item.image}
 
 
                   </TableCell>
@@ -362,6 +392,90 @@ export default function ContainerList() {
             )}
           </TableBody>
         </Table>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Showing {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
+            </span>
+
+            <Select
+              value={pageSize.toString()}
+              onValueChange={handlePageSizeChange}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={pageSize} />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 25, 50, 100].map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Page number buttons - show up to 5 pages around current */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum
+              if (totalPages <= 5) {
+                pageNum = i + 1
+              } else if (currentPage <= 3) {
+                pageNum = i + 1
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i
+              } else {
+                pageNum = currentPage - 2 + i
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => goToPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              )
+            })}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
+            </Button>
+          </div>
+        </div>
       </MainContent>
     </MainArea>
   )
