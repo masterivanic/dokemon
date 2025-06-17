@@ -19,7 +19,7 @@ VOLUME_MAP=$(echo "$INSPECT_OUTPUT" | jq -r '.[0].HostConfig.Binds[0]')
 ENV_VARS=$(echo "$INSPECT_OUTPUT" | jq -r '.[0].Config.Env[] | select(startswith("SERVER_URL=") or startswith("TOKEN="))')
 
 # Generate the run command
-RUN_CMD="docker run -d --name $CONTAINER_NAME --restart $RESTART_POLICY"
+RUN_CMD="docker run -d --net=host --name $CONTAINER_NAME --restart $RESTART_POLICY"
 
 # Add environment variables
 while read -r env_var; do
