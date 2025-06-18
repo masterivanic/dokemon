@@ -1,6 +1,6 @@
 import Loading from "@/components/widgets/loading"
 import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb"
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+import { MagnifyingGlassIcon, PencilIcon } from "@heroicons/react/24/solid"
 import {
   Table,
   TableBody,
@@ -177,9 +177,7 @@ export default function NodeList() {
               </TableHead>
               <TableHead scope="col">Agent Version</TableHead>
               <TableHead scope="col">Network</TableHead>
-              <TableHead scope="col">
-                <span className="sr-only">Actions</span>
-              </TableHead>
+              <TableHead scope="col">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -208,27 +206,55 @@ export default function NodeList() {
                   <TableCell>
                     <NodeIPsDisplay nodeHead={item} />
                   </TableCell>
-                  <TableCell className="text-right">
-                    {!item.registered && (
-                      <Button
-                        className="mr-4"
-                        size={"sm"}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleRegister(item.id, false)
-                        }}
-                      >
-                        Register
-                      </Button>
-                    )}
-                    {!isDokemonNode(item) && (
-                      <TableButtonDelete
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteNodeConfirmation(item)
-                        }}
-                      />
-                    )}
+                  <TableCell className="text-left">
+                    <div className="flex items-center gap-1">
+                      {!item.registered ? (
+                        <>
+                          <Button
+                            size={"sm"}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleRegister(item.id, false)
+                            }}
+                          >
+                            Register
+                          </Button>
+                          {!isDokemonNode(item) && (
+                            <Button
+                              variant="destructive"
+                              size={"sm"}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteNodeConfirmation(item)
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Edit"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigate(`/nodes/${item.id}/details`)
+                            }}
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                          {!isDokemonNode(item) && (
+                            <TableButtonDelete
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteNodeConfirmation(item)
+                              }}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
