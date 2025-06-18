@@ -1,4 +1,5 @@
 import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
 import Loading from "@/components/widgets/loading"
 import {
   Breadcrumb,
@@ -27,7 +28,6 @@ import MainContent from "@/components/widgets/main-content"
 import { useNavigate, useParams } from "react-router-dom"
 import axios from "axios"
 import useNodeHead from "@/hooks/useNodeHead"
-import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/containerbaseurl-edit-dialog"
 import {
   CLASSES_CLICKABLE_TABLE_ROW,
@@ -40,7 +40,6 @@ import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
 import { Input } from "@/components/ui/input"
 import { useFilterAndSort } from "@/lib/useFilterAndSort"
-
 import {
   Select,
   SelectContent,
@@ -60,7 +59,6 @@ export default function ContainerList() {
 
   const [pageSize, setPageSize] = useState<number>(10)
   const [currentPage, setCurrentPage] = useState<number>(1)
-
 
   const {
     searchTerm,
@@ -89,8 +87,6 @@ export default function ContainerList() {
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)))
   }
-
-
 
   if (isLoading) return <Loading />
 
@@ -252,7 +248,7 @@ export default function ContainerList() {
             </div>
             <Input
               type="text"
-              className="pl-10 pl-10"
+              className="pl-10"
               placeholder="Search containers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -290,14 +286,9 @@ export default function ContainerList() {
                   )}
                 </div>
               </TableHead>
-
-              <TableHead scope="col">
-                Image
-              </TableHead>
+              <TableHead scope="col">Image</TableHead>
               <TableHead scope="col">Ports</TableHead>
-              <TableHead scope="col">
-                Actions
-              </TableHead>
+              <TableHead scope="col">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -312,7 +303,6 @@ export default function ContainerList() {
                     navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
                   }}
                 >
-
                   <TableCell>
                     {item.state == "exited" ? (
                       <Badge variant="destructive" title={item.status}>
@@ -324,7 +314,6 @@ export default function ContainerList() {
                       </Badge>
                     )}
                   </TableCell>
-
                   <TableCell>
                     <span className="font-bold" title={`Image: ${item.image}`}>
                       {item.name}
@@ -335,11 +324,32 @@ export default function ContainerList() {
                     {item.image.startsWith("sha256:")
                       ? item.image.replace("sha256:", "").slice(0, 10)
                       : item.image}
-
-
                   </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
-                  <TableCell className="text-right">
+
+                  <TableCell className="text-left">
+                      <Button
+                        variant="ghost"
+                        size={"sm"}
+                        title="Console"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/nodes/${nodeId}/containers/${item.name}/terminal`)
+                        }}
+                      >
+                        <Terminal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size={"sm"}
+                        title="Logs"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
+                        }}
+                      >
+                        <ScrollText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      </Button>
                     <>
                       {item.state == "running" && (
                         <Button
@@ -398,7 +408,6 @@ export default function ContainerList() {
               Showing {(currentPage - 1) * pageSize + 1}-
               {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
             </span>
-
             <Select
               value={pageSize.toString()}
               onValueChange={handlePageSizeChange}
@@ -432,8 +441,6 @@ export default function ContainerList() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-
-            {/* Page number buttons - show up to 5 pages around current */}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum
               if (totalPages <= 5) {
@@ -457,7 +464,6 @@ export default function ContainerList() {
                 </Button>
               )
             })}
-
             <Button
               variant="outline"
               size="sm"

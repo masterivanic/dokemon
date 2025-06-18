@@ -275,53 +275,11 @@ function getAgentVersion(nodeHead: INodeHead): string {
   return "-";
 }
 
-function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
-  if (!nodeHead.agentVersion) return <span>-</span>;
-
-  const ips = extractIPs(nodeHead.agentVersion);
-  
-  if (!ips || (!ips.ip && !ips.zt && !ips.ts)) {
-    return <span>-</span>;
-  }
-
-  return (
-    <div className="flex items-center gap-1">
-      {ips.ip && <span className="mr-2">ip:{ips.ip}</span>}
-      <Popover>
-        <PopoverTrigger asChild>
-          <div className="flex gap-1">
-            {ips.zt && (
-              <span 
-                className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer"
-              >
-                ZT
-              </span>
-            )}
-            {ips.ts && (
-              <span 
-                className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer"
-              >
-                TS
-              </span>
-            )}
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto">
-          <div className="grid gap-2">
-            <h4 className="font-medium leading-none">Network Addresses</h4>
-            <div className="text-sm">
-              {ips.ip && <div>Primary: {ips.ip}</div>}
-              {ips.zt && <div>ZeroTier: {ips.zt}</div>}
-              {ips.ts && <div>Tailscale: {ips.ts}</div>}
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-}
-
-function extractIPs(agentVersion: string): { ip?: string; zt?: string; ts?: string } | null {
+function extractIPs(agentVersion: string): { 
+  ip?: string[], 
+  zt?: string[], 
+  ts?: string[] 
+} | null {
   if (!agentVersion) return null;
   
   const mainParts = agentVersion.split('-');
@@ -330,20 +288,86 @@ function extractIPs(agentVersion: string): { ip?: string; zt?: string; ts?: stri
 
   if (!ips) return null;
 
-  const result: { ip?: string; zt?: string; ts?: string } = {};
+  const result: { ip?: string[], zt?: string[], ts?: string[] } = {};
   const ipComponents = ips.split('+');
   
   for (const component of ipComponents) {
     if (component.includes('.')) {
       if (component.startsWith('zt:')) {
-        result.zt = component.substring(3);
+        const ip = component.substring(3);
+        result.zt = [...(result.zt || []), ip];
       } else if (component.startsWith('ts:')) {
-        result.ts = component.substring(3);
+        const ip = component.substring(3);
+        result.ts = [...(result.ts || []), ip];
       } else {
-        result.ip = component;
+        const ip = component;
+        result.ip = [...(result.ip || []), ip];
       }
     }
   }
 
   return result;
+}
+
+function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
+  if (!nodeHead.agentVersion) return <span>-</span>;
+
+  const ips = extractIPs(nodeHead.agentVersion);
+  
+  if (!ips || (!ips.ip?.length && !ips.zt?.length && !ips.ts?.length)) {
+    return <span>-</span>;
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {/* Display primary IPs without click functionality */}
+      {ips.ip?.map((ip, index) => (
+        <span key={`ip-${index}`} className="mr-2">
+          ip:{ip}
+        </span>
+      ))}
+      
+      {/* ZeroTier IP popup */}
+      {(ips.zt?.length ?? 0) > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer">
+              ZT{(ips.zt?.length ?? 0) > 1 ? ` (${ips.zt?.length})` : ''}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">ZeroTier IP(s)</h4>
+              <div className="text-sm space-y-1">
+                {ips.zt?.map((ip, index) => (
+                  <div key={`zt-ip-${index}`}>{ip}</div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+      
+      {/* Tailscale IP popup */}
+      {(ips.ts?.length ?? 0) > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer ml-1">
+              TS{(ips.ts?.length ?? 0) > 1 ? ` (${ips.ts?.length})` : ''}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Tailscale IP(s)</h4>
+              <div className="text-sm space-y-1">
+                {ips.ts?.map((ip, index) => (
+                  <div key={`ts-ip-${index}`}>{ip}</div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+    </div>
+  );
 }
