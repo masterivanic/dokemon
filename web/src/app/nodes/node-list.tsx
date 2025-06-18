@@ -280,7 +280,7 @@ function isDokemonNode(nodeHead: INodeHead) {
 }
 
 function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
-  const statusClassName = nodeHead.online ? "text-green-600" : "text-slate-300"
+  const statusClassName = nodeHead.online ? "text-green-600" : "text-red-600"
   const title = nodeHead.online ? "Online" : "Offline"
 
   return (
