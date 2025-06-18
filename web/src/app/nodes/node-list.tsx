@@ -22,7 +22,6 @@ import { INodeHead } from "@/lib/api-models"
 import { apiNodesDelete, apiNodesGenerateToken } from "@/lib/api"
 import { VERSION } from "@/lib/version"
 import {
-  CLASSES_CLICKABLE_TABLE_ROW,
   cn,
   toastFailed,
   toastSomethingWentWrong,
@@ -36,6 +35,7 @@ import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
 import { useFilterAndSort } from "@/lib/useFilterAndSort"
 import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 export default function NodeList() {
   const navigate = useNavigate()
@@ -62,7 +62,6 @@ export default function NodeList() {
   });
 
   if (isLoading) return <Loading />
-  console.log("Node data structure:", nodes?.items[0])
 
   const handleRegister = async (nodeId: number, update: boolean) => {
     const response = await apiNodesGenerateToken(nodeId)
@@ -137,7 +136,7 @@ export default function NodeList() {
             </div>
             <Input
               type="text"
-              className="pl-10 pl-10"
+              className="pl-10"
               placeholder="Search nodes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -185,31 +184,30 @@ export default function NodeList() {
           </TableHeader>
           <TableBody>
             {sortedNodes.length === 0 ? (
-              <TableNoData colSpan={4} />
+              <TableNoData colSpan={5} />
             ) : (
               sortedNodes.map((item) => (
-                <TableRow
-                  key={item.name}
-                  className={CLASSES_CLICKABLE_TABLE_ROW}
-                  onClick={() => {
-                    if (item.registered) {
-                      navigate(`/nodes/${item.id}/compose`)
-                    }
-                  }}
-                >
+                <TableRow key={item.name}>
                   <TableCell>
-                    <NodeStatusIcon nodeHead={item} />
-                    {item.name}
+                    <div className="flex items-center">
+                      <NodeStatusIcon nodeHead={item} />
+                      <span 
+                        className="cursor-pointer hover:text-blue-600 hover:underline"
+                        onClick={() => navigate(`/nodes/${item.id}/containers`)}
+                      >
+                        {item.name}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     {item.environment ? item.environment : "-"}
                   </TableCell>
-		  <TableCell>
-		    {getAgentVersion(item)}
+                  <TableCell>
+                    {getAgentVersion(item)}
                   </TableCell>
-		  <TableCell>
-		    {getAgentIPs(item) ? getAgentIPs(item) : "-"}
-		  </TableCell>
+                  <TableCell>
+                    <NodeIPsDisplay nodeHead={item} />
+                  </TableCell>
                   <TableCell className="text-right">
                     {!item.registered && (
                       <Button
@@ -257,9 +255,6 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
   )
 }
 
-
-
-// Returns version and architecture only
 function getAgentVersion(nodeHead: INodeHead): string {
   if (isDokemonNode(nodeHead)) {
     const arch = (nodeHead as any).architecture;
@@ -280,26 +275,75 @@ function getAgentVersion(nodeHead: INodeHead): string {
   return "-";
 }
 
-// Returns only the IP addresses
-function getAgentIPs(nodeHead: INodeHead): string {
-  if (!nodeHead.agentVersion) return "-";
+function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
+  if (!nodeHead.agentVersion) return <span>-</span>;
+
+  const ips = extractIPs(nodeHead.agentVersion);
   
-  const mainParts = nodeHead.agentVersion.split('-');
+  if (!ips || (!ips.ip && !ips.zt && !ips.ts)) {
+    return <span>-</span>;
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {ips.ip && <span className="mr-2">ip:{ips.ip}</span>}
+      <Popover>
+        <PopoverTrigger asChild>
+          <div className="flex gap-1">
+            {ips.zt && (
+              <span 
+                className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer"
+              >
+                ZT
+              </span>
+            )}
+            {ips.ts && (
+              <span 
+                className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer"
+              >
+                TS
+              </span>
+            )}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto">
+          <div className="grid gap-2">
+            <h4 className="font-medium leading-none">Network Addresses</h4>
+            <div className="text-sm">
+              {ips.ip && <div>Primary: {ips.ip}</div>}
+              {ips.zt && <div>ZeroTier: {ips.zt}</div>}
+              {ips.ts && <div>Tailscale: {ips.ts}</div>}
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
+function extractIPs(agentVersion: string): { ip?: string; zt?: string; ts?: string } | null {
+  if (!agentVersion) return null;
+  
+  const mainParts = agentVersion.split('-');
   const rest = mainParts.length > 1 ? mainParts[1] : '';
   const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
 
-  let ipDisplay = '';
-  if (ips) {
-    const ipComponents = ips.split('+');
-    for (const component of ipComponents) {
-      if (component.includes('.') && !component.startsWith('zt:') && !component.startsWith('ts:')) {
-        ipDisplay += ` ip:${component}`;
+  if (!ips) return null;
+
+  const result: { ip?: string; zt?: string; ts?: string } = {};
+  const ipComponents = ips.split('+');
+  
+  for (const component of ipComponents) {
+    if (component.includes('.')) {
+      if (component.startsWith('zt:')) {
+        result.zt = component.substring(3);
+      } else if (component.startsWith('ts:')) {
+        result.ts = component.substring(3);
       } else {
-        ipDisplay += ` ${component}`;
+        result.ip = component;
       }
     }
   }
 
-  return ipDisplay.trim();
+  return result;
 }
-
