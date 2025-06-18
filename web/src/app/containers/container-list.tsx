@@ -1,13 +1,13 @@
-import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid"
-import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
-import Loading from "@/components/widgets/loading"
+import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import Loading from "@/components/widgets/loading";
 import {
   Breadcrumb,
   BreadcrumbCurrent,
   BreadcrumbLink,
   BreadcrumbSeparator,
-} from "@/components/widgets/breadcrumb"
-import useContainers from "@/hooks/useContainers"
+} from "@/components/widgets/breadcrumb";
+import useContainers from "@/hooks/useContainers";
 import {
   Table,
   TableBody,
@@ -15,50 +15,49 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import apiBaseUrl from "@/lib/api-base-url"
-import { IContainer, IPort } from "@/lib/api-models"
-import { useState } from "react"
-import TopBar from "@/components/widgets/top-bar"
-import TopBarActions from "@/components/widgets/top-bar-actions"
-import MainArea from "@/components/widgets/main-area"
-import MainContent from "@/components/widgets/main-content"
-import { useNavigate, useParams } from "react-router-dom"
-import axios from "axios"
-import useNodeHead from "@/hooks/useNodeHead"
-import EditContainerBaseUrlDialog from "../nodes/containerbaseurl-edit-dialog"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import apiBaseUrl from "@/lib/api-base-url";
+import { IContainer, IPort } from "@/lib/api-models";
+import { useState } from "react";
+import TopBar from "@/components/widgets/top-bar";
+import TopBarActions from "@/components/widgets/top-bar-actions";
+import MainArea from "@/components/widgets/main-area";
+import MainContent from "@/components/widgets/main-content";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import useNodeHead from "@/hooks/useNodeHead";
+import EditContainerBaseUrlDialog from "../nodes/containerbaseurl-edit-dialog";
 import {
-  CLASSES_CLICKABLE_TABLE_ROW,
   cn,
   toastFailed,
   toastSuccess,
-} from "@/lib/utils"
-import TableButtonDelete from "@/components/widgets/table-button-delete"
-import { TableNoData } from "@/components/widgets/table-no-data"
-import DeleteDialog from "@/components/delete-dialog"
-import { Input } from "@/components/ui/input"
-import { useFilterAndSort } from "@/lib/useFilterAndSort"
+} from "@/lib/utils";
+import TableButtonDelete from "@/components/widgets/table-button-delete";
+import { TableNoData } from "@/components/widgets/table-no-data";
+import DeleteDialog from "@/components/delete-dialog";
+import { Input } from "@/components/ui/input";
+import { useFilterAndSort } from "@/lib/useFilterAndSort";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 export default function ContainerList() {
-  const { nodeId } = useParams()
-  const { nodeHead } = useNodeHead(nodeId!)
-  const navigate = useNavigate()
-  const { isLoading, mutateContainers, containers } = useContainers(nodeId!)
-  const [container, setContainer] = useState<IContainer | null>(null)
-  const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false)
-  const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const { nodeId } = useParams();
+  const { nodeHead } = useNodeHead(nodeId!);
+  const navigate = useNavigate();
+  const { isLoading, mutateContainers, containers } = useContainers(nodeId!);
+  const [container, setContainer] = useState<IContainer | null>(null);
+  const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
 
-  const [pageSize, setPageSize] = useState<number>(10)
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     searchTerm,
@@ -72,23 +71,23 @@ export default function ContainerList() {
     filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
 
-  const totalItems = sortedContainers.length
-  const totalPages = Math.ceil(totalItems / pageSize)
+  const totalItems = sortedContainers.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
   const paginatedContainers = sortedContainers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
-  )
+  );
 
   const handlePageSizeChange = (value: string) => {
-    setPageSize(Number(value))
-    setCurrentPage(1)
-  }
+    setPageSize(Number(value));
+    setCurrentPage(1);
+  };
 
   const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
-  }
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
 
-  if (isLoading) return <Loading />
+  if (isLoading) return <Loading />;
 
   const handleStartContainer = async (id: string) => {
     try {
@@ -96,16 +95,16 @@ export default function ContainerList() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         data: JSON.stringify({ id: id }),
-      })
+      });
 
-      mutateContainers()
-      toastSuccess("Container started.")
+      mutateContainers();
+      toastSuccess("Container started.");
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toastFailed(e.response?.data)
+        toastFailed(e.response?.data);
       }
     }
-  }
+  };
 
   const handleStopContainer = async (id: string) => {
     const response = await fetch(
@@ -115,15 +114,15 @@ export default function ContainerList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: id }),
       }
-    )
+    );
     if (!response.ok) {
-      const r = await response.json()
-      toastFailed(r.errors?.body)
+      const r = await response.json();
+      toastFailed(r.errors?.body);
     } else {
-      mutateContainers()
-      toastSuccess("Container stopped.")
+      mutateContainers();
+      toastSuccess("Container stopped.");
     }
-  }
+  };
 
   const handleRestartContainer = async (id: string) => {
     const response = await fetch(
@@ -133,23 +132,23 @@ export default function ContainerList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: id }),
       }
-    )
+    );
     if (!response.ok) {
-      const r = await response.json()
-      toastFailed(r.errors?.body)
+      const r = await response.json();
+      toastFailed(r.errors?.body);
     } else {
-      mutateContainers()
-      toastSuccess("Container restarted.")
+      mutateContainers();
+      toastSuccess("Container restarted.");
     }
-  }
+  };
 
   const handleDeleteContainerConfirmation = (container: IContainer) => {
-    setContainer({ ...container })
-    setDeleteContainerConfirmationOpen(true)
-  }
+    setContainer({ ...container });
+    setDeleteContainerConfirmationOpen(true);
+  };
 
   const handleDeleteContainer = async () => {
-    setDeleteInProgress(true)
+    setDeleteInProgress(true);
 
     const response = await fetch(
       `${apiBaseUrl()}/nodes/${nodeId}/containers/remove`,
@@ -158,40 +157,40 @@ export default function ContainerList() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: container?.id, force: true }),
       }
-    )
+    );
     if (!response.ok) {
-      const r = await response.json()
-      setDeleteContainerConfirmationOpen(false)
-      toastFailed(r.errors?.body)
+      const r = await response.json();
+      setDeleteContainerConfirmationOpen(false);
+      toastFailed(r.errors?.body);
     } else {
-      mutateContainers()
+      mutateContainers();
       setTimeout(() => {
-        setDeleteContainerConfirmationOpen(false)
-        toastSuccess("Container deleted.")
-      }, 500)
+        setDeleteContainerConfirmationOpen(false);
+        toastSuccess("Container deleted.");
+      }, 500);
     }
-    setDeleteInProgress(false)
-  }
+    setDeleteInProgress(false);
+  };
 
   function getPortsHtml(ports: IPort[]) {
     const arr = ports.map((p, i) => {
-      let ret = ""
+      let ret = "";
 
-      if (p.ip) ret += `${p.ip}:`
-      if (p.publicPort) ret += `${p.publicPort}->`
-      if (p.privatePort) ret += `${p.privatePort}`
-      if (p.type) ret += `/${p.type}`
+      if (p.ip) ret += `${p.ip}:`;
+      if (p.publicPort) ret += `${p.publicPort}->`;
+      if (p.privatePort) ret += `${p.privatePort}`;
+      if (p.type) ret += `/${p.type}`;
 
-      let baseUrl = nodeHead?.containerBaseUrl
+      let baseUrl = nodeHead?.containerBaseUrl;
       if (p.ip === "0.0.0.0" || p.ip == "::") {
         if (!baseUrl) {
-          baseUrl = `${location.protocol}//${location.hostname}`
+          baseUrl = `${location.protocol}//${location.hostname}`;
         }
       } else {
-        baseUrl = `${location.protocol}//${p.ip}`
+        baseUrl = `${location.protocol}//${p.ip}`;
       }
 
-      const url = `${baseUrl}:${p.publicPort}`
+      const url = `${baseUrl}:${p.publicPort}`;
 
       return (
         <div key={i}>
@@ -210,9 +209,9 @@ export default function ContainerList() {
           )}
           <br />
         </div>
-      )
-    })
-    return arr
+      );
+    });
+    return arr;
   }
 
   return (
@@ -296,13 +295,7 @@ export default function ContainerList() {
               <TableNoData colSpan={5} />
             ) : (
               paginatedContainers.map((item) => (
-                <TableRow
-                  key={item.id}
-                  className={CLASSES_CLICKABLE_TABLE_ROW}
-                  onClick={() => {
-                    navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
-                  }}
-                >
+                <TableRow key={item.id}>
                   <TableCell>
                     {item.state == "exited" ? (
                       <Badge variant="destructive" title={item.status}>
@@ -315,9 +308,16 @@ export default function ContainerList() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <span className="font-bold" title={`Image: ${item.image}`}>
+                    <button
+                      className="font-bold hover:underline hover:text-blue-600 dark:hover:text-blue-400"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                      }}
+                      title={`View logs for ${item.name}`}
+                    >
                       {item.name}
-                    </span>
+                    </button>
                   </TableCell>
                   <TableCell>
                     <StaleStatusIcon status={item.stale} />
@@ -326,76 +326,123 @@ export default function ContainerList() {
                       : item.image}
                   </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
-
                   <TableCell className="text-left">
-                      <Button
-                        variant="ghost"
-                        size={"sm"}
-                        title="Console"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          navigate(`/nodes/${nodeId}/containers/${item.name}/terminal`)
-                        }}
-                      >
-                        <Terminal className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size={"sm"}
-                        title="Logs"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
-                        }}
-                      >
-                        <ScrollText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      </Button>
-                    <>
-                      {item.state == "running" && (
-                        <Button
-                          variant="ghost"
-                          size={"sm"}
-                          title="Restart"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleRestartContainer(item.id)
-                          }}
-                        >
-                          <ArrowPathIcon className="w-4 text-green-600 dark:text-green-400" />
-                        </Button>
-                      )}
-                      {item.state == "exited" ? (
-                        <Button
-                          variant="ghost"
-                          size={"sm"}
-                          title="Start"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleStartContainer(item.id)
-                          }}
-                        >
-                          <PlayIcon className="w-4 text-green-600 dark:text-green-400" />
-                        </Button>
+                    <div className="flex items-center gap-1">
+                      {item.state === "running" ? (
+                        <>
+                          <button
+                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Terminal"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/nodes/${nodeId}/containers/${item.name}/terminal`);
+                            }}
+                          >
+                            <Terminal className="w-4 h-4" />
+                          </button>
+                          <button
+                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Logs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                            }}
+                          >
+                            <ScrollText className="w-4 h-4" />
+                          </button>
+                          <button
+                            className="p-1 rounded text-amber-500 dark:text-amber-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Restart"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRestartContainer(item.id);
+                            }}
+                          >
+                            <ArrowPathIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            className="p-1 rounded text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Stop"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStopContainer(item.id);
+                            }}
+                          >
+                            <StopIcon className="w-4 h-4" />
+                          </button>
+                          <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            <TableButtonDelete
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteContainerConfirmation(item);
+                              }}
+                            />
+                          </div>
+                        </>
+                      ) : item.state === "exited" ? (
+                        <>
+                          <button
+                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Logs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                            }}
+                          >
+                            <ScrollText className="w-4 h-4" />
+                          </button>
+                          <button
+                            className="p-1 rounded text-green-600 dark:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Start"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartContainer(item.id);
+                            }}
+                          >
+                            <PlayIcon className="w-4 h-4" />
+                          </button>
+                          <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            <TableButtonDelete
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteContainerConfirmation(item);
+                              }}
+                            />
+                          </div>
+                        </>
                       ) : (
-                        <Button
-                          variant="ghost"
-                          size={"sm"}
-                          title="Stop"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleStopContainer(item.id)
-                          }}
-                        >
-                          <StopIcon className="w-4 text-red-600 dark:text-red-500" />
-                        </Button>
+                        <>
+                          <button
+                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Logs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                            }}
+                          >
+                            <ScrollText className="w-4 h-4" />
+                          </button>
+                          <button
+                            className="p-1 rounded text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            title="Stop"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStopContainer(item.id);
+                            }}
+                          >
+                            <StopIcon className="w-4 h-4" />
+                          </button>
+                          <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            <TableButtonDelete
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteContainerConfirmation(item);
+                              }}
+                            />
+                          </div>
+                        </>
                       )}
-                      <TableButtonDelete
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteContainerConfirmation(item)
-                        }}
-                      />
-                    </>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -442,15 +489,15 @@ export default function ContainerList() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum
+              let pageNum;
               if (totalPages <= 5) {
-                pageNum = i + 1
+                pageNum = i + 1;
               } else if (currentPage <= 3) {
-                pageNum = i + 1
+                pageNum = i + 1;
               } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i
+                pageNum = totalPages - 4 + i;
               } else {
-                pageNum = currentPage - 2 + i
+                pageNum = currentPage - 2 + i;
               }
 
               return (
@@ -462,7 +509,7 @@ export default function ContainerList() {
                 >
                   {pageNum}
                 </Button>
-              )
+              );
             })}
             <Button
               variant="outline"
@@ -484,35 +531,35 @@ export default function ContainerList() {
         </div>
       </MainContent>
     </MainArea>
-  )
+  );
 }
 
 export function StaleStatusIcon({ status }: { status: string }) {
-  let statusClassName = ""
-  let title = ""
+  let statusClassName = "";
+  let title = "";
 
   switch (status) {
     case "no":
-      statusClassName = "text-green-600"
-      title = "Image(s) up-to-date"
-      break
+      statusClassName = "text-green-600";
+      title = "Image(s) up-to-date";
+      break;
     case "yes":
-      statusClassName = "text-red-500"
-      title = "New image available"
-      break
+      statusClassName = "text-red-500";
+      title = "New image available";
+      break;
     case "error":
-      statusClassName = "text-slate-300"
-      title = "Unable to check if image is up-to-date"
-      break
+      statusClassName = "text-slate-300";
+      title = "Unable to check if image is up-to-date";
+      break;
     case "processing":
-      statusClassName = "text-amber-300"
-      title = "Image staleness check pending. It might take an hour to update."
-      break
+      statusClassName = "text-amber-300";
+      title = "Image staleness check pending. It might take an hour to update.";
+      break;
   }
 
   return (
     <span className={cn("-ml-2 mr-3 text-lg", statusClassName)} title={title}>
       ●
     </span>
-  )
+  );
 }
