@@ -480,7 +480,7 @@ export default function ContainerList() {
               </SelectContent>
             </Select>
           </div>
-           <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
@@ -497,16 +497,18 @@ export default function ContainerList() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
+
+            {/* Page number buttons - show up to 5 pages around current */}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
+              let pageNum
               if (totalPages <= 5) {
-                pageNum = i + 1;
+                pageNum = i + 1
               } else if (currentPage <= 3) {
-                pageNum = i + 1;
+                pageNum = i + 1
               } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
+                pageNum = totalPages - 4 + i
               } else {
-                pageNum = currentPage - 2 + i;
+                pageNum = currentPage - 2 + i
               }
 
               return (
@@ -518,8 +520,9 @@ export default function ContainerList() {
                 >
                   {pageNum}
                 </Button>
-              );
+              )
             })}
+
             <Button
               variant="outline"
               size="sm"
