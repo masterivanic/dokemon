@@ -1,4 +1,4 @@
-import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon,XMarkIcon } from "@heroicons/react/24/solid";
 import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Loading from "@/components/widgets/loading";
 import {
@@ -240,20 +240,29 @@ export default function ContainerList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-        <div className="mb-4 flex items-center justify-end">
-          <div className="relative w-full max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <Input
-              type="text"
-              className="pl-10"
-              placeholder="Search containers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
+<div className="mb-4 flex items-center justify-end">
+  <div className="relative w-full max-w-md">
+    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+    </div>
+    <Input
+      type="text"
+      className="pl-10"
+      placeholder="Search containers..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    {searchTerm && (
+      <button
+        type="button"
+        className="absolute inset-y-0 right-0 flex items-center pr-3"
+        onClick={() => setSearchTerm('')}
+      >
+        <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+      </button>
+    )}
+  </div>
+</div>
         <Table>
           <TableHeader>
             <TableRow>

@@ -28,7 +28,7 @@ import { TableNoData } from "@/components/widgets/table-no-data"
 import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
 import { useFilterAndSort } from "@/lib/useFilterAndSort"
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid"
 import { Input } from "@/components/ui/input"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import {
@@ -64,14 +64,12 @@ export default function ImageList() {
     filterKeys: ['name', 'status', 'inUse'] as (keyof IImage)[]
   });
 
-
   const totalItems = sortedImages.length
   const totalPages = Math.ceil(totalItems / pageSize)
   const paginatedImages = sortedImages.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   )
-
 
   if (isLoading) return <Loading />
 
@@ -182,11 +180,20 @@ export default function ImageList() {
             </div>
             <Input
               type="text"
-              className="pl-10 pl-10"
+              className="pl-10"
               placeholder="Search images..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setSearchTerm('')}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
           </div>
         </div>
         <Table>

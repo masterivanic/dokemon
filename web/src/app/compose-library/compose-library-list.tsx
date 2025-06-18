@@ -18,9 +18,8 @@ import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import { useFilterAndSort } from "@/lib/useFilterAndSort"
 import { TableNoData } from "@/components/widgets/table-no-data"
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid"
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid"
 import { Input } from "@/components/ui/input"
-// import { Item } from "@radix-ui/react-dropdown-menu"
 
 export default function ComposeLibraryList() {
   const navigate = useNavigate()
@@ -37,7 +36,6 @@ export default function ComposeLibraryList() {
     initialSortDirection: "asc",
     filterKeys: ["projectName"]
   });
-
 
   if (isLoading) return <Loading />
 
@@ -70,11 +68,20 @@ export default function ComposeLibraryList() {
             </div>
             <Input
               type="text"
-              className="pl-10 pl-10"
+              className="pl-10"
               placeholder="Search compose library..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setSearchTerm('')}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
           </div>
         </div>
         <Table>

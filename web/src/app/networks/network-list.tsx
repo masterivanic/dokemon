@@ -29,7 +29,7 @@ import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
 import { useFilterAndSort } from "@/lib/useFilterAndSort"
 import { Input } from "@/components/ui/input"
-import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid"
 import { Button } from "@/components/ui/button"
 import NetworkCreateDialog from "./network-create"
 
@@ -182,6 +182,15 @@ export default function NetworkList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setSearchTerm('')}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
           </div>
         </div>
         <Table>

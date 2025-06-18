@@ -1,6 +1,6 @@
 import Loading from "@/components/widgets/loading"
 import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb"
-import { MagnifyingGlassIcon, PencilIcon } from "@heroicons/react/24/solid"
+import { MagnifyingGlassIcon, PencilIcon,XMarkIcon } from "@heroicons/react/24/solid"
 import {
   Table,
   TableBody,
@@ -141,6 +141,15 @@ export default function NodeList() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setSearchTerm('')}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
           </div>
         </div>
         <Table>
@@ -346,19 +355,36 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
 
   return (
     <div className="flex items-center gap-1">
-      {/* Display primary IPs without click functionality */}
-      {ips.ip?.map((ip, index) => (
-        <span key={`ip-${index}`} className="mr-2">
-          ip:{ip}
-        </span>
-      ))}
+      {/* Display primary IPs with popup */}
+      {(ips.ip?.length ?? 0) > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer">
+              Local{(ips.ip?.length ?? 0) > 1 ? ` (${ips.ip?.length})` : ''}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Local IP(s)</h4>
+              <div className="text-sm space-y-1">
+                {ips.ip?.map((ip, index) => (
+                  <div key={`zt-ip-${index}`}>{ip}</div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+      
+
+
       
       {/* ZeroTier IP popup */}
       {(ips.zt?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
             <button className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer">
-              ZT{(ips.zt?.length ?? 0) > 1 ? ` (${ips.zt?.length})` : ''}
+              ZeroTier{(ips.zt?.length ?? 0) > 1 ? ` (${ips.zt?.length})` : ''}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto">
@@ -379,7 +405,7 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
         <Popover>
           <PopoverTrigger asChild>
             <button className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer ml-1">
-              TS{(ips.ts?.length ?? 0) > 1 ? ` (${ips.ts?.length})` : ''}
+              Tailscale{(ips.ts?.length ?? 0) > 1 ? ` (${ips.ts?.length})` : ''}
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto">
