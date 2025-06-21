@@ -9,6 +9,7 @@ import ContainerTerminal from "./app/containers/container-terminal"
 import VolumeList from "./app/volumes/volume-list"
 import NetworkList from "./app/networks/network-list"
 import ChangePassword from "./app/auth/change-password"
+import NewUser from "./app/auth/new-user"
 import Login from "./app/auth/login"
 import Setup from "./app/auth/setup"
 import ComposeLibraryList from "./app/compose-library/compose-library-list"
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/changepassword",
     element: <ChangePassword />,
+  },
+  {
+    path: "/newuser",
+    element: <NewUser />,
   },
   {
     path: "/login",
