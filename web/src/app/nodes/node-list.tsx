@@ -6,7 +6,7 @@ import {
   XMarkIcon,
   ExclamationTriangleIcon
 } from "@heroicons/react/24/solid";
-import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -41,10 +41,12 @@ import { TableNoData } from "@/components/widgets/table-no-data";
 import DeleteDialog from "@/components/delete-dialog";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import axios from "axios";
 import apiBaseUrl from "@/lib/api-base-url";
+import { usePagination } from "@/lib/pagination";
+import PaginationFooter from "@/components/ui/pagination-footer";
 
 export default function NodeList() {
   const navigate = useNavigate();
@@ -67,8 +69,6 @@ export default function NodeList() {
   const [refreshInterval, setRefreshInterval] = useState<number>(60);
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     searchTerm,
@@ -82,23 +82,12 @@ export default function NodeList() {
     filterKeys: ['name', 'environment', 'agentVersion'] as (keyof INodeHead)[]
   });
 
-  const totalItems = sortedNodes.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-  const paginatedNodes = sortedNodes.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const [paginationConfig, paginationFunctions, paginatedNodes] = usePagination(
+    sortedNodes,
+    10
   );
 
-  const handlePageSizeChange = (value: string) => {
-    setPageSize(Number(value));
-    setCurrentPage(1);
-  };
 
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  };
-
-  // Update current time every second when refresh interval is active
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -325,11 +314,11 @@ export default function NodeList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-<div className="mb-4 flex items-center justify-end">
-  <div className="relative w-full max-w-md">
-    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-    </div>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
             <Input
               type="text"
               className="pl-10"
@@ -473,31 +462,14 @@ export default function NodeList() {
             )}
           </TableBody>
         </Table>
-        {/* Pagination controls */}
         <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} nodes
-            </span>
-            <Select
-              value={pageSize.toString()}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize} />
-              </SelectTrigger>
-              <SelectContent>
-                {[10, 20, 25, 50, 100].map((size) => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <PaginationFooter
+            paginationConfig={paginationConfig}
+            paginationFunctions={paginationFunctions}
+            className="flex-1"
+          />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5 ml-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Refresh:</span>
               <Select
@@ -525,68 +497,6 @@ export default function NodeList() {
                 )}
               </div>
             )}
-          </div>
-
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(1)}
-              disabled={currentPage === 1}
-            >
-              First
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {/* Page number buttons - show up to 5 pages around current */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => goToPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              Last
-            </Button>
           </div>
         </div>
       </MainContent>

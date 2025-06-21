@@ -1,5 +1,5 @@
 import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Terminal, ScrollText, ArrowUpRight } from "lucide-react";
 import Loading from "@/components/widgets/loading";
 import {
   Breadcrumb,
@@ -17,7 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import apiBaseUrl from "@/lib/api-base-url";
 import { IContainer, IPort } from "@/lib/api-models";
 import { useState } from "react";
@@ -39,14 +38,8 @@ import { TableNoData } from "@/components/widgets/table-no-data";
 import DeleteDialog from "@/components/delete-dialog";
 import { Input } from "@/components/ui/input";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { usePagination } from "@/lib/pagination"
+import { usePagination } from "@/lib/pagination";
+import PaginationFooter from "@/components/ui/pagination-footer";
 
 export default function ContainerList() {
   const { nodeId } = useParams();
@@ -445,89 +438,10 @@ export default function ContainerList() {
             )}
           </TableBody>
         </Table>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(paginationConfig.currentPage - 1) * paginationConfig.pageSize + 1}-
-              {Math.min(paginationConfig.currentPage * paginationConfig.pageSize, paginationConfig.totalItems)} of {paginationConfig.totalItems} items
-            </span>
-            <Select
-             value={paginationConfig.pageSize.toString()}
-              onValueChange={(value) => paginationFunctions.setPageSize(Number(value))}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={paginationConfig.pageSize} />
-              </SelectTrigger>
-              <SelectContent>
-                {[10, 20, 25, 50, 100].map((size) => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={paginationFunctions.goToFirstPage}
-              disabled={paginationConfig.currentPage === 1}
-            >
-              First
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={paginationFunctions.prevPage}
-              disabled={paginationConfig.currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {/* Page number buttons - show up to 5 pages around current */}
-            {Array.from({ length: Math.min(5, paginationConfig.totalPages) }, (_, i) => {
-              let pageNum
-              if (paginationConfig.totalPages <= 5) {
-                pageNum = i + 1
-              } else if (paginationConfig.currentPage <= 3) {
-                pageNum = i + 1
-              } else if (paginationConfig.currentPage >= paginationConfig.totalPages - 2) {
-                pageNum = paginationConfig.totalPages - 4 + i
-              } else {
-                pageNum = paginationConfig.currentPage - 2 + i
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={paginationConfig.currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => paginationFunctions.goToPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              )
-            })}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={paginationFunctions.nextPage}
-              disabled={paginationConfig.currentPage === paginationConfig.totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={paginationFunctions.goToLastPage}
-              disabled={paginationConfig.currentPage === paginationConfig.totalPages}
-            >
-              Last
-            </Button>
-          </div>
-        </div>
+        <PaginationFooter
+          paginationConfig={paginationConfig}
+          paginationFunctions={paginationFunctions}
+        />
       </MainContent>
     </MainArea>
   );
