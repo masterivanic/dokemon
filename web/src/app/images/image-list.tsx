@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { usePagination } from "@/lib/pagination"
 
 export default function ImageList() {
   const { nodeId } = useParams()
@@ -49,8 +50,6 @@ export default function ImageList() {
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
-  const [pageSize, setPageSize] = useState<number>(10)
-  const [currentPage, setCurrentPage] = useState<number>(1)
 
   const {
     searchTerm,
@@ -64,23 +63,12 @@ export default function ImageList() {
     filterKeys: ['name', 'status', 'inUse'] as (keyof IImage)[]
   });
 
-  const totalItems = sortedImages.length
-  const totalPages = Math.ceil(totalItems / pageSize)
-  const paginatedImages = sortedImages.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const [paginationConfig, paginationFunctions, paginatedImages] = usePagination(
+    sortedImages,
+    10
   )
 
   if (isLoading) return <Loading />
-
-  const handlePageSizeChange = (value: string) => {
-    setPageSize(Number(value))
-    setCurrentPage(1)
-  }
-
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
-  }
 
   const handleDeleteImageConfirmation = (image: IImage) => {
     setImage({ ...image })
@@ -270,16 +258,16 @@ export default function ImageList() {
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
+              Showing {(paginationConfig.currentPage - 1) * paginationConfig.pageSize + 1}-
+              {Math.min(paginationConfig.currentPage * paginationConfig.pageSize, paginationConfig.totalItems)} of {paginationConfig.totalItems} items
             </span>
 
             <Select
-              value={pageSize.toString()}
-              onValueChange={handlePageSizeChange}
+              value={paginationConfig.pageSize.toString()}
+              onValueChange={(value) => paginationFunctions.setPageSize(Number(value))}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize} />
+                <SelectValue placeholder={paginationConfig.pageSize} />
               </SelectTrigger>
               <SelectContent>
                 {[10, 20, 25, 50, 100].map((size) => (
@@ -295,39 +283,39 @@ export default function ImageList() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(1)}
-              disabled={currentPage === 1}
+              onClick={paginationFunctions.goToFirstPage}
+              disabled={paginationConfig.currentPage === 1}
             >
               First
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
+              onClick={paginationFunctions.prevPage}
+              disabled={paginationConfig.currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
             {/* Page number buttons - show up to 5 pages around current */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            {Array.from({ length: Math.min(5, paginationConfig.totalPages) }, (_, i) => {
               let pageNum
-              if (totalPages <= 5) {
+              if (paginationConfig.totalPages <= 5) {
                 pageNum = i + 1
-              } else if (currentPage <= 3) {
+              } else if (paginationConfig.currentPage <= 3) {
                 pageNum = i + 1
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i
+              } else if (paginationConfig.currentPage >= paginationConfig.totalPages - 2) {
+                pageNum = paginationConfig.totalPages - 4 + i
               } else {
-                pageNum = currentPage - 2 + i
+                pageNum = paginationConfig.currentPage - 2 + i
               }
 
               return (
                 <Button
                   key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
+                  variant={paginationConfig.currentPage === pageNum ? "default" : "outline"}
                   size="sm"
-                  onClick={() => goToPage(pageNum)}
+                  onClick={() => paginationFunctions.goToPage(pageNum)}
                 >
                   {pageNum}
                 </Button>
@@ -337,16 +325,16 @@ export default function ImageList() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={paginationFunctions.nextPage}
+              disabled={paginationConfig.currentPage === paginationConfig.totalPages}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(totalPages)}
-              disabled={currentPage === totalPages}
+              onClick={paginationFunctions.goToLastPage}
+              disabled={paginationConfig.currentPage === paginationConfig.totalPages}
             >
               Last
             </Button>

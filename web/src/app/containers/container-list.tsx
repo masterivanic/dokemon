@@ -1,4 +1,4 @@
-import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon,XMarkIcon } from "@heroicons/react/24/solid";
+import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Loading from "@/components/widgets/loading";
 import {
@@ -46,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePagination } from "@/lib/pagination"
 
 export default function ContainerList() {
   const { nodeId } = useParams();
@@ -55,9 +56,6 @@ export default function ContainerList() {
   const [container, setContainer] = useState<IContainer | null>(null);
   const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
-
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     searchTerm,
@@ -71,21 +69,10 @@ export default function ContainerList() {
     filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
 
-  const totalItems = sortedContainers.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-  const paginatedContainers = sortedContainers.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const [paginationConfig, paginationFunctions, paginatedContainers] = usePagination(
+    sortedContainers,
+    10
   );
-
-  const handlePageSizeChange = (value: string) => {
-    setPageSize(Number(value));
-    setCurrentPage(1);
-  };
-
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  };
 
   if (isLoading) return <Loading />;
 
@@ -240,29 +227,29 @@ export default function ContainerList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-<div className="mb-4 flex items-center justify-end">
-  <div className="relative w-full max-w-md">
-    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-    </div>
-    <Input
-      type="text"
-      className="pl-10"
-      placeholder="Search containers..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-    {searchTerm && (
-      <button
-        type="button"
-        className="absolute inset-y-0 right-0 flex items-center pr-3"
-        onClick={() => setSearchTerm('')}
-      >
-        <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-      </button>
-    )}
-  </div>
-</div>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10"
+              placeholder="Search containers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setSearchTerm('')}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -461,15 +448,15 @@ export default function ContainerList() {
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
+              Showing {(paginationConfig.currentPage - 1) * paginationConfig.pageSize + 1}-
+              {Math.min(paginationConfig.currentPage * paginationConfig.pageSize, paginationConfig.totalItems)} of {paginationConfig.totalItems} items
             </span>
             <Select
-              value={pageSize.toString()}
-              onValueChange={handlePageSizeChange}
+             value={paginationConfig.pageSize.toString()}
+              onValueChange={(value) => paginationFunctions.setPageSize(Number(value))}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize} />
+                <SelectValue placeholder={paginationConfig.pageSize} />
               </SelectTrigger>
               <SelectContent>
                 {[10, 20, 25, 50, 100].map((size) => (
@@ -484,39 +471,39 @@ export default function ContainerList() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(1)}
-              disabled={currentPage === 1}
+              onClick={paginationFunctions.goToFirstPage}
+              disabled={paginationConfig.currentPage === 1}
             >
               First
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
+              onClick={paginationFunctions.prevPage}
+              disabled={paginationConfig.currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
             {/* Page number buttons - show up to 5 pages around current */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            {Array.from({ length: Math.min(5, paginationConfig.totalPages) }, (_, i) => {
               let pageNum
-              if (totalPages <= 5) {
+              if (paginationConfig.totalPages <= 5) {
                 pageNum = i + 1
-              } else if (currentPage <= 3) {
+              } else if (paginationConfig.currentPage <= 3) {
                 pageNum = i + 1
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i
+              } else if (paginationConfig.currentPage >= paginationConfig.totalPages - 2) {
+                pageNum = paginationConfig.totalPages - 4 + i
               } else {
-                pageNum = currentPage - 2 + i
+                pageNum = paginationConfig.currentPage - 2 + i
               }
 
               return (
                 <Button
                   key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
+                  variant={paginationConfig.currentPage === pageNum ? "default" : "outline"}
                   size="sm"
-                  onClick={() => goToPage(pageNum)}
+                  onClick={() => paginationFunctions.goToPage(pageNum)}
                 >
                   {pageNum}
                 </Button>
@@ -526,16 +513,16 @@ export default function ContainerList() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={paginationFunctions.nextPage}
+              disabled={paginationConfig.currentPage === paginationConfig.totalPages}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => goToPage(totalPages)}
-              disabled={currentPage === totalPages}
+              onClick={paginationFunctions.goToLastPage}
+              disabled={paginationConfig.currentPage === paginationConfig.totalPages}
             >
               Last
             </Button>

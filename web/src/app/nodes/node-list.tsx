@@ -1,10 +1,10 @@
 import Loading from "@/components/widgets/loading";
 import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb";
-import { 
-  MagnifyingGlassIcon, 
-  PencilIcon, 
+import {
+  MagnifyingGlassIcon,
+  PencilIcon,
   XMarkIcon,
-  ExclamationTriangleIcon 
+  ExclamationTriangleIcon
 } from "@heroicons/react/24/solid";
 import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -101,7 +101,7 @@ export default function NodeList() {
   // Update current time every second when refresh interval is active
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
-    
+
     if (refreshInterval > 0) {
       intervalId = setInterval(() => {
         setCurrentTime(Date.now());
@@ -134,11 +134,11 @@ export default function NodeList() {
     try {
       setContainerCounts(prev => ({
         ...prev,
-        [nodeId]: { 
-          ...prev[nodeId], 
+        [nodeId]: {
+          ...prev[nodeId],
           running: undefined,
           stopped: undefined,
-          loading: true, 
+          loading: true,
           error: undefined,
           hasData: false
         }
@@ -196,31 +196,31 @@ export default function NodeList() {
     const refreshTime = Date.now();
     setLastRefreshTime(refreshTime);
     setCurrentTime(refreshTime);
-    
+
     if (!nodes?.items) return;
-    
+
     // Implement rate-limited parallel loading
     const BATCH_SIZE = 3;
     const DELAY_BETWEEN_BATCHES = 500;
-    
+
     for (let i = 0; i < nodes.items.length; i += BATCH_SIZE) {
       const batch = nodes.items.slice(i, i + BATCH_SIZE);
-      
-      const batchPromises = batch.map(node => 
+
+      const batchPromises = batch.map(node =>
         retryableFetch(node.id, node.online)
       );
-      
+
       await Promise.all(batchPromises);
-      
+
       if (i + BATCH_SIZE < nodes.items.length) {
         await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES));
       }
     }
-    
+
     async function retryableFetch(nodeId: number, nodeOnline: boolean, attempt = 1): Promise<void> {
       const MAX_RETRIES = 2;
       const RETRY_DELAY = 1000;
-      
+
       try {
         const success = await fetchContainerCounts(nodeId, nodeOnline);
         if (!success && attempt < MAX_RETRIES) {
@@ -242,7 +242,7 @@ export default function NodeList() {
 
     fetchAllCounts();
     let refreshIntervalId: NodeJS.Timeout;
-    
+
     if (refreshInterval > 0) {
       refreshIntervalId = setInterval(fetchAllCounts, refreshInterval * 1000);
     }
@@ -394,7 +394,7 @@ export default function NodeList() {
                   <TableCell>
                     <div className="flex items-center">
                       <NodeStatusIcon nodeHead={item} />
-                      <span 
+                      <span
                         className="cursor-pointer hover:text-blue-600 hover:underline"
                         onClick={() => navigate(`/nodes/${item.id}/containers`)}
                       >
@@ -403,7 +403,7 @@ export default function NodeList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <NodeContainersDisplay 
+                    <NodeContainersDisplay
                       counts={containerCounts[item.id] || { loading: false, hasData: false }}
                       onRefresh={() => handleRefreshCounts(item.id, item.online)}
                       nodeOnline={item.online}
@@ -620,7 +620,7 @@ function getAgentVersion(nodeHead: INodeHead): string {
     const version = mainParts[0] || '';
     const rest = mainParts.length > 1 ? mainParts[1] : '';
     const arch = rest.split('@')[0] || null;
-    
+
     let formatted = `v${version}`;
     if (arch) formatted += ` (${arch})`;
     return formatted;
@@ -629,13 +629,13 @@ function getAgentVersion(nodeHead: INodeHead): string {
   return "-";
 }
 
-function extractIPs(agentVersion: string): { 
-  ip?: string[], 
-  zt?: string[], 
-  ts?: string[] 
+function extractIPs(agentVersion: string): {
+  ip?: string[],
+  zt?: string[],
+  ts?: string[]
 } | null {
   if (!agentVersion) return null;
-  
+
   const mainParts = agentVersion.split('-');
   const rest = mainParts.length > 1 ? mainParts[1] : '';
   const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
@@ -644,7 +644,7 @@ function extractIPs(agentVersion: string): {
 
   const result: { ip?: string[], zt?: string[], ts?: string[] } = {};
   const ipComponents = ips.split('+');
-  
+
   for (const component of ipComponents) {
     if (component.includes('.')) {
       if (component.startsWith('zt:')) {
@@ -667,7 +667,7 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
   if (!nodeHead.agentVersion) return <span>-</span>;
 
   const ips = extractIPs(nodeHead.agentVersion);
-  
+
   if (!ips || (!ips.ip?.length && !ips.zt?.length && !ips.ts?.length)) {
     return <span>-</span>;
   }
@@ -693,7 +693,7 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
           </PopoverContent>
         </Popover>
       )}
-      
+
       {(ips.zt?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
@@ -713,7 +713,7 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
           </PopoverContent>
         </Popover>
       )}
-      
+
       {(ips.ts?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
@@ -767,7 +767,7 @@ function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainers
         <span className="text-xs text-yellow-600">
           {counts.error}
         </span>
-        <button 
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onRefresh();
@@ -792,7 +792,7 @@ function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainers
 
   if (!counts.hasData) {
     return (
-      <button 
+      <button
         onClick={(e) => {
           e.stopPropagation();
           onRefresh();
@@ -831,7 +831,7 @@ function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainers
           </PopoverContent>
         </Popover>
       )}
-      
+
       {counts.stopped !== undefined && (
         <Popover>
           <PopoverTrigger asChild>
@@ -850,8 +850,8 @@ function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainers
           </PopoverContent>
         </Popover>
       )}
-      
-      <button 
+
+      <button
         onClick={(e) => {
           e.stopPropagation();
           onRefresh();

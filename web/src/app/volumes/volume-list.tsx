@@ -41,6 +41,7 @@ import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils";
 import apiBaseUrl from "@/lib/api-base-url";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
 
+
 export default function VolumeList() {
   const { nodeId } = useParams();
   const { nodeHead } = useNodeHead(nodeId!);
@@ -54,6 +55,8 @@ export default function VolumeList() {
   const [createInProgress, setCreateInProgress] = useState(false);
   const [volumeName, setVolumeName] = useState("");
   const [driver, setDriver] = useState("local");
+  // const [pageSize, setPageSize] = useState<number>(10)
+  // const [currentPage, setCurrentPage] = useState<number>(1)
 
   const {
     searchTerm,
