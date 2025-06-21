@@ -1,6 +1,12 @@
-import Loading from "@/components/widgets/loading"
-import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb"
-import { MagnifyingGlassIcon, PencilIcon,XMarkIcon } from "@heroicons/react/24/solid"
+import Loading from "@/components/widgets/loading";
+import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb";
+import { 
+  MagnifyingGlassIcon, 
+  PencilIcon, 
+  XMarkIcon,
+  ExclamationTriangleIcon 
+} from "@heroicons/react/24/solid";
+import { RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -8,46 +14,61 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import TableButtonDelete from "@/components/widgets/table-button-delete"
-import MainArea from "@/components/widgets/main-area"
-import TopBar from "@/components/widgets/top-bar"
-import TopBarActions from "@/components/widgets/top-bar-actions"
-import MainContent from "@/components/widgets/main-content"
-import NodeAddDialog from "./node-add-dialog"
-import { Button } from "@/components/ui/button"
-import NodeRegisterDialog from "./node-register-dialog"
-import ServerUrlEditDialog from "./serverurl-edit-dialog"
-import { INodeHead } from "@/lib/api-models"
-import { apiNodesDelete, apiNodesGenerateToken } from "@/lib/api"
-import { VERSION } from "@/lib/version"
+} from "@/components/ui/table";
+import TableButtonDelete from "@/components/widgets/table-button-delete";
+import MainArea from "@/components/widgets/main-area";
+import TopBar from "@/components/widgets/top-bar";
+import TopBarActions from "@/components/widgets/top-bar-actions";
+import MainContent from "@/components/widgets/main-content";
+import NodeAddDialog from "./node-add-dialog";
+import { Button } from "@/components/ui/button";
+import NodeRegisterDialog from "./node-register-dialog";
+import ServerUrlEditDialog from "./serverurl-edit-dialog";
+import { INodeHead } from "@/lib/api-models";
+import { apiNodesDelete, apiNodesGenerateToken } from "@/lib/api";
+import { VERSION } from "@/lib/version";
 import {
   cn,
   toastFailed,
   toastSomethingWentWrong,
   toastSuccess,
-} from "@/lib/utils"
-import { useNavigate } from "react-router-dom"
-import useNodes from "@/hooks/useNodes"
-import { useState } from "react"
-import useSetting from "@/hooks/useSetting"
-import { TableNoData } from "@/components/widgets/table-no-data"
-import DeleteDialog from "@/components/delete-dialog"
-import { useFilterAndSort } from "@/lib/useFilterAndSort"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+} from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import useNodes from "@/hooks/useNodes";
+import { useState, useEffect, useCallback } from "react";
+import useSetting from "@/hooks/useSetting";
+import { TableNoData } from "@/components/widgets/table-no-data";
+import DeleteDialog from "@/components/delete-dialog";
+import { useFilterAndSort } from "@/lib/useFilterAndSort";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from "axios";
+import apiBaseUrl from "@/lib/api-base-url";
 
 export default function NodeList() {
-  const navigate = useNavigate()
-  const { isLoading, nodes, mutateNodes } = useNodes()
-  const { setting } = useSetting("SERVER_URL")
-  const [token, setToken] = useState("")
-  const [updateAgent, setUpdateAgent] = useState(false)
-  const [registerNodeOpen, setRegisterNodeOpen] = useState(false)
-  const [nodeHead, setNodeHead] = useState<INodeHead | null>(null)
-  const [deleteNodeOpenConfirmation, setDeleteNodeOpenConfirmation] =
-    useState(false)
-  const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const navigate = useNavigate();
+  const { isLoading, nodes, mutateNodes } = useNodes();
+  const { setting } = useSetting("SERVER_URL");
+  const [token, setToken] = useState("");
+  const [updateAgent, setUpdateAgent] = useState(false);
+  const [registerNodeOpen, setRegisterNodeOpen] = useState(false);
+  const [nodeHead, setNodeHead] = useState<INodeHead | null>(null);
+  const [deleteNodeOpenConfirmation, setDeleteNodeOpenConfirmation] = useState(false);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [containerCounts, setContainerCounts] = useState<Record<number, {
+    running?: number;
+    stopped?: number;
+    loading: boolean;
+    error?: string;
+    lastUpdated?: number;
+    hasData: boolean;
+  }>>({});
+  const [refreshInterval, setRefreshInterval] = useState<number>(60);
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
+  const [currentTime, setCurrentTime] = useState<number>(Date.now());
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     searchTerm,
@@ -61,44 +82,219 @@ export default function NodeList() {
     filterKeys: ['name', 'environment', 'agentVersion'] as (keyof INodeHead)[]
   });
 
-  if (isLoading) return <Loading />
+  const totalItems = sortedNodes.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const paginatedNodes = sortedNodes.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setCurrentPage(1);
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  // Update current time every second when refresh interval is active
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    
+    if (refreshInterval > 0) {
+      intervalId = setInterval(() => {
+        setCurrentTime(Date.now());
+      }, 1000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [refreshInterval]);
+
+  const secondsSinceLastRefresh = Math.floor((currentTime - lastRefreshTime) / 1000);
+
+  const fetchContainerCounts = useCallback(async (nodeId: number, nodeOnline: boolean): Promise<boolean> => {
+    if (!nodeOnline) {
+      setContainerCounts(prev => ({
+        ...prev,
+        [nodeId]: {
+          loading: false,
+          error: 'Host offline',
+          lastUpdated: Date.now(),
+          hasData: false
+        }
+      }));
+      return false;
+    }
+
+    const now = Date.now();
+
+    try {
+      setContainerCounts(prev => ({
+        ...prev,
+        [nodeId]: { 
+          ...prev[nodeId], 
+          running: undefined,
+          stopped: undefined,
+          loading: true, 
+          error: undefined,
+          hasData: false
+        }
+      }));
+
+      const response = await axios.get(`${apiBaseUrl()}/nodes/${nodeId}/containers`, {
+        timeout: 15000,
+        validateStatus: () => true
+      });
+
+      if (response.status >= 500) {
+        throw new Error(`Backend error: ${response.status}`);
+      }
+
+      if (response.status >= 400) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      const containers = response.data?.items || [];
+      const running = containers.filter((c: any) => c.state === 'running').length;
+      const stopped = containers.filter((c: any) => c.state === 'exited').length;
+
+      setContainerCounts(prev => ({
+        ...prev,
+        [nodeId]: {
+          running,
+          stopped,
+          loading: false,
+          lastUpdated: now,
+          error: undefined,
+          hasData: true
+        }
+      }));
+      return true;
+    } catch (error) {
+      console.error(`Node ${nodeId} fetch error:`, error);
+
+      setContainerCounts(prev => ({
+        ...prev,
+        [nodeId]: {
+          ...prev[nodeId],
+          running: undefined,
+          stopped: undefined,
+          loading: false,
+          error: 'Service unavailable',
+          lastUpdated: now,
+          hasData: false
+        }
+      }));
+      return false;
+    }
+  }, []);
+
+  const fetchAllCounts = useCallback(async () => {
+    const refreshTime = Date.now();
+    setLastRefreshTime(refreshTime);
+    setCurrentTime(refreshTime);
+    
+    if (!nodes?.items) return;
+    
+    // Implement rate-limited parallel loading
+    const BATCH_SIZE = 3;
+    const DELAY_BETWEEN_BATCHES = 500;
+    
+    for (let i = 0; i < nodes.items.length; i += BATCH_SIZE) {
+      const batch = nodes.items.slice(i, i + BATCH_SIZE);
+      
+      const batchPromises = batch.map(node => 
+        retryableFetch(node.id, node.online)
+      );
+      
+      await Promise.all(batchPromises);
+      
+      if (i + BATCH_SIZE < nodes.items.length) {
+        await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES));
+      }
+    }
+    
+    async function retryableFetch(nodeId: number, nodeOnline: boolean, attempt = 1): Promise<void> {
+      const MAX_RETRIES = 2;
+      const RETRY_DELAY = 1000;
+      
+      try {
+        const success = await fetchContainerCounts(nodeId, nodeOnline);
+        if (!success && attempt < MAX_RETRIES) {
+          throw new Error('Service unavailable');
+        }
+      } catch (error) {
+        if (attempt < MAX_RETRIES) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          return retryableFetch(nodeId, nodeOnline, attempt + 1);
+        }
+      }
+    }
+  }, [nodes, fetchContainerCounts]);
+
+  useEffect(() => {
+    if (!nodes?.items) return;
+
+    const abortController = new AbortController();
+
+    fetchAllCounts();
+    let refreshIntervalId: NodeJS.Timeout;
+    
+    if (refreshInterval > 0) {
+      refreshIntervalId = setInterval(fetchAllCounts, refreshInterval * 1000);
+    }
+
+    return () => {
+      if (refreshIntervalId) clearInterval(refreshIntervalId);
+      abortController.abort();
+    };
+  }, [nodes, fetchAllCounts, refreshInterval]);
+
+  const handleRefreshCounts = (nodeId: number, nodeOnline: boolean) => {
+    fetchContainerCounts(nodeId, nodeOnline);
+  };
 
   const handleRegister = async (nodeId: number, update: boolean) => {
-    const response = await apiNodesGenerateToken(nodeId)
+    const response = await apiNodesGenerateToken(nodeId);
 
     if (!response.ok) {
       toastSomethingWentWrong(
         "There was a problem when generating the registration token. Try again!"
-      )
+      );
     } else {
-      const data: { token: string } = await response.json()
-      setToken(data.token)
-      setUpdateAgent(update)
-      setRegisterNodeOpen(true)
+      const data: { token: string } = await response.json();
+      setToken(data.token);
+      setUpdateAgent(update);
+      setRegisterNodeOpen(true);
     }
-  }
+  };
 
   const handleDeleteNodeConfirmation = (nodeHead: INodeHead) => {
-    setNodeHead({ ...nodeHead })
-    setDeleteNodeOpenConfirmation(true)
-  }
+    setNodeHead({ ...nodeHead });
+    setDeleteNodeOpenConfirmation(true);
+  };
 
   const handleDelete = async () => {
-    setDeleteInProgress(true)
-    const response = await apiNodesDelete(Number(nodeHead?.id))
+    setDeleteInProgress(true);
+    const response = await apiNodesDelete(Number(nodeHead?.id));
     if (!response.ok) {
-      const r = await response.json()
-      setDeleteNodeOpenConfirmation(false)
-      toastFailed(r.errors?.body)
+      const r = await response.json();
+      setDeleteNodeOpenConfirmation(false);
+      toastFailed(r.errors?.body);
     } else {
-      mutateNodes()
+      mutateNodes();
       setTimeout(() => {
-        setDeleteNodeOpenConfirmation(false)
-        toastSuccess("Node deleted.")
-      }, 500)
+        setDeleteNodeOpenConfirmation(false);
+        toastSuccess("Node deleted.");
+      }, 500);
     }
-    setDeleteInProgress(false)
-  }
+    setDeleteInProgress(false);
+  };
+
+  if (isLoading) return <Loading />;
 
   return (
     <MainArea>
@@ -129,7 +325,36 @@ export default function NodeList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-        <div className="mb-4 flex items-center justify-end">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Refresh:</span>
+              <Select
+                value={refreshInterval.toString()}
+                onValueChange={(value) => setRefreshInterval(Number(value))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="60s" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30">30s</SelectItem>
+                  <SelectItem value="60">60s</SelectItem>
+                  <SelectItem value="120">120s</SelectItem>
+                  <SelectItem value="180">180s</SelectItem>
+                  <SelectItem value="300">300s</SelectItem>
+                  <SelectItem value="0">None</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {refreshInterval > 0 && (
+              <div className="text-sm text-gray-500">
+                Last refresh: {secondsSinceLastRefresh}s ago
+                {secondsSinceLastRefresh < refreshInterval && (
+                  <span> (next in {refreshInterval - secondsSinceLastRefresh}s)</span>
+                )}
+              </div>
+            )}
+          </div>
           <div className="relative w-full max-w-md">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
@@ -169,7 +394,7 @@ export default function NodeList() {
                   )}
                 </div>
               </TableHead>
-
+              <TableHead scope="col">Containers</TableHead>
               <TableHead
                 scope="col"
                 className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -190,10 +415,10 @@ export default function NodeList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedNodes.length === 0 ? (
-              <TableNoData colSpan={5} />
+            {paginatedNodes.length === 0 ? (
+              <TableNoData colSpan={6} />
             ) : (
-              sortedNodes.map((item) => (
+              paginatedNodes.map((item) => (
                 <TableRow key={item.name}>
                   <TableCell>
                     <div className="flex items-center">
@@ -205,6 +430,13 @@ export default function NodeList() {
                         {item.name}
                       </span>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <NodeContainersDisplay 
+                      counts={containerCounts[item.id] || { loading: false, hasData: false }}
+                      onRefresh={() => handleRefreshCounts(item.id, item.online)}
+                      nodeOnline={item.online}
+                    />
                   </TableCell>
                   <TableCell>
                     {item.environment ? item.environment : "-"}
@@ -222,8 +454,8 @@ export default function NodeList() {
                           <Button
                             size={"sm"}
                             onClick={(e) => {
-                              e.stopPropagation()
-                              handleRegister(item.id, false)
+                              e.stopPropagation();
+                              handleRegister(item.id, false);
                             }}
                           >
                             Register
@@ -233,8 +465,8 @@ export default function NodeList() {
                               variant="destructive"
                               size={"sm"}
                               onClick={(e) => {
-                                e.stopPropagation()
-                                handleDeleteNodeConfirmation(item)
+                                e.stopPropagation();
+                                handleDeleteNodeConfirmation(item);
                               }}
                             >
                               Delete
@@ -247,8 +479,8 @@ export default function NodeList() {
                             className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                             title="Edit"
                             onClick={(e) => {
-                              e.stopPropagation()
-                              navigate(`/nodes/${item.id}/details`)
+                              e.stopPropagation();
+                              navigate(`/nodes/${item.id}/details`);
                             }}
                           >
                             <PencilIcon className="w-4 h-4" />
@@ -256,8 +488,8 @@ export default function NodeList() {
                           {!isDokemonNode(item) && (
                             <TableButtonDelete
                               onClick={(e) => {
-                                e.stopPropagation()
-                                handleDeleteNodeConfirmation(item)
+                                e.stopPropagation();
+                                handleDeleteNodeConfirmation(item);
                               }}
                             />
                           )}
@@ -270,24 +502,108 @@ export default function NodeList() {
             )}
           </TableBody>
         </Table>
+        {/* Pagination controls */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Showing {(currentPage - 1) * pageSize + 1}-
+              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} nodes
+            </span>
+            <Select
+              value={pageSize.toString()}
+              onValueChange={handlePageSizeChange}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={pageSize} />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 25, 50, 100].map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Page number buttons - show up to 5 pages around current */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => goToPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
+            </Button>
+          </div>
+        </div>
       </MainContent>
     </MainArea>
-  )
+  );
 }
 
 function isDokemonNode(nodeHead: INodeHead) {
-  return nodeHead.id === 1
+  return nodeHead.id === 1;
 }
 
 function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
-  const statusClassName = nodeHead.online ? "text-green-600" : "text-red-600"
-  const title = nodeHead.online ? "Online" : "Offline"
+  const statusClassName = nodeHead.online ? "text-green-600" : "text-red-600";
+  const title = nodeHead.online ? "Online" : "Offline";
 
   return (
     <span className={cn("-ml-2 mr-3 text-lg", statusClassName)} title={title}>
       ●
     </span>
-  )
+  );
 }
 
 function getAgentVersion(nodeHead: INodeHead): string {
@@ -355,7 +671,6 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
 
   return (
     <div className="flex items-center gap-1">
-      {/* Display primary IPs with popup */}
       {(ips.ip?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
@@ -376,10 +691,6 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
         </Popover>
       )}
       
-
-
-      
-      {/* ZeroTier IP popup */}
       {(ips.zt?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
@@ -400,7 +711,6 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
         </Popover>
       )}
       
-      {/* Tailscale IP popup */}
       {(ips.ts?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
@@ -420,6 +730,134 @@ function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
           </PopoverContent>
         </Popover>
       )}
+    </div>
+  );
+}
+
+interface NodeContainersDisplayProps {
+  counts: {
+    running?: number;
+    stopped?: number;
+    loading: boolean;
+    error?: string;
+    lastUpdated?: number;
+    hasData: boolean;
+  };
+  onRefresh: () => void;
+  nodeOnline: boolean;
+}
+
+function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainersDisplayProps) {
+  if (!nodeOnline) {
+    return (
+      <div className="flex items-center gap-1">
+        <ExclamationTriangleIcon className="h-4 w-4 text-gray-400" />
+        <span className="text-xs text-gray-500">Offline</span>
+      </div>
+    );
+  }
+
+  if (counts.error) {
+    return (
+      <div className="flex items-center gap-1">
+        <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />
+        <span className="text-xs text-yellow-600">
+          {counts.error}
+        </span>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onRefresh();
+          }}
+          className="text-gray-400 hover:text-gray-600 ml-1"
+          title="Retry"
+        >
+          <RefreshCw className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
+
+  if (counts.loading) {
+    return (
+      <div className="flex items-center gap-1">
+        <RefreshCw className="h-4 w-4 animate-spin text-gray-400" />
+        <span className="text-xs text-gray-500">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!counts.hasData) {
+    return (
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onRefresh();
+        }}
+        className="text-gray-400 hover:text-gray-600"
+        title="Load counts"
+      >
+        <RefreshCw className="h-4 w-4" />
+      </button>
+    );
+  }
+
+  // Format counts with fixed width (no extra space)
+  const formatCount = (count: number | undefined) => {
+    if (count === undefined) return '-';
+    return count.toString();
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {counts.running !== undefined && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer w-[85px] justify-between">
+              <span className="text-left">Running</span>
+              <span className="font-mono text-right">{formatCount(counts.running)}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Running Containers</h4>
+              <div className="text-sm">
+                {counts.running} container{counts.running !== 1 ? 's' : ''} running
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+      
+      {counts.stopped !== undefined && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300 cursor-pointer w-[85px] justify-between ml-1">
+              <span className="text-left">Stopped</span>
+              <span className="font-mono text-right">{formatCount(counts.stopped)}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Stopped Containers</h4>
+              <div className="text-sm">
+                {counts.stopped} container{counts.stopped !== 1 ? 's' : ''} stopped
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+      
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onRefresh();
+        }}
+        className="text-gray-400 hover:text-gray-600 ml-1"
+        title="Refresh counts"
+      >
+        <RefreshCw className="h-3 w-3" />
+      </button>
     </div>
   );
 }
