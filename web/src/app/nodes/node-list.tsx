@@ -325,40 +325,11 @@ export default function NodeList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Refresh:</span>
-              <Select
-                value={refreshInterval.toString()}
-                onValueChange={(value) => setRefreshInterval(Number(value))}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="60s" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="30">30s</SelectItem>
-                  <SelectItem value="60">60s</SelectItem>
-                  <SelectItem value="120">120s</SelectItem>
-                  <SelectItem value="180">180s</SelectItem>
-                  <SelectItem value="300">300s</SelectItem>
-                  <SelectItem value="0">None</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {refreshInterval > 0 && (
-              <div className="text-sm text-gray-500">
-                Last refresh: {secondsSinceLastRefresh}s ago
-                {secondsSinceLastRefresh < refreshInterval && (
-                  <span> (next in {refreshInterval - secondsSinceLastRefresh}s)</span>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="relative w-full max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-            </div>
+<div className="mb-4 flex items-center justify-end">
+  <div className="relative w-full max-w-md">
+    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+    </div>
             <Input
               type="text"
               className="pl-10"
@@ -525,6 +496,38 @@ export default function NodeList() {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Refresh:</span>
+              <Select
+                value={refreshInterval.toString()}
+                onValueChange={(value) => setRefreshInterval(Number(value))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="60s" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30">30s</SelectItem>
+                  <SelectItem value="60">60s</SelectItem>
+                  <SelectItem value="120">120s</SelectItem>
+                  <SelectItem value="180">180s</SelectItem>
+                  <SelectItem value="300">300s</SelectItem>
+                  <SelectItem value="0">None</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {refreshInterval > 0 && (
+              <div className="text-sm text-gray-500">
+                Last refresh: {secondsSinceLastRefresh}s ago
+                {secondsSinceLastRefresh < refreshInterval && (
+                  <span> (next in {refreshInterval - secondsSinceLastRefresh}s)</span>
+                )}
+              </div>
+            )}
+          </div>
+
+
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -609,7 +612,7 @@ function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
 function getAgentVersion(nodeHead: INodeHead): string {
   if (isDokemonNode(nodeHead)) {
     const arch = (nodeHead as any).architecture;
-    return `Dokémon Server v${VERSION}` + (arch ? ` (${arch})` : "");
+    return `Server v${VERSION}` + (arch ? ` (${arch})` : "");
   }
 
   if (nodeHead.agentVersion) {

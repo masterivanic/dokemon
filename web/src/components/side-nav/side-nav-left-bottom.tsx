@@ -106,13 +106,6 @@ export function SideNavLeftBottom() {
             >
               Change Password
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                navigate("/newuser")
-              }}
-            >
-              New User
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignout}>
               Sign Out
             </DropdownMenuItem>
