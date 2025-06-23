@@ -475,24 +475,38 @@ export default function NodeList() {
     </span>
   );
 
-  // Helper function to format agent version
   const getAgentVersion = (nodeHead: INodeHead): string => {
-    if (isDokemonNode(nodeHead)) {
-      const arch = (nodeHead as any).architecture;
-      return `Server v${VERSION}` + (arch ? ` (${arch})` : "");
-    }
+  if (isDokemonNode(nodeHead)) {
+    //log.Info().Msgf("Starting Dokémon Server %s", const serverNode = nodes.items.find(n => n.id === 1));
 
+    // First try to use agentVersion if available
     if (nodeHead.agentVersion) {
-      const mainParts = nodeHead.agentVersion.split('-');
-      const version = mainParts[0] || '';
-      const rest = mainParts.length > 1 ? mainParts[1] : '';
-      const arch = rest.split('@')[0] || null;
-      
-      return `v${version}` + (arch ? ` (${arch})` : '');
+      const versionParts = nodeHead.agentVersion.split('-');
+      const baseVersion = versionParts[0] || '';
+      const archAndIPs = versionParts.length > 1 ? versionParts[1] : '';
+      const arch = archAndIPs.split('@')[0] || '';
+      return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
     }
+    
+    // Fallback to VERSION constant if agentVersion not available
+    const versionParts = VERSION.split('-');
+    const baseVersion = versionParts[0] || VERSION;
+    const arch = versionParts.length > 1 ? versionParts[1].split('@')[0] : '';
+    return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
+  }
 
-    return "-";
-  };
+  // For regular nodes
+  if (nodeHead.agentVersion) {
+    const mainParts = nodeHead.agentVersion.split('-');
+    const version = mainParts[0] || '';
+    const rest = mainParts.length > 1 ? mainParts[1] : '';
+    const arch = rest.split('@')[0] || null;
+    
+    return `v${version}` + (arch ? ` (${arch})` : '');
+  }
+
+  return "-";
+};
 
   // Helper component for containers display
   const NodeContainersDisplay = React.memo(({ 
