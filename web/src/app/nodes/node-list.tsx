@@ -12,6 +12,21 @@ import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 // Import components
 import Loading from "@/components/widgets/loading";
 import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb";
+import {
+  MagnifyingGlassIcon,
+  PencilIcon,
+  XMarkIcon,
+  ExclamationTriangleIcon
+} from "@heroicons/react/24/solid";
+import { RefreshCw } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import TableButtonDelete from "@/components/widgets/table-button-delete";
 import MainArea from "@/components/widgets/main-area";
@@ -36,7 +51,12 @@ import { cn, toastFailed, toastSomethingWentWrong, toastSuccess } from "@/lib/ut
 import useNodes from "@/hooks/useNodes";
 import useSetting from "@/hooks/useSetting";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import axios from "axios";
 import apiBaseUrl from "@/lib/api-base-url";
+import { usePagination } from "@/lib/pagination";
+import PaginationFooter from "@/components/ui/pagination-footer";
 
 // Cookie utilities
 function getCookie(name: string): string | undefined {
@@ -255,8 +275,6 @@ export default function NodeList() {
   });
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Save refresh interval to cookie
   useEffect(() => {
@@ -276,16 +294,13 @@ export default function NodeList() {
     filterKeys: ['name', 'environment', 'agentVersion']
   });
 
-  // Pagination
-  const totalItems = sortedNodes.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-  const paginatedNodes = sortedNodes.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const [paginationConfig, paginationFunctions, paginatedNodes] = usePagination(
+    sortedNodes,
+    10
   );
 
   // Update current time every second
-  useEffect(() => {
+   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     if (refreshInterval > 0) {
       intervalId = setInterval(() => setCurrentTime(Date.now()), 1000);
@@ -294,17 +309,6 @@ export default function NodeList() {
   }, [refreshInterval]);
 
   const secondsSinceLastRefresh = Math.floor((currentTime - lastRefreshTime) / 1000);
-
-  // Pagination handlers
-  const handlePageSizeChange = useCallback((value: string) => {
-    const newSize = Number(value);
-    setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing size
-  }, []);
-
-  const goToPage = useCallback((page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  }, [totalPages]);
 
   // Fetch container counts for a single node
   const fetchNodeContainers = useCallback(async (nodeId: number, nodeOnline: boolean): Promise<ContainerCount> => {
@@ -317,7 +321,7 @@ export default function NodeList() {
       };
     }
 
-    try {
+   try {
       const response = await axios.get(`${apiBaseUrl()}/nodes/${nodeId}/containers`, {
         timeout: 15000,
         validateStatus: () => true
@@ -713,7 +717,7 @@ export default function NodeList() {
                   <TableCell>
                     <div className="flex items-center">
                       <NodeStatusIcon nodeHead={item} />
-                      <span 
+                      <span
                         className="cursor-pointer hover:text-blue-600 hover:underline"
                         onClick={() => navigate(`/nodes/${item.id}/containers`)}
                       >
@@ -722,7 +726,7 @@ export default function NodeList() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <NodeContainersDisplay 
+                    <NodeContainersDisplay
                       counts={containerCounts[item.id] || { loading: false, hasData: false }}
                       onRefresh={() => handleRefreshCounts(item.id, item.online)}
                       nodeOnline={item.online}
@@ -793,29 +797,13 @@ export default function NodeList() {
           </TableBody>
         </Table>
         <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} nodes
-            </span>
-            <Select
-              value={pageSize.toString()}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize} />
-              </SelectTrigger>
-              <SelectContent>
-                {[10, 20, 25, 50, 100].map((size) => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <PaginationFooter
+            paginationConfig={paginationConfig}
+            paginationFunctions={paginationFunctions}
+            className="flex-1"
+          />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5 ml-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Refresh:</span>
               <Select
@@ -844,68 +832,284 @@ export default function NodeList() {
               </div>
             )}
           </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(1)}
-              disabled={currentPage === 1}
-            >
-              First
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => goToPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              Last
-            </Button>
-          </div>
+          <PaginationFooter
+            paginationConfig={paginationConfig}
+            paginationFunctions={paginationFunctions}
+            className="flex-1"
+          />
         </div>
       </MainContent>
     </MainArea>
+  );
+}
+
+function isDokemonNode(nodeHead: INodeHead) {
+  return nodeHead.id === 1;
+}
+
+function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
+  const statusClassName = nodeHead.online ? "text-green-600" : "text-red-600";
+  const title = nodeHead.online ? "Online" : "Offline";
+
+  return (
+    <span className={cn("-ml-2 mr-3 text-lg", statusClassName)} title={title}>
+      ●
+    </span>
+  );
+}
+
+function getAgentVersion(nodeHead: INodeHead): string {
+  if (isDokemonNode(nodeHead)) {
+    const arch = (nodeHead as any).architecture;
+    return `Server v${VERSION}` + (arch ? ` (${arch})` : "");
+  }
+
+  if (nodeHead.agentVersion) {
+    const mainParts = nodeHead.agentVersion.split('-');
+    const version = mainParts[0] || '';
+    const rest = mainParts.length > 1 ? mainParts[1] : '';
+    const arch = rest.split('@')[0] || null;
+
+    let formatted = `v${version}`;
+    if (arch) formatted += ` (${arch})`;
+    return formatted;
+  }
+
+  return "-";
+}
+
+function extractIPs(agentVersion: string): {
+  ip?: string[],
+  zt?: string[],
+  ts?: string[]
+} | null {
+  if (!agentVersion) return null;
+
+  const mainParts = agentVersion.split('-');
+  const rest = mainParts.length > 1 ? mainParts[1] : '';
+  const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
+
+  if (!ips) return null;
+
+  const result: { ip?: string[], zt?: string[], ts?: string[] } = {};
+  const ipComponents = ips.split('+');
+
+  for (const component of ipComponents) {
+    if (component.includes('.')) {
+      if (component.startsWith('zt:')) {
+        const ip = component.substring(3);
+        result.zt = [...(result.zt || []), ip];
+      } else if (component.startsWith('ts:')) {
+        const ip = component.substring(3);
+        result.ts = [...(result.ts || []), ip];
+      } else {
+        const ip = component;
+        result.ip = [...(result.ip || []), ip];
+      }
+    }
+  }
+
+  return result;
+}
+
+function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
+  if (!nodeHead.agentVersion) return <span>-</span>;
+
+  const ips = extractIPs(nodeHead.agentVersion);
+
+  if (!ips || (!ips.ip?.length && !ips.zt?.length && !ips.ts?.length)) {
+    return <span>-</span>;
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {(ips.ip?.length ?? 0) > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer">
+              Local{(ips.ip?.length ?? 0) > 1 ? ` (${ips.ip?.length})` : ''}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Local IP(s)</h4>
+              <div className="text-sm space-y-1">
+                {ips.ip?.map((ip, index) => (
+                  <div key={`zt-ip-${index}`}>{ip}</div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
+      {(ips.zt?.length ?? 0) > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer">
+              ZeroTier{(ips.zt?.length ?? 0) > 1 ? ` (${ips.zt?.length})` : ''}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">ZeroTier IP(s)</h4>
+              <div className="text-sm space-y-1">
+                {ips.zt?.map((ip, index) => (
+                  <div key={`zt-ip-${index}`}>{ip}</div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
+      {(ips.ts?.length ?? 0) > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer ml-1">
+              Tailscale{(ips.ts?.length ?? 0) > 1 ? ` (${ips.ts?.length})` : ''}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Tailscale IP(s)</h4>
+              <div className="text-sm space-y-1">
+                {ips.ts?.map((ip, index) => (
+                  <div key={`ts-ip-${index}`}>{ip}</div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+    </div>
+  );
+}
+
+interface NodeContainersDisplayProps {
+  counts: {
+    running?: number;
+    stopped?: number;
+    loading: boolean;
+    error?: string;
+    lastUpdated?: number;
+    hasData: boolean;
+  };
+  onRefresh: () => void;
+  nodeOnline: boolean;
+}
+
+function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainersDisplayProps) {
+  if (!nodeOnline) {
+    return (
+      <div className="flex items-center gap-1">
+        <ExclamationTriangleIcon className="h-4 w-4 text-gray-400" />
+        <span className="text-xs text-gray-500">Offline</span>
+      </div>
+    );
+  }
+
+  if (counts.error) {
+    return (
+      <div className="flex items-center gap-1">
+        <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />
+        <span className="text-xs text-yellow-600">
+          {counts.error}
+        </span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRefresh();
+          }}
+          className="text-gray-400 hover:text-gray-600 ml-1"
+          title="Retry"
+        >
+          <RefreshCw className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
+
+  if (counts.loading) {
+    return (
+      <div className="flex items-center gap-1">
+        <RefreshCw className="h-4 w-4 animate-spin text-gray-400" />
+        <span className="text-xs text-gray-500">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!counts.hasData) {
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onRefresh();
+        }}
+        className="text-gray-400 hover:text-gray-600"
+        title="Load counts"
+      >
+        <RefreshCw className="h-4 w-4" />
+      </button>
+    );
+  }
+
+  // Format counts with fixed width (no extra space)
+  const formatCount = (count: number | undefined) => {
+    if (count === undefined) return '-';
+    return count.toString();
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {counts.running !== undefined && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer w-[85px] justify-between">
+              <span className="text-left">Running</span>
+              <span className="font-mono text-right">{formatCount(counts.running)}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Running Containers</h4>
+              <div className="text-sm">
+                {counts.running} container{counts.running !== 1 ? 's' : ''} running
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
+      {counts.stopped !== undefined && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="inline-flex items-center rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300 cursor-pointer w-[85px] justify-between ml-1">
+              <span className="text-left">Stopped</span>
+              <span className="font-mono text-right">{formatCount(counts.stopped)}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto">
+            <div className="grid gap-2">
+              <h4 className="font-medium leading-none">Stopped Containers</h4>
+              <div className="text-sm">
+                {counts.stopped} container{counts.stopped !== 1 ? 's' : ''} stopped
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onRefresh();
+        }}
+        className="text-gray-400 hover:text-gray-600 ml-1"
+        title="Refresh counts"
+      >
+        <RefreshCw className="h-3 w-3" />
+      </button>
+    </div>
   );
 }

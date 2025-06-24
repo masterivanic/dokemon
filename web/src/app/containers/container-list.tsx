@@ -1,5 +1,5 @@
 import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Terminal, ScrollText, ArrowUpRight } from "lucide-react";
 import Loading from "@/components/widgets/loading";
 import {
   Breadcrumb,
@@ -17,7 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import apiBaseUrl from "@/lib/api-base-url";
 import { IContainer, IPort } from "@/lib/api-models";
 import { useState } from "react";
@@ -40,13 +39,8 @@ import { TableNoData } from "@/components/widgets/table-no-data";
 import DeleteDialog from "@/components/delete-dialog";
 import { Input } from "@/components/ui/input";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { usePagination } from "@/lib/pagination";
+import PaginationFooter from "@/components/ui/pagination-footer";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 export default function ContainerList() {
@@ -58,9 +52,6 @@ export default function ContainerList() {
   const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
-
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const {
     searchTerm,
@@ -74,21 +65,10 @@ export default function ContainerList() {
     filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
 
-  const totalItems = sortedContainers.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-  const paginatedContainers = sortedContainers.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+  const [paginationConfig, paginationFunctions, paginatedContainers] = usePagination(
+    sortedContainers,
+    10
   );
-
-  const handlePageSizeChange = (value: string) => {
-    setPageSize(Number(value));
-    setCurrentPage(1);
-  };
-
-  const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  };
 
   const isDokemonContainer = (container: IContainer) => {
     return container.image.includes('dokemon');
@@ -509,88 +489,10 @@ export default function ContainerList() {
             )}
           </TableBody>
         </Table>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(currentPage - 1) * pageSize + 1}-
-              {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
-            </span>
-            <Select
-              value={pageSize.toString()}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pageSize} />
-              </SelectTrigger>
-              <SelectContent>
-                {[10, 20, 25, 50, 100].map((size) => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(1)}
-              disabled={currentPage === 1}
-            >
-              First
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum
-              if (totalPages <= 5) {
-                pageNum = i + 1
-              } else if (currentPage <= 3) {
-                pageNum = i + 1
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i
-              } else {
-                pageNum = currentPage - 2 + i
-              }
-
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => goToPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              )
-            })}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => goToPage(totalPages)}
-              disabled={currentPage === totalPages}
-            >
-              Last
-            </Button>
-          </div>
-        </div>
+        <PaginationFooter
+          paginationConfig={paginationConfig}
+          paginationFunctions={paginationFunctions}
+        />
       </MainContent>
     </MainArea>
   );
