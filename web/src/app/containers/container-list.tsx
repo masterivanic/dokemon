@@ -32,6 +32,7 @@ import {
   cn,
   toastFailed,
   toastSuccess,
+  toastSomethingWentWrong,
 } from "@/lib/utils";
 import TableButtonDelete from "@/components/widgets/table-button-delete";
 import { TableNoData } from "@/components/widgets/table-no-data";
@@ -40,6 +41,7 @@ import { Input } from "@/components/ui/input";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
 import { usePagination } from "@/lib/pagination";
 import PaginationFooter from "@/components/ui/pagination-footer";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 export default function ContainerList() {
   const { nodeId } = useParams();
@@ -49,6 +51,7 @@ export default function ContainerList() {
   const [container, setContainer] = useState<IContainer | null>(null);
   const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   const {
     searchTerm,
@@ -66,6 +69,40 @@ export default function ContainerList() {
     sortedContainers,
     10
   );
+
+  const isDokemonContainer = (container: IContainer) => {
+    return container.image.includes('dokemon');
+  };
+
+  const handleUpgrade = async (type: 'agent' | 'server') => {
+    setIsUpgrading(true);
+    
+    try {
+      const command = type === 'agent'
+        ? 'docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock javastraat/dokemon-agent-updater'
+        : 'docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock javastraat/dokemon-server-updater';
+
+      const response = await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/containers/exec`, {
+        command: command
+      });
+
+      if (response.status === 200) {
+        toastSuccess(`Dokemon ${type} upgrade started successfully`);
+        mutateContainers();
+      } else {
+        toastFailed(`Failed to start Dokemon ${type} upgrade`);
+      }
+    } catch (error) {
+      console.error(`Upgrade failed:`, error);
+      if (axios.isAxiosError(error)) {
+        toastFailed(error.response?.data || `Failed to upgrade Dokemon ${type}`);
+      } else {
+        toastSomethingWentWrong(`Failed to upgrade Dokemon ${type}`);
+      }
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
 
   if (isLoading) return <Loading />;
 
@@ -317,6 +354,20 @@ export default function ContainerList() {
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
                   <TableCell className="text-left">
                     <div className="flex items-center gap-1">
+                      {isDokemonContainer(item) && (
+                        <button
+                          className={`p-1 rounded text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-800 ${isUpgrading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          title="Upgrade"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const type = item.image.includes('agent') ? 'agent' : 'server';
+                            handleUpgrade(type);
+                          }}
+                          disabled={isUpgrading}
+                        >
+                          <ArrowDownTrayIcon className="w-4 h-4" />
+                        </button>
+                      )}
                       {item.state === "running" ? (
                         <>
                           <button

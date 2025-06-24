@@ -42,7 +42,11 @@ docker run \\
     -e TOKEN={HIDDEN} \\
     -v /var/run/docker.sock:/var/run/docker.sock \\
     --name dokemon-agent --restart unless-stopped \\
-    -d javastraat/dokemon-agent:latest
+    -d javastraat/dokemon-agent:latest && \\
+    docker run \\
+    --name dokemon-agent-updater \\
+    -v /var/run/docker.sock:/var/run/docker.sock \\
+    javastraat/dokemon-agent-updater
   `
     if (navigator?.clipboard) return c
     return c.replace("{HIDDEN}", token)

@@ -39,7 +39,7 @@ const router = createBrowserRouter([
     element: <ChangePassword />,
   },
   {
-    path: "/newuser",
+    path: "/newuser1337",
     element: <NewUser />,
   },
   {
