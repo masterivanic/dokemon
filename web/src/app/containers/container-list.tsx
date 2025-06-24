@@ -76,7 +76,7 @@ export default function ContainerList() {
 
   const handleUpgrade = async (type: 'agent' | 'server') => {
     setIsUpgrading(true);
-    
+
     try {
       const command = type === 'agent'
         ? 'docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock javastraat/dokemon-agent-updater'

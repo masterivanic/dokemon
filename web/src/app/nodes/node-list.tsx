@@ -7,26 +7,11 @@ import {
   XMarkIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/solid';
-import { RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 // Import components
 import Loading from "@/components/widgets/loading";
 import { Breadcrumb, BreadcrumbCurrent } from "@/components/widgets/breadcrumb";
-import {
-  MagnifyingGlassIcon,
-  PencilIcon,
-  XMarkIcon,
-  ExclamationTriangleIcon
-} from "@heroicons/react/24/solid";
-import { RefreshCw } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import TableButtonDelete from "@/components/widgets/table-button-delete";
 import MainArea from "@/components/widgets/main-area";
@@ -42,6 +27,7 @@ import DeleteDialog from "@/components/delete-dialog";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PaginationFooter from '@/components/ui/pagination-footer';
 
 // Import models and utilities
 import { INodeHead } from "@/lib/api-models";
@@ -51,12 +37,8 @@ import { cn, toastFailed, toastSomethingWentWrong, toastSuccess } from "@/lib/ut
 import useNodes from "@/hooks/useNodes";
 import useSetting from "@/hooks/useSetting";
 import { useFilterAndSort } from "@/lib/useFilterAndSort";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import axios from "axios";
 import apiBaseUrl from "@/lib/api-base-url";
-import { usePagination } from "@/lib/pagination";
-import PaginationFooter from "@/components/ui/pagination-footer";
+import { usePagination } from '@/lib/pagination';
 
 // Cookie utilities
 function getCookie(name: string): string | undefined {
@@ -114,7 +96,7 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
   if (!nodeHead.agentVersion) return <span>-</span>;
 
   const ips = extractIPs(nodeHead.agentVersion);
-  
+
   if (!ips || (!ips.ip?.length && !ips.zt?.length && !ips.ts?.length)) {
     return <span>-</span>;
   }
@@ -126,12 +108,12 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
   return (
     <div className="flex items-center gap-1">
       {(ips.ip?.length ?? 0) > 0 && (
-        <Popover 
-          open={openPopover === 'ip'} 
+        <Popover
+          open={openPopover === 'ip'}
           onOpenChange={(open) => setOpenPopover(open ? 'ip' : null)}
         >
           <PopoverTrigger asChild>
-            <button 
+            <button
               className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
@@ -141,8 +123,8 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
               Local{(ips.ip?.length ?? 0) > 1 ? ` (${ips.ip?.length})` : ''}
             </button>
           </PopoverTrigger>
-          <PopoverContent 
-            className="w-auto" 
+          <PopoverContent
+            className="w-auto"
             onPointerDownOutside={(e) => e.preventDefault()}
           >
             <div className="grid gap-2">
@@ -156,14 +138,14 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
           </PopoverContent>
         </Popover>
       )}
-      
+
       {(ips.zt?.length ?? 0) > 0 && (
-        <Popover 
-          open={openPopover === 'zt'} 
+        <Popover
+          open={openPopover === 'zt'}
           onOpenChange={(open) => setOpenPopover(open ? 'zt' : null)}
         >
           <PopoverTrigger asChild>
-            <button 
+            <button
               className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
@@ -173,8 +155,8 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
               ZeroTier{(ips.zt?.length ?? 0) > 1 ? ` (${ips.zt?.length})` : ''}
             </button>
           </PopoverTrigger>
-          <PopoverContent 
-            className="w-auto" 
+          <PopoverContent
+            className="w-auto"
             onPointerDownOutside={(e) => e.preventDefault()}
           >
             <div className="grid gap-2">
@@ -188,14 +170,14 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
           </PopoverContent>
         </Popover>
       )}
-      
+
       {(ips.ts?.length ?? 0) > 0 && (
-        <Popover 
-          open={openPopover === 'ts'} 
+        <Popover
+          open={openPopover === 'ts'}
           onOpenChange={(open) => setOpenPopover(open ? 'ts' : null)}
         >
           <PopoverTrigger asChild>
-            <button 
+            <button
               className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer ml-1"
               onClick={(e) => {
                 e.stopPropagation();
@@ -205,8 +187,8 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
               Tailscale{(ips.ts?.length ?? 0) > 1 ? ` (${ips.ts?.length})` : ''}
             </button>
           </PopoverTrigger>
-          <PopoverContent 
-            className="w-auto" 
+          <PopoverContent
+            className="w-auto"
             onPointerDownOutside={(e) => e.preventDefault()}
           >
             <div className="grid gap-2">
@@ -224,13 +206,13 @@ const NodeIPsDisplay = React.memo(({ nodeHead }: { nodeHead: INodeHead }) => {
   );
 });
 
-function extractIPs(agentVersion: string): { 
-  ip?: string[], 
-  zt?: string[], 
-  ts?: string[] 
+function extractIPs(agentVersion: string): {
+  ip?: string[],
+  zt?: string[],
+  ts?: string[]
 } | null {
   if (!agentVersion) return null;
-  
+
   const mainParts = agentVersion.split('-');
   const rest = mainParts.length > 1 ? mainParts[1] : '';
   const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
@@ -239,7 +221,7 @@ function extractIPs(agentVersion: string): {
 
   const result: { ip?: string[], zt?: string[], ts?: string[] } = {};
   const ipComponents = ips.split('+');
-  
+
   for (const component of ipComponents) {
     if (component.includes('.')) {
       if (component.startsWith('zt:')) {
@@ -281,7 +263,6 @@ export default function NodeList() {
     setCookie('refreshInterval', refreshInterval.toString());
   }, [refreshInterval]);
 
-  // Filter and sort nodes
   const {
     searchTerm,
     setSearchTerm,
@@ -300,7 +281,7 @@ export default function NodeList() {
   );
 
   // Update current time every second
-   useEffect(() => {
+  useEffect(() => {
     let intervalId: NodeJS.Timeout;
     if (refreshInterval > 0) {
       intervalId = setInterval(() => setCurrentTime(Date.now()), 1000);
@@ -321,7 +302,7 @@ export default function NodeList() {
       };
     }
 
-   try {
+    try {
       const response = await axios.get(`${apiBaseUrl()}/nodes/${nodeId}/containers`, {
         timeout: 15000,
         validateStatus: () => true
@@ -359,7 +340,7 @@ export default function NodeList() {
     const refreshTime = Date.now();
     setLastRefreshTime(refreshTime);
     setCurrentTime(refreshTime);
-    
+
     if (!nodes?.items) return;
 
     // Process nodes sequentially to prevent concurrent state updates
@@ -397,7 +378,7 @@ export default function NodeList() {
   useEffect(() => {
     const abortController = new AbortController();
     fetchAllCounts();
-    
+
     let refreshIntervalId: NodeJS.Timeout;
     if (refreshInterval > 0) {
       refreshIntervalId = setInterval(fetchAllCounts, refreshInterval * 1000);
@@ -416,7 +397,7 @@ export default function NodeList() {
       nodeId,
       data: { loading: true, hasData: false }
     });
-    
+
     fetchNodeContainers(nodeId, nodeOnline)
       .then(result => {
         dispatch({
@@ -468,7 +449,7 @@ export default function NodeList() {
 
   // Helper component for node status icon
   const NodeStatusIcon = ({ nodeHead }: { nodeHead: INodeHead }) => (
-    <span 
+    <span
       className={cn(
         "-ml-2 mr-3 text-lg",
         nodeHead.online ? "text-green-600" : "text-red-600"
@@ -480,43 +461,43 @@ export default function NodeList() {
   );
 
   const getAgentVersion = (nodeHead: INodeHead): string => {
-  if (isDokemonNode(nodeHead)) {
-    //log.Info().Msgf("Starting Dokémon Server %s", const serverNode = nodes.items.find(n => n.id === 1));
+    if (isDokemonNode(nodeHead)) {
+      //log.Info().Msgf("Starting Dokémon Server %s", const serverNode = nodes.items.find(n => n.id === 1));
 
-    // First try to use agentVersion if available
-    if (nodeHead.agentVersion) {
-      const versionParts = nodeHead.agentVersion.split('-');
-      const baseVersion = versionParts[0] || '';
-      const archAndIPs = versionParts.length > 1 ? versionParts[1] : '';
-      const arch = archAndIPs.split('@')[0] || '';
+      // First try to use agentVersion if available
+      if (nodeHead.agentVersion) {
+        const versionParts = nodeHead.agentVersion.split('-');
+        const baseVersion = versionParts[0] || '';
+        const archAndIPs = versionParts.length > 1 ? versionParts[1] : '';
+        const arch = archAndIPs.split('@')[0] || '';
+        return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
+      }
+
+      // Fallback to VERSION constant if agentVersion not available
+      const versionParts = VERSION.split('-');
+      const baseVersion = versionParts[0] || VERSION;
+      const arch = versionParts.length > 1 ? versionParts[1].split('@')[0] : '';
       return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
     }
-    
-    // Fallback to VERSION constant if agentVersion not available
-    const versionParts = VERSION.split('-');
-    const baseVersion = versionParts[0] || VERSION;
-    const arch = versionParts.length > 1 ? versionParts[1].split('@')[0] : '';
-    return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
-  }
 
-  // For regular nodes
-  if (nodeHead.agentVersion) {
-    const mainParts = nodeHead.agentVersion.split('-');
-    const version = mainParts[0] || '';
-    const rest = mainParts.length > 1 ? mainParts[1] : '';
-    const arch = rest.split('@')[0] || null;
-    
-    return `v${version}` + (arch ? ` (${arch})` : '');
-  }
+    // For regular nodes
+    if (nodeHead.agentVersion) {
+      const mainParts = nodeHead.agentVersion.split('-');
+      const version = mainParts[0] || '';
+      const rest = mainParts.length > 1 ? mainParts[1] : '';
+      const arch = rest.split('@')[0] || null;
 
-  return "-";
-};
+      return `v${version}` + (arch ? ` (${arch})` : '');
+    }
+
+    return "-";
+  };
 
   // Helper component for containers display
-  const NodeContainersDisplay = React.memo(({ 
-    counts, 
-    onRefresh, 
-    nodeOnline 
+  const NodeContainersDisplay = React.memo(({
+    counts,
+    onRefresh,
+    nodeOnline
   }: {
     counts: ContainerCount;
     onRefresh: () => void;
@@ -536,7 +517,7 @@ export default function NodeList() {
         <div className="flex items-center gap-1">
           <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />
           <span className="text-xs text-yellow-600">{counts.error}</span>
-          <button 
+          <button
             onClick={(e) => { e.stopPropagation(); onRefresh(); }}
             className="text-gray-400 hover:text-gray-600 ml-1"
             title="Retry"
@@ -558,7 +539,7 @@ export default function NodeList() {
 
     if (!counts.hasData) {
       return (
-        <button 
+        <button
           onClick={(e) => { e.stopPropagation(); onRefresh(); }}
           className="text-gray-400 hover:text-gray-600"
           title="Load counts"
@@ -606,7 +587,7 @@ export default function NodeList() {
             </PopoverContent>
           </Popover>
         )}
-        <button 
+        <button
           onClick={(e) => { e.stopPropagation(); onRefresh(); }}
           className="text-gray-400 hover:text-gray-600 ml-1"
           title="Refresh counts"
@@ -802,7 +783,6 @@ export default function NodeList() {
             paginationFunctions={paginationFunctions}
             className="flex-1"
           />
-
           <div className="flex items-center gap-5 ml-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Refresh:</span>
@@ -832,284 +812,8 @@ export default function NodeList() {
               </div>
             )}
           </div>
-          <PaginationFooter
-            paginationConfig={paginationConfig}
-            paginationFunctions={paginationFunctions}
-            className="flex-1"
-          />
         </div>
       </MainContent>
     </MainArea>
-  );
-}
-
-function isDokemonNode(nodeHead: INodeHead) {
-  return nodeHead.id === 1;
-}
-
-function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
-  const statusClassName = nodeHead.online ? "text-green-600" : "text-red-600";
-  const title = nodeHead.online ? "Online" : "Offline";
-
-  return (
-    <span className={cn("-ml-2 mr-3 text-lg", statusClassName)} title={title}>
-      ●
-    </span>
-  );
-}
-
-function getAgentVersion(nodeHead: INodeHead): string {
-  if (isDokemonNode(nodeHead)) {
-    const arch = (nodeHead as any).architecture;
-    return `Server v${VERSION}` + (arch ? ` (${arch})` : "");
-  }
-
-  if (nodeHead.agentVersion) {
-    const mainParts = nodeHead.agentVersion.split('-');
-    const version = mainParts[0] || '';
-    const rest = mainParts.length > 1 ? mainParts[1] : '';
-    const arch = rest.split('@')[0] || null;
-
-    let formatted = `v${version}`;
-    if (arch) formatted += ` (${arch})`;
-    return formatted;
-  }
-
-  return "-";
-}
-
-function extractIPs(agentVersion: string): {
-  ip?: string[],
-  zt?: string[],
-  ts?: string[]
-} | null {
-  if (!agentVersion) return null;
-
-  const mainParts = agentVersion.split('-');
-  const rest = mainParts.length > 1 ? mainParts[1] : '';
-  const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
-
-  if (!ips) return null;
-
-  const result: { ip?: string[], zt?: string[], ts?: string[] } = {};
-  const ipComponents = ips.split('+');
-
-  for (const component of ipComponents) {
-    if (component.includes('.')) {
-      if (component.startsWith('zt:')) {
-        const ip = component.substring(3);
-        result.zt = [...(result.zt || []), ip];
-      } else if (component.startsWith('ts:')) {
-        const ip = component.substring(3);
-        result.ts = [...(result.ts || []), ip];
-      } else {
-        const ip = component;
-        result.ip = [...(result.ip || []), ip];
-      }
-    }
-  }
-
-  return result;
-}
-
-function NodeIPsDisplay({ nodeHead }: { nodeHead: INodeHead }) {
-  if (!nodeHead.agentVersion) return <span>-</span>;
-
-  const ips = extractIPs(nodeHead.agentVersion);
-
-  if (!ips || (!ips.ip?.length && !ips.zt?.length && !ips.ts?.length)) {
-    return <span>-</span>;
-  }
-
-  return (
-    <div className="flex items-center gap-1">
-      {(ips.ip?.length ?? 0) > 0 && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer">
-              Local{(ips.ip?.length ?? 0) > 1 ? ` (${ips.ip?.length})` : ''}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto">
-            <div className="grid gap-2">
-              <h4 className="font-medium leading-none">Local IP(s)</h4>
-              <div className="text-sm space-y-1">
-                {ips.ip?.map((ip, index) => (
-                  <div key={`zt-ip-${index}`}>{ip}</div>
-                ))}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
-
-      {(ips.zt?.length ?? 0) > 0 && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300 cursor-pointer">
-              ZeroTier{(ips.zt?.length ?? 0) > 1 ? ` (${ips.zt?.length})` : ''}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto">
-            <div className="grid gap-2">
-              <h4 className="font-medium leading-none">ZeroTier IP(s)</h4>
-              <div className="text-sm space-y-1">
-                {ips.zt?.map((ip, index) => (
-                  <div key={`zt-ip-${index}`}>{ip}</div>
-                ))}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
-
-      {(ips.ts?.length ?? 0) > 0 && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-300 cursor-pointer ml-1">
-              Tailscale{(ips.ts?.length ?? 0) > 1 ? ` (${ips.ts?.length})` : ''}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto">
-            <div className="grid gap-2">
-              <h4 className="font-medium leading-none">Tailscale IP(s)</h4>
-              <div className="text-sm space-y-1">
-                {ips.ts?.map((ip, index) => (
-                  <div key={`ts-ip-${index}`}>{ip}</div>
-                ))}
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
-    </div>
-  );
-}
-
-interface NodeContainersDisplayProps {
-  counts: {
-    running?: number;
-    stopped?: number;
-    loading: boolean;
-    error?: string;
-    lastUpdated?: number;
-    hasData: boolean;
-  };
-  onRefresh: () => void;
-  nodeOnline: boolean;
-}
-
-function NodeContainersDisplay({ counts, onRefresh, nodeOnline }: NodeContainersDisplayProps) {
-  if (!nodeOnline) {
-    return (
-      <div className="flex items-center gap-1">
-        <ExclamationTriangleIcon className="h-4 w-4 text-gray-400" />
-        <span className="text-xs text-gray-500">Offline</span>
-      </div>
-    );
-  }
-
-  if (counts.error) {
-    return (
-      <div className="flex items-center gap-1">
-        <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />
-        <span className="text-xs text-yellow-600">
-          {counts.error}
-        </span>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onRefresh();
-          }}
-          className="text-gray-400 hover:text-gray-600 ml-1"
-          title="Retry"
-        >
-          <RefreshCw className="h-3 w-3" />
-        </button>
-      </div>
-    );
-  }
-
-  if (counts.loading) {
-    return (
-      <div className="flex items-center gap-1">
-        <RefreshCw className="h-4 w-4 animate-spin text-gray-400" />
-        <span className="text-xs text-gray-500">Loading...</span>
-      </div>
-    );
-  }
-
-  if (!counts.hasData) {
-    return (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onRefresh();
-        }}
-        className="text-gray-400 hover:text-gray-600"
-        title="Load counts"
-      >
-        <RefreshCw className="h-4 w-4" />
-      </button>
-    );
-  }
-
-  // Format counts with fixed width (no extra space)
-  const formatCount = (count: number | undefined) => {
-    if (count === undefined) return '-';
-    return count.toString();
-  };
-
-  return (
-    <div className="flex items-center gap-1">
-      {counts.running !== undefined && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="inline-flex items-center rounded bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300 cursor-pointer w-[85px] justify-between">
-              <span className="text-left">Running</span>
-              <span className="font-mono text-right">{formatCount(counts.running)}</span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto">
-            <div className="grid gap-2">
-              <h4 className="font-medium leading-none">Running Containers</h4>
-              <div className="text-sm">
-                {counts.running} container{counts.running !== 1 ? 's' : ''} running
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
-
-      {counts.stopped !== undefined && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="inline-flex items-center rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300 cursor-pointer w-[85px] justify-between ml-1">
-              <span className="text-left">Stopped</span>
-              <span className="font-mono text-right">{formatCount(counts.stopped)}</span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto">
-            <div className="grid gap-2">
-              <h4 className="font-medium leading-none">Stopped Containers</h4>
-              <div className="text-sm">
-                {counts.stopped} container{counts.stopped !== 1 ? 's' : ''} stopped
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      )}
-
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onRefresh();
-        }}
-        className="text-gray-400 hover:text-gray-600 ml-1"
-        title="Refresh counts"
-      >
-        <RefreshCw className="h-3 w-3" />
-      </button>
-    </div>
   );
 }

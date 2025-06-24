@@ -82,57 +82,56 @@ func logAllNetworkInterfaces() {
 	}
 }
 
-
 func getMainIP() string {
-    log.Debug().Msg("Starting IP detection")
-    
-    // Log all interfaces first
-    logAllNetworkInterfaces()
+	log.Debug().Msg("Starting IP detection")
 
-    // Get all relevant IPs
-    localIP := getLocalNetworkIP()
-    log.Debug().Str("localIP", localIP).Msg("Got local IP from getLocalNetworkIP()")
+	// Log all interfaces first
+	logAllNetworkInterfaces()
 
-    // Get all network interfaces
-    interfaces, err := net.Interfaces()
-    if err != nil {
-        log.Error().Err(err).Msg("Failed to get network interfaces")
-        return ""
-    }
+	// Get all relevant IPs
+	localIP := getLocalNetworkIP()
+	log.Debug().Str("localIP", localIP).Msg("Got local IP from getLocalNetworkIP()")
 
-    // Collect all ZeroTier and Tailscale IPs
-    var ztIPs, tsIPs []string
+	// Get all network interfaces
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get network interfaces")
+		return ""
+	}
 
-    for _, iface := range interfaces {
-        ifaceName := iface.Name
-        
-        if strings.HasPrefix(ifaceName, "zt") {
-            if ip := getInterfaceIP(ifaceName); ip != "" {
-                log.Debug().Str("interface", ifaceName).Str("ip", ip).Msg("Found ZeroTier IP")
-                ztIPs = append(ztIPs, "zt:"+ip)
-            }
-        }
-        
-        if strings.HasPrefix(ifaceName, "tailscale") {
-            if ip := getInterfaceIP(ifaceName); ip != "" {
-                log.Debug().Str("interface", ifaceName).Str("ip", ip).Msg("Found Tailscale IP")
-                tsIPs = append(tsIPs, "ts:"+ip)
-            }
-        }
-    }
+	// Collect all ZeroTier and Tailscale IPs
+	var ztIPs, tsIPs []string
 
-    // Build the version string components
-    var components []string
-    if localIP != "" {
-        components = append(components, localIP)
-    }
-    components = append(components, ztIPs...)
-    components = append(components, tsIPs...)
-    
-    result := strings.Join(components, "+")
-    log.Debug().Strs("components", components).Str("result", result).Msg("Final IP components")
-    
-    return result
+	for _, iface := range interfaces {
+		ifaceName := iface.Name
+
+		if strings.HasPrefix(ifaceName, "zt") {
+			if ip := getInterfaceIP(ifaceName); ip != "" {
+				log.Debug().Str("interface", ifaceName).Str("ip", ip).Msg("Found ZeroTier IP")
+				ztIPs = append(ztIPs, "zt:"+ip)
+			}
+		}
+
+		if strings.HasPrefix(ifaceName, "tailscale") {
+			if ip := getInterfaceIP(ifaceName); ip != "" {
+				log.Debug().Str("interface", ifaceName).Str("ip", ip).Msg("Found Tailscale IP")
+				tsIPs = append(tsIPs, "ts:"+ip)
+			}
+		}
+	}
+
+	// Build the version string components
+	var components []string
+	if localIP != "" {
+		components = append(components, localIP)
+	}
+	components = append(components, ztIPs...)
+	components = append(components, tsIPs...)
+
+	result := strings.Join(components, "+")
+	log.Debug().Strs("components", components).Str("result", result).Msg("Final IP components")
+
+	return result
 }
 
 func getLocalNetworkIP() string {
