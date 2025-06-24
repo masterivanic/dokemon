@@ -43,7 +43,7 @@ docker run \\
     -v /var/run/docker.sock:/var/run/docker.sock \\
     --name dokemon-agent --restart unless-stopped \\
     -d javastraat/dokemon-agent:latest && \\
-    docker create \\
+    docker run \\
     --name dokemon-agent-updater \\
     -v /var/run/docker.sock:/var/run/docker.sock \\
     javastraat/dokemon-agent-updater
