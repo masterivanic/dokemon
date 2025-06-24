@@ -1,4 +1,4 @@
-import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon,XMarkIcon } from "@heroicons/react/24/solid";
+import { PlayIcon, StopIcon, ArrowPathIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Terminal, ScrollText, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Loading from "@/components/widgets/loading";
 import {
@@ -33,6 +33,7 @@ import {
   cn,
   toastFailed,
   toastSuccess,
+  toastSomethingWentWrong,
 } from "@/lib/utils";
 import TableButtonDelete from "@/components/widgets/table-button-delete";
 import { TableNoData } from "@/components/widgets/table-no-data";
@@ -46,6 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 export default function ContainerList() {
   const { nodeId } = useParams();
@@ -55,6 +57,7 @@ export default function ContainerList() {
   const [container, setContainer] = useState<IContainer | null>(null);
   const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -85,6 +88,40 @@ export default function ContainerList() {
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const isDokemonContainer = (container: IContainer) => {
+    return container.image.includes('dokemon');
+  };
+
+  const handleUpgrade = async (type: 'agent' | 'server') => {
+    setIsUpgrading(true);
+    
+    try {
+      const command = type === 'agent'
+        ? 'docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock javastraat/dokemon-agent-updater'
+        : 'docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock javastraat/dokemon-server-updater';
+
+      const response = await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/containers/exec`, {
+        command: command
+      });
+
+      if (response.status === 200) {
+        toastSuccess(`Dokemon ${type} upgrade started successfully`);
+        mutateContainers();
+      } else {
+        toastFailed(`Failed to start Dokemon ${type} upgrade`);
+      }
+    } catch (error) {
+      console.error(`Upgrade failed:`, error);
+      if (axios.isAxiosError(error)) {
+        toastFailed(error.response?.data || `Failed to upgrade Dokemon ${type}`);
+      } else {
+        toastSomethingWentWrong(`Failed to upgrade Dokemon ${type}`);
+      }
+    } finally {
+      setIsUpgrading(false);
+    }
   };
 
   if (isLoading) return <Loading />;
@@ -240,29 +277,29 @@ export default function ContainerList() {
         </TopBarActions>
       </TopBar>
       <MainContent>
-<div className="mb-4 flex items-center justify-end">
-  <div className="relative w-full max-w-md">
-    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-      <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-    </div>
-    <Input
-      type="text"
-      className="pl-10"
-      placeholder="Search containers..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-    {searchTerm && (
-      <button
-        type="button"
-        className="absolute inset-y-0 right-0 flex items-center pr-3"
-        onClick={() => setSearchTerm('')}
-      >
-        <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-      </button>
-    )}
-  </div>
-</div>
+        <div className="mb-4 flex items-center justify-end">
+          <div className="relative w-full max-w-md">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <Input
+              type="text"
+              className="pl-10"
+              placeholder="Search containers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                onClick={() => setSearchTerm('')}
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -337,6 +374,20 @@ export default function ContainerList() {
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
                   <TableCell className="text-left">
                     <div className="flex items-center gap-1">
+                      {isDokemonContainer(item) && (
+                        <button
+                          className={`p-1 rounded text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-800 ${isUpgrading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          title="Upgrade"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const type = item.image.includes('agent') ? 'agent' : 'server';
+                            handleUpgrade(type);
+                          }}
+                          disabled={isUpgrading}
+                        >
+                          <ArrowDownTrayIcon className="w-4 h-4" />
+                        </button>
+                      )}
                       {item.state === "running" ? (
                         <>
                           <button
@@ -498,7 +549,6 @@ export default function ContainerList() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            {/* Page number buttons - show up to 5 pages around current */}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum
               if (totalPages <= 5) {
