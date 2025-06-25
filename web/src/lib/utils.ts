@@ -3,6 +3,8 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { loader } from "@monaco-editor/react"
 import { toast } from "@/components/ui/use-toast"
+import { VERSION } from "./version"
+import { INodeHead } from "./api-models"
 
 export const REGEX_IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/
 export const REGEX_IDENTIFIER_MESSAGE =
@@ -176,4 +178,88 @@ export function printDokemonLogo(t: Terminal) {
  /____||____||____
 `
   t.writeln(logo)
+}
+
+export function extractIPs(agentVersion: string): {
+  ip?: string[],
+  zt?: string[],
+  ts?: string[]
+} | null {
+  if (!agentVersion) return null;
+
+  const mainParts = agentVersion.split('-');
+  const rest = mainParts.length > 1 ? mainParts[1] : '';
+  const ips = rest.split('@').length > 1 ? rest.split('@')[1] : null;
+
+  if (!ips) return null;
+
+  const result: { ip?: string[], zt?: string[], ts?: string[] } = {};
+  const ipComponents = ips.split('+');
+
+  for (const component of ipComponents) {
+    if (component.includes('.')) {
+      if (component.startsWith('zt:')) {
+        const ip = component.substring(3);
+        result.zt = [...(result.zt || []), ip];
+      } else if (component.startsWith('ts:')) {
+        const ip = component.substring(3);
+        result.ts = [...(result.ts || []), ip];
+      } else {
+        const ip = component;
+        result.ip = [...(result.ip || []), ip];
+      }
+    }
+  }
+
+  return result;
+}
+
+export const isDokemonNode = (nodeHead: INodeHead) => nodeHead.id === 1;
+
+export const getAgentVersion = (nodeHead: INodeHead): string => {
+    if (isDokemonNode(nodeHead)) {
+      //log.Info().Msgf("Starting Dokémon Server %s", const serverNode = nodes.items.find(n => n.id === 1));
+
+      if (nodeHead.agentVersion) {
+        const versionParts = nodeHead.agentVersion.split('-');
+        const baseVersion = versionParts[0] || '';
+        const archAndIPs = versionParts.length > 1 ? versionParts[1] : '';
+        const arch = archAndIPs.split('@')[0] || '';
+        return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
+      }
+
+      // Fallback to VERSION constant if agentVersion not available
+      const versionParts = VERSION.split('-');
+      const baseVersion = versionParts[0] || VERSION;
+      const arch = versionParts.length > 1 ? versionParts[1].split('@')[0] : '';
+      return `Server v${baseVersion}` + (arch ? ` (${arch})` : "");
+    }
+
+    // For regular nodes
+    if (nodeHead.agentVersion) {
+      const mainParts = nodeHead.agentVersion.split('-');
+      const version = mainParts[0] || '';
+      const rest = mainParts.length > 1 ? mainParts[1] : '';
+      const arch = rest.split('@')[0] || null;
+
+      return `v${version}` + (arch ? ` (${arch})` : '');
+    }
+
+    return "-";
+  };
+
+
+export function getCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+}
+
+export function setCookie(name: string, value: string, days = 365) {
+  if (typeof document === 'undefined') return;
+  const date = new Date();
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${value}; ${expires}; path=/`;
 }
