@@ -50,7 +50,7 @@ export default function NodeList() {
   const [nodeHead, setNodeHead] = useState<INodeHead | null>(null);
   const [deleteNodeOpenConfirmation, setDeleteNodeOpenConfirmation] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState(false);
-  const { state, dispatch, fetchNodeContainers } = useContainerContext();
+  const { dispatch, fetchNodeContainers } = useContainerContext();
   const {
     refreshInterval,
     setRefreshInterval,
