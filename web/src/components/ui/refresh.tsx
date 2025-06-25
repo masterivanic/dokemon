@@ -10,7 +10,7 @@ export function RefreshControls({
   secondsSinceLastRefresh: number;
 }) {
   return (
-    <div className="flex items-center gap-5 ml-4">
+    <div className="flex items-center gap-5">
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-500">Refresh:</span>
         <Select

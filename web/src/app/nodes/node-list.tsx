@@ -25,7 +25,6 @@ import DeleteDialog from "@/components/delete-dialog";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import PaginationFooter from '@/components/ui/pagination-footer';
-import { RefreshControls } from '@/components/ui/refresh';
 
 
 import { INodeHead } from "@/lib/api-models";
@@ -53,9 +52,7 @@ export default function NodeList() {
   const { dispatch, fetchNodeContainers } = useContainerContext();
   const {
     refreshInterval,
-    setRefreshInterval,
     setLastRefreshTime,
-    secondsSinceLastRefresh,
     setCurrentTime
   } = useRefresh(60);
 
@@ -111,7 +108,7 @@ export default function NodeList() {
         });
       }
     }
-  },  [dispatch, fetchNodeContainers, nodes?.items, setLastRefreshTime, setCurrentTime]);
+  }, [dispatch, fetchNodeContainers, nodes?.items, setLastRefreshTime, setCurrentTime]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -493,18 +490,10 @@ export default function NodeList() {
             )}
           </TableBody>
         </Table>
-        <div className="mt-4 flex items-center justify-between">
-          <PaginationFooter
-            paginationConfig={paginationConfig}
-            paginationFunctions={paginationFunctions}
-            className="flex-1"
-          />
-          <RefreshControls
-            refreshInterval={refreshInterval}
-            setRefreshInterval={setRefreshInterval}
-            secondsSinceLastRefresh={secondsSinceLastRefresh}
-          />
-        </div>
+        <PaginationFooter
+          paginationConfig={paginationConfig}
+          paginationFunctions={paginationFunctions}
+        />
       </MainContent>
     </MainArea>
   );

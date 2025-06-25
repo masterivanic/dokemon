@@ -403,32 +403,32 @@ func initDatabase(dbConnectionString string) (*gorm.DB, error) {
 }
 
 func (s *Server) Run(addr string) {
-    // Always start HTTP server on the specified port
-    go func() {
-        log.Info().Str("address", addr).Msg("Starting HTTP server")
-        if err := s.Echo.Start(addr); err != nil && err != http.ErrServerClosed {
-            log.Fatal().Err(err).Msg("Failed to start HTTP server")
-        }
-    }()
+	// Always start HTTP server on the specified port
+	go func() {
+		log.Info().Str("address", addr).Msg("Starting HTTP server")
+		if err := s.Echo.Start(addr); err != nil && err != http.ErrServerClosed {
+			log.Fatal().Err(err).Msg("Failed to start HTTP server")
+		}
+	}()
 
-    // Start HTTPS server if enabled
-    if s.sslEnabled {
-        go func() {
-            certsDirPath := path.Join(s.dataPath, "certs")
-            certPath := path.Join(certsDirPath, "server.crt")
-            keyPath := path.Join(certsDirPath, "server.key")
-            s.generateSelfSignedCerts(certsDirPath, certPath, keyPath)
-            
-            httpsAddr := ":9444"
-            log.Info().Str("address", httpsAddr).Msg("Starting HTTPS server")
-            if err := s.Echo.StartTLS(httpsAddr, certPath, keyPath); err != nil && err != http.ErrServerClosed {
-                log.Fatal().Err(err).Msg("Failed to start HTTPS server")
-            }
-        }()
-    }
-    
-    // Block forever (or until interrupt)
-    select {}
+	// Start HTTPS server if enabled
+	if s.sslEnabled {
+		go func() {
+			certsDirPath := path.Join(s.dataPath, "certs")
+			certPath := path.Join(certsDirPath, "server.crt")
+			keyPath := path.Join(certsDirPath, "server.key")
+			s.generateSelfSignedCerts(certsDirPath, certPath, keyPath)
+
+			httpsAddr := ":9444"
+			log.Info().Str("address", httpsAddr).Msg("Starting HTTPS server")
+			if err := s.Echo.StartTLS(httpsAddr, certPath, keyPath); err != nil && err != http.ErrServerClosed {
+				log.Fatal().Err(err).Msg("Failed to start HTTPS server")
+			}
+		}()
+	}
+
+	// Block forever (or until interrupt)
+	select {}
 }
 
 func (s *Server) authMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

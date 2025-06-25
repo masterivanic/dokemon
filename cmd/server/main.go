@@ -11,7 +11,7 @@ func main() {
 		os.Getenv("DB_CONNECTION_STRING"),
 		os.Getenv("DATA_PATH"),
 		os.Getenv("LOG_LEVEL"),
-		getEnv("SSL_ENABLED", "1"),  // Default to HTTPS enabled
+		getEnv("SSL_ENABLED", "1"), // Default to HTTPS enabled
 		os.Getenv("STALENESS_CHECK"),
 	)
 
