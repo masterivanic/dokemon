@@ -8,11 +8,11 @@ import (
 
 func main() {
 	s := server.NewServer(
-		getEnv("DB_CONNECTION_STRING", "/data/db"),
-		getEnv("DATA_PATH", "/data"),
-		getEnv("LOG_LEVEL", "INFO"),
+		os.Getenv("DB_CONNECTION_STRING"),
+		os.Getenv("DATA_PATH"),
+		os.Getenv("LOG_LEVEL"),
 		getEnv("SSL_ENABLED", "1"),  // Default to HTTPS enabled
-		getEnv("STALENESS_CHECK", "ON"),
+		os.Getenv("STALENESS_CHECK"),
 	)
 
 	port := getEnv("DOKEMON_PORT", "9090")
