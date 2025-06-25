@@ -8,6 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PaginationConfig, PaginationFunctions } from "@/lib/pagination";
+import { RefreshControls } from "./refresh";
+import { useRefresh } from "@/hooks/useRefresh";
 
 interface PaginationFooterProps {
   paginationConfig: PaginationConfig;
@@ -21,7 +23,6 @@ export default function PaginationFooter({
   paginationConfig,
   paginationFunctions,
   pageSizeOptions = [10, 20, 25, 50, 100],
-  className = "",
   showFirstLast = true,
 }: PaginationFooterProps) {
   const {
@@ -43,80 +44,94 @@ export default function PaginationFooter({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
   const pageButtons = getPageButtons(currentPage, totalPages);
+  const {
+    refreshInterval,
+    setRefreshInterval,
+    secondsSinceLastRefresh,
+  } = useRefresh(60);
 
   return (
-    <div className={`mt-4 flex items-center justify-between ${className}`}>
+    <div className="mt-4 flex items-center justify-between gap-4">
       <div className="flex items-center space-x-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="text-sm text-gray-600 dark:text-gray-400 shrink-0">
           Showing {startItem}-{endItem} of {totalItems} items
         </span>
-        <Select
-          value={pageSize.toString()}
-          onValueChange={(value) => setPageSize(Number(value))}
-        >
-          <SelectTrigger className="h-8 w-[70px]">
-            <SelectValue placeholder={pageSize} />
-          </SelectTrigger>
-          <SelectContent>
-            {pageSizeOptions.map((size) => (
-              <SelectItem key={size} value={size.toString()}>
-                {size}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="flex items-center gap-4 flex-1 justify-center">
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => setPageSize(Number(value))}
+          >
+            <SelectTrigger className="h-8 w-[70px]">
+              <SelectValue placeholder={pageSize} />
+            </SelectTrigger>
+            <SelectContent>
+              {pageSizeOptions.map((size) => (
+                <SelectItem key={size} value={size.toString()}>
+                  {size}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <div className="flex items-center space-x-2">
-          {showFirstLast && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToFirstPage}
-              disabled={currentPage === 1}
-            >
-              First
-            </Button>
-          )}
+
+        </div>
+      </div>
+      <RefreshControls
+        refreshInterval={refreshInterval}
+        setRefreshInterval={setRefreshInterval}
+        secondsSinceLastRefresh={secondsSinceLastRefresh}
+      />
+
+      <div className="flex items-center gap-2 shrink-0">
+        {showFirstLast && (
           <Button
             variant="outline"
             size="sm"
-            onClick={prevPage}
+            onClick={goToFirstPage}
             disabled={currentPage === 1}
           >
-            <ChevronLeft className="h-4 w-4" />
+            First
           </Button>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={prevPage}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
 
-          {pageButtons.map((pageNum) => (
-            <Button
-              key={pageNum}
-              variant={currentPage === pageNum ? "default" : "outline"}
-              size="sm"
-              onClick={() => goToPage(pageNum)}
-            >
-              {pageNum}
-            </Button>
-          ))}
+        {pageButtons.map((pageNum) => (
+          <Button
+            key={pageNum}
+            variant={currentPage === pageNum ? "default" : "outline"}
+            size="sm"
+            onClick={() => goToPage(pageNum)}
+          >
+            {pageNum}
+          </Button>
+        ))}
 
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        {showFirstLast && (
           <Button
             variant="outline"
             size="sm"
-            onClick={nextPage}
+            onClick={goToLastPage}
             disabled={currentPage === totalPages}
           >
-            <ChevronRight className="h-4 w-4" />
+            Last
           </Button>
-          {showFirstLast && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={goToLastPage}
-              disabled={currentPage === totalPages}
-            >
-              Last
-            </Button>
-          )}
-        </div>
+        )}
+      </div>
     </div>
   );
 }
