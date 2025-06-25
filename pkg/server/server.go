@@ -419,7 +419,7 @@ func (s *Server) Run(addr string) {
 			keyPath := path.Join(certsDirPath, "server.key")
 			s.generateSelfSignedCerts(certsDirPath, certPath, keyPath)
 
-			httpsAddr := ":9444"
+			httpsAddr := ":9443"
 			log.Info().Str("address", httpsAddr).Msg("Starting HTTPS server")
 			if err := s.Echo.StartTLS(httpsAddr, certPath, keyPath); err != nil && err != http.ErrServerClosed {
 				log.Fatal().Err(err).Msg("Failed to start HTTPS server")
