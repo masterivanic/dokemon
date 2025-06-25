@@ -200,6 +200,7 @@ export default function NodeList() {
     onRefresh: () => void;
     nodeOnline: boolean;
   }) => {
+    const { state, dispatch, fetchNodeContainers } = useContainerContext();
     const counts = state[nodeId] || { loading: false, hasData: false };
     useCallback(() => {
       dispatch({
