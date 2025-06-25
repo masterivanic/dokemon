@@ -38,7 +38,7 @@ import TableButtonDelete from "@/components/widgets/table-button-delete";
 import { TableNoData } from "@/components/widgets/table-no-data";
 import DeleteDialog from "@/components/delete-dialog";
 import { Input } from "@/components/ui/input";
-import { useFilterAndSort } from "@/lib/useFilterAndSort";
+import { useFilterAndSort } from "@/hooks/useFilterAndSort";
 import { usePagination } from "@/lib/pagination";
 import PaginationFooter from "@/components/ui/pagination-footer";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";

@@ -33,7 +33,7 @@ import { apiNodesDelete, apiNodesGenerateToken } from "@/lib/api";
 import { cn, getAgentVersion, isDokemonNode, toastFailed, toastSomethingWentWrong, toastSuccess } from "@/lib/utils";
 import useNodes from "@/hooks/useNodes";
 import useSetting from "@/hooks/useSetting";
-import { useFilterAndSort } from "@/lib/useFilterAndSort";
+import { useFilterAndSort } from "@/hooks/useFilterAndSort";
 import { usePagination } from '@/lib/pagination';
 import { useContainerContext } from '@/contexts/container-context';
 import { useRefresh } from '@/hooks/useRefresh';

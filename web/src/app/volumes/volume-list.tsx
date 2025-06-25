@@ -39,7 +39,7 @@ import useNodeHead from "@/hooks/useNodeHead";
 import { IVolume } from "@/lib/api-models";
 import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils";
 import apiBaseUrl from "@/lib/api-base-url";
-import { useFilterAndSort } from "@/lib/useFilterAndSort";
+import { useFilterAndSort } from "@/hooks/useFilterAndSort";
 import { usePagination } from "@/lib/pagination";
 import PaginationFooter from "@/components/ui/pagination-footer";
 

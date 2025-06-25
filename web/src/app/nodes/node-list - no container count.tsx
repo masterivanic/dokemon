@@ -33,7 +33,7 @@ import { useState } from "react"
 import useSetting from "@/hooks/useSetting"
 import { TableNoData } from "@/components/widgets/table-no-data"
 import DeleteDialog from "@/components/delete-dialog"
-import { useFilterAndSort } from "@/lib/useFilterAndSort"
+import { useFilterAndSort } from "@/hooks/useFilterAndSort"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
