@@ -111,7 +111,7 @@ export default function NodeList() {
         });
       }
     }
-  }, [dispatch, fetchNodeContainers]);
+  },  [dispatch, fetchNodeContainers, nodes?.items, setLastRefreshTime, setCurrentTime]);
 
   useEffect(() => {
     const abortController = new AbortController();
