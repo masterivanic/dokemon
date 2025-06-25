@@ -131,10 +131,10 @@ export default function ComposeLibraryEditFileSystemProject() {
   }, [composeLibraryItem, isLoading, form]);
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    data.definition = activeTab === "form" 
+    data.definition = activeTab === "form"
       ? stringify(composeData || {})
       : editorRef.current?.getValue() || "";
-      
+
     setIsSaving(true);
     try {
       const response = await fetch(
@@ -245,7 +245,7 @@ export default function ComposeLibraryEditFileSystemProject() {
     const currentService = services.find(s => s.name === selectedService) || {};
 
     const handleServiceChange = (field: string, value: any) => {
-      const updated = services.map(s => 
+      const updated = services.map(s =>
         s.name === selectedService ? { ...s, [field]: value } : s
       );
       setServices(updated);
@@ -320,16 +320,16 @@ export default function ComposeLibraryEditFileSystemProject() {
           <CardContent>
             <div className="space-y-2">
               {services.map(service => (
-                <div 
-                  key={service.name} 
+                <div
+                  key={service.name}
                   className={`p-2 rounded cursor-pointer ${selectedService === service.name ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-900'}`}
                   onClick={() => setSelectedService(service.name)}
                 >
                   <div className="flex justify-between items-center">
                     <span>{service.name}</span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         removeService(service.name);
@@ -533,9 +533,9 @@ export default function ComposeLibraryEditFileSystemProject() {
                       ) : (
                         <div className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                           {composeData ? (
-                            <DockerServiceForm 
-                              data={composeData} 
-                              onChange={handleFormDataChange} 
+                            <DockerServiceForm
+                              data={composeData}
+                              onChange={handleFormDataChange}
                             />
                           ) : (
                             <div className="h-[50vh] flex items-center justify-center">
