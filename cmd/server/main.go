@@ -8,17 +8,22 @@ import (
 
 func main() {
 	s := server.NewServer(
-		os.Getenv("DB_CONNECTION_STRING"),
-		os.Getenv("DATA_PATH"),
-		os.Getenv("LOG_LEVEL"),
-		os.Getenv("SSL_ENABLED"),
-		os.Getenv("STALENESS_CHECK"),
+		getEnv("DB_CONNECTION_STRING", "/data/db"),
+		getEnv("DATA_PATH", "/data"),
+		getEnv("LOG_LEVEL", "INFO"),
+		getEnv("SSL_ENABLED", "1"),  // Default to HTTPS enabled
+		getEnv("STALENESS_CHECK", "ON"),
 	)
 
-	port := os.Getenv("DOKEMON_PORT")
-	if port == "" {
-		port = "9090"
-	}
+	port := getEnv("DOKEMON_PORT", "9090")
 	bindAddr := ":" + port
 	s.Run(bindAddr)
+}
+
+// Helper function to get env vars with defaults
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }
