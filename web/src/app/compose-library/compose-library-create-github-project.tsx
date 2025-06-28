@@ -46,7 +46,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, HelpCircle } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -190,7 +190,21 @@ export default function ComposeLibraryCreateGitHubProject() {
                         name="url"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>GitHub URL of Compose File</FormLabel>
+                            <FormLabel>
+                              Repository URL
+                              <span
+                                title={
+                                  `Supported providers:\n` +
+                                  `- GitHub: https://github.com/OWNER/REPO/blob/REF/path/to/file.yml\n` +
+                                  `- GitLab: https://gitlab.com/OWNER/REPO/-/blob/REF/path/to/file.yml\n` +
+                                  `- Bitbucket: https://bitbucket.org/OWNER/REPO/src/REF/path/to/file.yml\n` +
+                                  `- Codeberg: https://codeberg.org/OWNER/REPO/src/branch/REF/path/to/file.yml`
+                                }
+                                className="ml-1 align-middle"
+                              >
+                                <HelpCircle size={16} className="inline text-blue-500 cursor-pointer" />
+                              </span>
+                            </FormLabel>
                             <FormControl>
                               <Input {...field} />
                             </FormControl>

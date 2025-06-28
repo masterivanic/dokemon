@@ -70,7 +70,8 @@ func getRawFileUrl(p *gitUrlParts) (string, error) {
 	case providerBitbucket:
 		return "https://bitbucket.org/" + p.Owner + "/" + p.Repo + "/raw/" + p.Ref + "/" + p.Path, nil
 	case providerCodeBerg:
-		return "https://codeberg.org/" + p.Owner + "/" + p.Repo + "/raw/branch/" + p.Ref + "/" + p.Path, nil
+		log.Warn().Msg("https://codeberg.org/" + p.Owner + "/" + p.Repo + "/raw/" + p.Ref + "/" + p.Path)
+		return "https://codeberg.org/" + p.Owner + "/" + p.Repo + "/raw/" + p.Ref + "/" + p.Path, nil
 	default:
 		return "", errors.New("Unsupported git provider")
 	}
