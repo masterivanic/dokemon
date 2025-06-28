@@ -389,7 +389,7 @@ func (h *Handler) getComposeProjectDefinitionFromLibrary(ncp *model.NodeComposeP
 			}
 		}
 
-		content, err := getGitHubFileContent(gclp.Url, decryptedSecret)
+		content, err := getGitFileContent(gclp.Url, decryptedSecret)
 		if err != nil {
 			return "", nil, nil, errors.New("Error while retrieving file content from GitHub")
 		}
@@ -427,7 +427,7 @@ func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (st
 			}
 		}
 
-		content, err := getGitHubFileContent(*ncp.Url, decryptedSecret)
+		content, err := getGitFileContent(*ncp.Url, decryptedSecret)
 		if err != nil {
 			return "", errors.New("Error while retrieving file content from GitHub")
 		}

@@ -1,68 +1,112 @@
 package handler
 
 import (
-	"context"
 	"errors"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/dokemon-ng/dokemon/pkg/crypto/ske"
-	"github.com/google/go-github/v57/github"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 )
 
-type gitHubUrlParts struct {
-	Owner string
-	Repo  string
-	Ref   string
-	Path  string
+type gitProvider int
+
+const (
+	providerUnknown gitProvider = iota
+	providerGitHub
+	providerGitLab
+	providerBitbucket
+	providerCodeBerg
+)
+
+type gitUrlParts struct {
+	Provider gitProvider
+	Owner    string
+	Repo     string
+	Ref      string
+	Path     string
 }
 
-func getGitHubUrlParts(url string) (*gitHubUrlParts, error) {
-	ret := &gitHubUrlParts{}
-
-	if !strings.HasPrefix(url, "https://github.com") {
-		return nil, errors.New("URL should begin with https://github.com")
+func getGitUrlParts(rawurl string) (*gitUrlParts, error) {
+	u, err := url.Parse(rawurl)
+	if err != nil {
+		return nil, errors.New("Invalid URL")
 	}
-
-	parts := strings.Split(url[19:], "/")
+	parts := strings.Split(u.Path, "/")
 	if len(parts) < 5 {
-		return nil, errors.New("URL should be of format: https://github.com/OWNER/REPO/blob/REF/path/to/filename.extension")
+		return nil, errors.New("URL should be of format: <provider>/<OWNER>/<REPO>/blob/<REF>/path/to/file")
 	}
-
-	ret.Owner = parts[0]
-	ret.Repo = parts[1]
-	ret.Ref = parts[3]
-	ret.Path = strings.Join(parts[4:], "/")
-
-	return ret, nil
+	var provider gitProvider
+	switch u.Host {
+	case "github.com":
+		provider = providerGitHub
+	case "gitlab.com":
+		provider = providerGitLab
+	case "bitbucket.org":
+		provider = providerBitbucket
+	case "codeberg.org":
+		provider = providerCodeBerg
+	default:
+		provider = providerUnknown
+	}
+	return &gitUrlParts{
+		Provider: provider,
+		Owner:    parts[1],
+		Repo:     parts[2],
+		Ref:      parts[4],
+		Path:     strings.Join(parts[5:], "/"),
+	}, nil
 }
 
-func getGitHubFileContent(url string, token string) (string, error) {
-	var client *github.Client
+func getRawFileUrl(p *gitUrlParts) (string, error) {
+	switch p.Provider {
+	case providerGitHub:
+		return "https://raw.githubusercontent.com/" + p.Owner + "/" + p.Repo + "/" + p.Ref + "/" + p.Path, nil
+	case providerGitLab:
+		return "https://gitlab.com/" + p.Owner + "/" + p.Repo + "/-/raw/" + p.Ref + "/" + p.Path, nil
+	case providerBitbucket:
+		return "https://bitbucket.org/" + p.Owner + "/" + p.Repo + "/raw/" + p.Ref + "/" + p.Path, nil
+	case providerCodeBerg:
+		return "https://codeberg.org/" + p.Owner + "/" + p.Repo + "/raw/branch/" + p.Ref + "/" + p.Path, nil
+	default:
+		return "", errors.New("Unsupported git provider")
+	}
+}
 
-	p, err := getGitHubUrlParts(url)
+// getGitFileContent fetches a file from GitHub, GitLab, or Bitbucket using a raw URL
+func getGitFileContent(url string, token string) (string, error) {
+	p, err := getGitUrlParts(url)
 	if err != nil {
 		return "", err
 	}
-
-	if token == "" {
-		client = github.NewClient(nil)
-	} else {
-		client = github.NewClient(nil).WithAuthToken(token)
-	}
-
-	content, _, _, err := client.Repositories.GetContents(context.Background(), p.Owner, p.Repo, p.Path, &github.RepositoryContentGetOptions{Ref: p.Ref})
+	rawUrl, err := getRawFileUrl(p)
 	if err != nil {
 		return "", err
 	}
-
-	text, err := content.GetContent()
+	client := &http.Client{}
+	request, err := http.NewRequest("GET", rawUrl, nil)
 	if err != nil {
 		return "", err
 	}
-
-	return text, nil
+	if token != "" {
+		request.Header.Add("Authorization", "token "+token)
+	}
+	resp, err := client.Do(request)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return "", errors.New("Failed to fetch file: " + resp.Status)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
 }
 
 func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
@@ -74,24 +118,24 @@ func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
 	decryptedSecret := ""
 	if r.CredentialId != nil {
 		credential, err := h.credentialStore.GetById(*r.CredentialId)
-		if err != nil {
+		if err != nil || credential == nil {
 			return unprocessableEntity(c, errors.New("Credentials not found"))
 		}
 
 		decryptedSecret, err = ske.Decrypt(credential.Secret)
 		if err != nil {
-			panic(err)
+			return unprocessableEntity(c, errors.New("Failed to decrypt credentials"))
 		}
 	}
 
-	content, err := getGitHubFileContent(r.Url, decryptedSecret)
+	content, err := getGitFileContent(r.Url, decryptedSecret)
 	if err != nil {
 		if r.CredentialId != nil {
-			log.Error().Err(err).Str("url", r.Url).Uint("credentialId", *r.CredentialId).Msg("Error while retriveing file content from GitHub")
+			log.Error().Err(err).Str("url", r.Url).Uint("credentialId", *r.CredentialId).Msg("Error while retriveing file content from Git provider")
 		} else {
-			log.Error().Err(err).Str("url", r.Url).Msg("Error while retriveing file content from GitHub")
+			log.Error().Err(err).Str("url", r.Url).Msg("Error while retriveing file content from Git provider")
 		}
-		return unprocessableEntity(c, errors.New("Error while retrieving file content from provided GitHub URL"))
+		return unprocessableEntity(c, errors.New("Error while retrieving file content from provided Git URL"))
 	}
 
 	return ok(c, newGitHubfileContentResponse(&content))

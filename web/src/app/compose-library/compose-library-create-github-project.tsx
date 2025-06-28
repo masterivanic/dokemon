@@ -89,7 +89,7 @@ export default function ComposeLibraryCreateGitHubProject() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: useMemo(() => {
-      return { projectName: "", url: "", credentialId: 0 }
+      return { projectName: "", url: "", credentialId: null }
     }, []),
   })
 
@@ -219,7 +219,7 @@ export default function ComposeLibraryCreateGitHubProject() {
                                         role="combobox"
                                         className={cn(
                                           "inline-flex w-[300px] justify-between font-normal text-slate-800 dark:text-slate-50",
-                                          !field.value &&
+                                          !field.value == null &&
                                             "text-muted-foreground"
                                         )}
                                       >
