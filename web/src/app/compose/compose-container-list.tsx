@@ -153,7 +153,7 @@ function ContainersTable({
   const handleStopContainer = async (name: string) => {
     setIsProcessing(true)
     try {
-      await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}/containers/stop`, { name })
+      await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/containers/stop`, { name })
       toastSuccess("Container stopped.")
       window.location.reload()
     } catch (e) {
@@ -166,7 +166,7 @@ function ContainersTable({
   const handleRestartContainer = async (name: string) => {
     setIsProcessing(true)
     try {
-      await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}/containers/restart`, { name })
+      await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/containers/restart`, { name })
       toastSuccess("Container restarted.")
       window.location.reload()
     } catch (e) {
@@ -184,7 +184,7 @@ function ContainersTable({
   const handleDeleteContainer = async () => {
     setDeleteInProgress(true)
     try {
-      await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}/containers/remove`, { name: container?.name, force: true })
+      await axios.post(`${apiBaseUrl()}/nodes/${nodeId}/containers/remove`, { name: container?.name, force: true })
       toastSuccess("Container deleted.")
       setTimeout(() => {
         setDeleteContainerConfirmationOpen(false)
