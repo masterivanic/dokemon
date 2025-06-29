@@ -48,7 +48,6 @@ export default function ComposeList() {
         </Breadcrumb>
         <TopBarActions>
           <Button
-            variant={"default"}
             onClick={() => {
               navigate(`/nodes/${nodeId}/compose/create/local`)
             }}
@@ -56,7 +55,6 @@ export default function ComposeList() {
             Create
           </Button>
           <Button
-            variant={"default"}
             onClick={() => {
               navigate(`/nodes/${nodeId}/compose/create/github`)
             }}
@@ -124,10 +122,10 @@ export default function ComposeList() {
                   </TableCell>
                   <TableCell>
                     {item.status && item.status.startsWith("running") && (
-                      <Badge variant="default">{item.status}</Badge>
+                      <Badge className="bg-primary text-primary-foreground">{item.status}</Badge>
                     )}
                     {item.status && !item.status.startsWith("running") && (
-                      <Badge variant="destructive">{item.status}</Badge>
+                      <Badge className="bg-destructive text-destructive-foreground">{item.status}</Badge>
                     )}
                   </TableCell>
                 </TableRow>
