@@ -241,10 +241,10 @@ function ContainersTable({
             sortedItems.map((item) => (
               <TableRow key={item.name}>
                   <TableCell>
-                    {item.status && item.status.startsWith("up") && (
+                    {item.status && item.status.startsWith("Up") && (
                       <Badge variant="default">{item.status}</Badge>
                     )}
-                    {item.status && !item.status.startsWith("up") && (
+                    {item.status && !item.status.startsWith("Up") && (
                       <Badge variant="destructive">{item.status}</Badge>
                     )}
                   </TableCell>
