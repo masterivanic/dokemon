@@ -145,7 +145,7 @@ export default function ComposeLibraryCreateGitHubProject() {
         <Breadcrumb>
           <BreadcrumbLink to="/composelibrary">Compose Library</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbCurrent>Add from GitHub</BreadcrumbCurrent>
+          <BreadcrumbCurrent>Add via GIT</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
@@ -218,7 +218,7 @@ export default function ComposeLibraryCreateGitHubProject() {
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel>
-                              GitHub Credentials (For private repository)
+                              Authorization Token / Credentials
                             </FormLabel>
                             <div className="flex gap-2">
                               <FormControl>

@@ -157,7 +157,7 @@ export default function ComposeAddGitHub() {
             Compose
           </BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbCurrent>Add from GitHub</BreadcrumbCurrent>
+          <BreadcrumbCurrent>Add via GIT</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
@@ -230,7 +230,7 @@ export default function ComposeAddGitHub() {
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel>
-                              GitHub Credentials (For private repository)
+                              Authorization Token / Credentials
                             </FormLabel>
                             <div className="flex gap-2">
                               <FormControl>
