@@ -324,11 +324,11 @@ export default function ContainerList() {
                 <TableRow key={item.id}>
                   <TableCell>
                     {item.state == "exited" ? (
-                      <Badge className="text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800" title={item.status}>
+                      <Badge variant="destructive" title={item.status}>
                         {item.state}
                       </Badge>
                     ) : (
-                      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200" title={item.status}>
+                      <Badge variant="default" title={item.status}>
                         {item.state}
                       </Badge>
                     )}
