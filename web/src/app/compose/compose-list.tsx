@@ -48,7 +48,6 @@ export default function ComposeList() {
         </Breadcrumb>
         <TopBarActions>
           <Button
-            variant={"default"}
             onClick={() => {
               navigate(`/nodes/${nodeId}/compose/create/local`)
             }}
@@ -56,7 +55,6 @@ export default function ComposeList() {
             Create
           </Button>
           <Button
-            variant={"default"}
             onClick={() => {
               navigate(`/nodes/${nodeId}/compose/create/github`)
             }}

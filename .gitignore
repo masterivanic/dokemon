@@ -20,11 +20,16 @@
 # Go workspace file
 go.work
 
+# Local batch files
 make-server.sh
 make-agent.sh
 git-push.sh
 make-server-windows.bat
 make-agent-windows.bat
+
+# IDEs and editors
+.vscode/settings.json
+
 
 # App Binaries in root directory
 /agent
