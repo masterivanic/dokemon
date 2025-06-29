@@ -240,21 +240,14 @@ function ContainersTable({
           ) : (
             sortedItems.map((item) => (
               <TableRow key={item.name}>
-                <TableCell>
-                  {item.state == "exited" ? (
-                    <Badge title={item.status} className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200">
-                      {item.state}
-                    </Badge>
-                  ) : item.state === "running" ? (
-                    <Badge title={item.status} className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200">
-                      {item.state}
-                    </Badge>
-                  ) : (
-                    <Badge title={item.status} className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-                      {item.state}
-                    </Badge>
-                  )}
-                </TableCell>
+                  <TableCell>
+                    {item.status && item.status.startsWith("running") && (
+                      <Badge variant="default">{item.status}</Badge>
+                    )}
+                    {item.status && !item.status.startsWith("running") && (
+                      <Badge variant="destructive">{item.status}</Badge>
+                    )}
+                  </TableCell>
                 <TableCell>
                   <button
                     className="font-bold hover:underline hover:text-blue-600 dark:hover:text-blue-400"
