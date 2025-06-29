@@ -135,6 +135,7 @@ function ContainersTable({
     return arr
   }
 
+
   // Action handlers
   const handleStartContainer = async (name: string) => {
     setIsProcessing(true)
@@ -191,6 +192,14 @@ function ContainersTable({
     setDeleteInProgress(false)
   }
 
+// ...existing code...
+
+  const handleDeleteContainerConfirmation = (container: INodeComposeContainer) => {
+    setContainer({ ...container })
+    setDeleteContainerConfirmationOpen(true)
+  }
+
+ 
   return (
     <>
       {deleteContainerConfirmationOpen && (
