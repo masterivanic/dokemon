@@ -114,7 +114,7 @@ export default function NodeList() {
     const abortController = new AbortController();
     fetchNodesCounts();
 
-    let refreshIntervalId: NodeJS.Timeout;
+    let refreshIntervalId: ReturnType<typeof setInterval>;
     if (refreshInterval > 0) {
       refreshIntervalId = setInterval(fetchNodesCounts, refreshInterval * 1000);
     }
@@ -440,7 +440,6 @@ export default function NodeList() {
                       {!item.registered ? (
                         <>
                           <Button
-                            size={"sm"}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleNodeRegister(item.id, false);
@@ -450,8 +449,7 @@ export default function NodeList() {
                           </Button>
                           {!isDokemonNode(item) && (
                             <Button
-                              variant="destructive"
-                              size={"sm"}
+                              color="destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteNodeConfirmation(item);
