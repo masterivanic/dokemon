@@ -83,6 +83,14 @@ sudo docker run --net=host \
 
 ---
 
+## Step-by-Step Video Guide
+
+[![Watch the video guide](https://img.youtube.com/vi/2QZ7p-5V7bA/0.jpg)](https://www.youtube.com/watch?v=2QZ7p-5V7bA)
+
+*If you have your own video, upload it to YouTube and replace the link above.*
+
+---
+
 ## Functional Manual
 
 ### Logging In

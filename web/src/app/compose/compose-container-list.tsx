@@ -88,6 +88,10 @@ function ContainersTable({
 }) {
   const { nodeId, composeProjectId } = useParams()
   const navigate = useNavigate()
+  const { mutateComposeContainers } = useNodeComposeContainers(
+    nodeId!,
+    composeProjectId!
+  )
 
   function getPortsHtml(ports: string) {
     const arr = ports.split(", ").map((p, i) => {
@@ -125,17 +129,31 @@ function ContainersTable({
   const handleTerminal = (name: string) => {
     navigate(`/nodes/${nodeId}/containers/${name}/terminal`)
   }
-  const handleStart = (id: string) => {
-    // Implement start logic
+
+  async function handleStart(id: string) {
+    await fetch(`/api/nodes/${nodeId}/compose/${composeProjectId}/containers/${id}/start`, {
+      method: "POST",
+    })
+    mutateComposeContainers()
   }
-  const handleStop = (id: string) => {
-    // Implement stop logic
+  async function handleStop(id: string) {
+    await fetch(`/api/nodes/${nodeId}/compose/${composeProjectId}/containers/${id}/stop`, {
+      method: "POST",
+    })
+    mutateComposeContainers()
   }
-  const handleRestart = (id: string) => {
-    // Implement restart logic
+  async function handleRestart(id: string) {
+    await fetch(`/api/nodes/${nodeId}/compose/${composeProjectId}/containers/${id}/restart`, {
+      method: "POST",
+    })
+    mutateComposeContainers()
   }
-  const handleDelete = (item: INodeComposeContainer) => {
-    // Implement delete logic
+  async function handleDelete(item: INodeComposeContainer) {
+    if (!window.confirm(`Delete container ${item.name}?`)) return
+    await fetch(`/api/nodes/${nodeId}/compose/${composeProjectId}/containers/${item.id}`, {
+      method: "DELETE",
+    })
+    mutateComposeContainers()
   }
 
   return (
@@ -156,13 +174,9 @@ function ContainersTable({
             <TableRow key={item.name}>
               <TableCell>
                 {item.state == "exited" ? (
-                  <Badge variant="destructive" title={item.status}>
-                    {item.state}
-                  </Badge>
+                  <Badge title={item.status}>{item.state}</Badge>
                 ) : (
-                  <Badge variant="default" title={item.status}>
-                    {item.state}
-                  </Badge>
+                  <Badge title={item.status}>{item.state}</Badge>
                 )}
               </TableCell>
               <TableCell>
