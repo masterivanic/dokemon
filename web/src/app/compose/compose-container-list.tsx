@@ -263,10 +263,6 @@ function ContainersTable({
                   >
                     {item.name}
                   </button>
-                  <br />
-                  <span className="ml-4 text-xs">
-                    {item.id.substring(0, 12)}
-                  </span>
                 </TableCell>
                 <TableCell>
                   <StaleStatusIcon status={item.stale} />
