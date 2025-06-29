@@ -61,7 +61,7 @@ export default function ComposeList() {
               navigate(`/nodes/${nodeId}/compose/create/github`)
             }}
           >
-            Add from GitHub
+            Fetch from Git
           </Button>
           <ComposeAddProjectDialog />
         </TopBarActions>
