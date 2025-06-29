@@ -29,7 +29,7 @@ You can run the below commands to quickly try out Dokémon (Dokemon).
 
     # Run Dokemon
     sudo docker run -p 9090:9090 -p 9443:9443\
-      --net=host \
+      --net=bridge \
       -v /dokemondata:/data \
       -v /var/run/docker.sock:/var/run/docker.sock \
       --restart unless-stopped \

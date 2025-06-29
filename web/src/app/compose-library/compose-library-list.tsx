@@ -56,7 +56,7 @@ export default function ComposeLibraryList() {
             className="w-36"
             onClick={() => navigate("/composelibrary/github/create")}
           >
-            Add from GitHub
+            Fetch from Git
           </Button>
         </TopBarActions>
       </TopBar>
