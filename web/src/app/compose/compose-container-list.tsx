@@ -292,7 +292,7 @@ function ContainersTable({
                           title="Logs"
                           onClick={(e) => {
                             e.stopPropagation()
-                            navigate(`/nodes/${nodeId}/compose/${composeProjectId}/containers/${item.name}/logs`)
+                            navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
                           }}
                         >
                           <ScrollText className="w-4 h-4" />
