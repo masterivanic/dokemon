@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -282,7 +282,7 @@ function ContainersTable({
                           title="Terminal"
                           onClick={(e) => {
                             e.stopPropagation()
-                            navigate(`/nodes/${nodeId}/compose/${composeProjectId}/containers/${item.name}/terminal`)
+                            navigate(`/nodes/${nodeId}/containers/${item.name}/terminal`)
                           }}
                         >
                           <Terminal className="w-4 h-4" />
