@@ -224,14 +224,7 @@ function ContainersTable({
                 State
               </div>
             </TableHead>
-            <TableHead
-              scope="col"
-              className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <div className="flex items-center">
-                Name
-              </div>
-            </TableHead>
+            <TableHead scope="col">Name</TableHead>
             <TableHead scope="col">Image</TableHead>
             <TableHead scope="col">Ports</TableHead>
             <TableHead scope="col">Actions</TableHead>
