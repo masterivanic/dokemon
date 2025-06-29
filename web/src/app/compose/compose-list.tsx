@@ -122,10 +122,10 @@ export default function ComposeList() {
                   </TableCell>
                   <TableCell>
                     {item.status && item.status.startsWith("running") && (
-                      <Badge className="bg-primary text-primary-foreground">{item.status}</Badge>
+                      <Badge variant="default">{item.status}</Badge>
                     )}
                     {item.status && !item.status.startsWith("running") && (
-                      <Badge className="bg-destructive text-destructive-foreground">{item.status}</Badge>
+                      <Badge variant="destructive">{item.status}</Badge>
                     )}
                   </TableCell>
                 </TableRow>
