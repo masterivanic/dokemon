@@ -1,0 +1,915 @@
+openapi: 3.0.3
+info:
+  title: Dokémon Server API
+  version: 1.0.0
+  description: |
+    OpenAPI definition for Dokémon (Dokemon) Server REST API, including authentication and all main endpoints.
+servers:
+  - url: http://192.168.1.2:9090/api/v1
+
+paths:
+  /users/login:
+    post:
+      summary: User login
+      description: Login with username and password. Sets an authentication cookie.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                password:
+                  type: string
+              required:
+                - userName
+                - password
+      responses:
+        '204':
+          description: Login successful, cookie set
+        '422':
+          description: Invalid credentials
+
+  /users/logout:
+    post:
+      summary: User logout
+      description: Logout and clear authentication cookie.
+      responses:
+        '204':
+          description: Logout successful
+
+  /users:
+    post:
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                password:
+                  type: string
+              required:
+                - userName
+                - password
+      responses:
+        '201':
+          description: User created
+
+  /changepassword:
+    post:
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+              required:
+                - currentPassword
+                - newPassword
+      responses:
+        '204':
+          description: Password changed
+
+  /nodes:
+    get:
+      summary: List nodes
+      responses:
+        '200':
+          description: List of nodes
+    post:
+      summary: Create node
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeCreateRequest'
+      responses:
+        '201':
+          description: Node created
+
+  /nodes/{id}:
+    get:
+      summary: Get node details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Node details
+    put:
+      summary: Update node
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeUpdateRequest'
+      responses:
+        '204':
+          description: Node updated
+    delete:
+      summary: Delete node
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Node deleted
+    patch:
+      summary: Update node container base URL
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                containerBaseUrl:
+                  type: string
+              required:
+                - containerBaseUrl
+      responses:
+        '204':
+          description: Node container base URL updated
+
+  /nodes/{id}/generatetoken:
+    post:
+      summary: Generate agent registration token
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Registration token generated
+
+  /nodes/{nodeId}/containers:
+    get:
+      summary: List containers
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of containers
+
+  /nodes/{nodeId}/containers/start:
+    post:
+      summary: Start container
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '204':
+          description: Container started
+
+  /nodes/{nodeId}/containers/stop:
+    post:
+      summary: Stop container
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '204':
+          description: Container stopped
+
+  /nodes/{nodeId}/containers/restart:
+    post:
+      summary: Restart container
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '204':
+          description: Container restarted
+
+  /nodes/{nodeId}/containers/remove:
+    post:
+      summary: Remove container
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                force:
+                  type: boolean
+              required:
+                - id
+                - force
+      responses:
+        '204':
+          description: Container removed
+
+  /nodes/{nodeId}/containers/{id}/logs:
+    get:
+      summary: View container logs
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Container logs
+
+  /nodes/{nodeId}/containers/{id}/terminal:
+    get:
+      summary: Open container terminal (WebSocket)
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket upgrade
+
+  /nodes/{nodeId}/images:
+    get:
+      summary: List images
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of images
+
+  /nodes/{nodeId}/images/remove:
+    post:
+      summary: Remove image
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '204':
+          description: Image removed
+
+  /nodes/{nodeId}/images/prune:
+    post:
+      summary: Prune images
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Images pruned
+
+  /nodes/{nodeId}/volumes:
+    get:
+      summary: List volumes
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of volumes
+
+  /nodes/{nodeId}/volumes/create:
+    post:
+      summary: Create volume
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Volume created
+
+  /nodes/{nodeId}/volumes/remove:
+    post:
+      summary: Remove volume
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '204':
+          description: Volume removed
+
+  /nodes/{nodeId}/volumes/prune:
+    post:
+      summary: Prune volumes
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Volumes pruned
+
+  /nodes/{nodeId}/networks:
+    get:
+      summary: List networks
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of networks
+
+  /nodes/{nodeId}/networks/create:
+    post:
+      summary: Create network
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Network created
+
+  /nodes/{nodeId}/networks/remove:
+    post:
+      summary: Remove network
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        '204':
+          description: Network removed
+
+  /nodes/{nodeId}/networks/prune:
+    post:
+      summary: Prune networks
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Networks pruned
+
+  /nodes/{nodeId}/compose:
+    get:
+      summary: List Compose projects
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of Compose projects
+
+  /nodes/{nodeId}/compose/create/github:
+    post:
+      summary: Create Compose project from GitHub
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo:
+                  type: string
+                projectName:
+                  type: string
+              required:
+                - repo
+                - projectName
+      responses:
+        '201':
+          description: Compose project created from GitHub
+
+  /nodes/{nodeId}/compose/create/local:
+    post:
+      summary: Create Compose project from local definition
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                definition:
+                  type: string
+                projectName:
+                  type: string
+              required:
+                - definition
+                - projectName
+      responses:
+        '201':
+          description: Compose project created from local definition
+
+  /nodes/{nodeId}/compose/{id}:
+    get:
+      summary: Get Compose project details
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Compose project details
+    put:
+      summary: Update Compose project (GitHub)
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo:
+                  type: string
+                projectName:
+                  type: string
+              required:
+                - repo
+                - projectName
+      responses:
+        '204':
+          description: Compose project updated (GitHub)
+    delete:
+      summary: Delete Compose project
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Compose project deleted
+
+  /nodes/{nodeId}/compose/{id}/containers:
+    get:
+      summary: List containers in Compose project
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of containers in Compose project
+
+  /nodes/{nodeId}/compose/{id}/logs:
+    get:
+      summary: Get Compose project logs
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Compose project logs
+
+  /nodes/{nodeId}/compose/{id}/deploy:
+    get:
+      summary: Deploy Compose project
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Compose project deployed
+
+  /nodes/{nodeId}/compose/{id}/pull:
+    get:
+      summary: Pull Compose project images
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Compose project images pulled
+
+  /nodes/{nodeId}/compose/{id}/up:
+    get:
+      summary: Compose up
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Compose up triggered
+
+  /nodes/{nodeId}/compose/{id}/down:
+    get:
+      summary: Compose down
+      parameters:
+        - in: path
+          name: nodeId
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Compose down triggered
+
+  /environments:
+    get:
+      summary: List environments
+      responses:
+        '200':
+          description: List of environments
+    post:
+      summary: Create environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Environment created
+
+  /environments/{id}:
+    put:
+      summary: Update environment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '204':
+          description: Environment updated
+    delete:
+      summary: Delete environment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Environment deleted
+
+  /variables:
+    get:
+      summary: List variables
+      responses:
+        '200':
+          description: List of variables
+    post:
+      summary: Create variable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '201':
+          description: Variable created
+
+  /variables/{id}:
+    put:
+      summary: Update variable
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '204':
+          description: Variable updated
+    delete:
+      summary: Delete variable
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Variable deleted
+
+  /ws:
+    get:
+      summary: WebSocket endpoint for agent/browser communication
+      responses:
+        '101':
+          description: WebSocket upgrade
+
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    NodeCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        environmentId:
+          type: integer
+          nullable: true
+      required:
+        - name
+    NodeUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        environmentId:
+          type: integer
+          nullable: true
+      required:
+        - name
