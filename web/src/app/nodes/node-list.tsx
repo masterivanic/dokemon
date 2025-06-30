@@ -413,7 +413,7 @@ export default function NodeList() {
                       <NodeStatusIcon nodeHead={item} />
                       <span
                         className="cursor-pointer hover:text-blue-600 hover:underline"
-                        onClick={() => navigate(`/nodes/${item.id}/containers`)}
+                        onClick={() => navigate(`/nodes/${item.id}/compose`)}
                       >
                         {item.name}
                       </span>
