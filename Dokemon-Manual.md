@@ -128,7 +128,7 @@ sudo docker run --net=host \
 
 ## API Reference
 
-Dokémon provides a REST API for automation and integration. Here are some examples:
+Dokémon provides a REST API for automation and integration. See the included `dokemon-api.yaml` for full API documentation. Here are some 
 
 ### Authentication
 - `POST /api/v1/users` – Create user
