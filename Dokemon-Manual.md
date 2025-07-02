@@ -128,13 +128,13 @@ sudo docker run --net=host \
 
 ## API Reference
 
-Dokémon provides a REST API for automation and integration. See the included `dokemon-api.yaml` for full API documentation. Here are some examples:
+Dokémon provides a REST API for automation and integration. Here are some examples:
 
 ### Authentication
 - `POST /api/v1/users` – Create user
 - `POST /api/v1/users/login` – Login (sets auth cookie)
-  ```
-  example : curl -c dokemon-cookie.txt -X POST http://192.168.1.2:9090/api/v1/users/login \
+  ```example :
+  curl -c dokemon-cookie.txt -X POST http://192.168.1.2:9090/api/v1/users/login \
   -H "Content-Type: application/json" \
   -d '{"userName": "admin", "password": "1234567890"}'
   ```
@@ -144,15 +144,15 @@ Dokémon provides a REST API for automation and integration. See the included `d
 
 ### Nodes (Docker Hosts)
 - `GET /api/v1/nodes` – List nodes
-  ```
-  example : curl -b dokemon-cookie.txt "http://192.168.1.2:9090/api/v1/nodes?p=1&s=10"
+  ```example :
+  curl -b dokemon-cookie.txt "http://192.168.1.2:9090/api/v1/nodes?p=1&s=10"
   ```
 - `POST /api/v1/nodes` – Create node
 - `PUT /api/v1/nodes/:id` – Update node
 - `PATCH /api/v1/nodes/:id` – Update node container base URL
 - `GET /api/v1/nodes/:id` – Get node details
-  ```
-  example : curl -b dokemon-cookie.txt http://192.168.1.2:9090/api/v1/nodes/1
+  ```example :
+  curl -b dokemon-cookie.txt http://192.168.1.2:9090/api/v1/nodes/1
   ```
 - `DELETE /api/v1/nodes/:id` – Delete node
 - `POST /api/v1/nodes/:id/generatetoken` – Generate agent registration token
