@@ -192,8 +192,8 @@ Dokémon provides a REST API for automation and integration. See the included `d
 ```
 - `GET /api/v1/nodes/:nodeId/containers/:id/logs` – View container logs
   ``` example
-  curl -X GET http://<host>:<port>/api/v1/nodes/<nodeId>/containers/<containerId>/logs \
-  -b "cookie=YOUR_SESSION_COOKIE"
+  wscat -c ws://<host>:<port>/api/v1/nodes/<nodeId>/containers/<containerId>/logs \
+  --header "Cookie: <YOUR_SESSION_COOKIE>"
 ```
 - `GET /api/v1/nodes/:nodeId/containers/:id/terminal` – Open container terminal (WebSocket)
 
