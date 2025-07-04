@@ -159,6 +159,9 @@ Dokémon provides a REST API for automation and integration. See the included `d
 
 ### Containers
 - `GET /api/v1/nodes/:nodeId/containers` – List containers
+  ``` example:
+  curl -b dokemon-cookie.txt http://192.168.1.2:9090/api/v1/nodes/1/containers
+  ```
 - `POST /api/v1/nodes/:nodeId/containers/start` – Start container
 - `POST /api/v1/nodes/:nodeId/containers/stop` – Stop container
 - `POST /api/v1/nodes/:nodeId/containers/restart` – Restart container
