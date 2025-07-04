@@ -163,9 +163,33 @@ Dokémon provides a REST API for automation and integration. See the included `d
   curl -b dokemon-cookie.txt http://192.168.1.2:9090/api/v1/nodes/1/containers
   ```
 - `POST /api/v1/nodes/:nodeId/containers/start` – Start container
+  ``` # Start container
+  curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/start \
+  -H "Content-Type: application/json" \
+  -b dokemon-cookie.txt \
+  -d '{"id":"<containerId>"}'
+  ```
 - `POST /api/v1/nodes/:nodeId/containers/stop` – Stop container
+  ``` # Stop container
+  curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/stop \
+  -H "Content-Type: application/json" \
+  -b dokemon-cookie.txt \
+  -d '{"id":"<containerId>"}'
+  ```
 - `POST /api/v1/nodes/:nodeId/containers/restart` – Restart container
+  ``` # Restart container
+  curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/restart \
+  -H "Content-Type: application/json" \
+  -b dokemon-cookie.txt \
+  -d '{"id":"<containerId>"}'
+  ```
 - `POST /api/v1/nodes/:nodeId/containers/remove` – Remove container
+  ``` # Remove (delete) container
+  curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/remove \
+  -H "Content-Type: application/json" \
+  -b dokemon-cookie.txt \
+  -d '{"id":"<containerId>","force":true}'
+```
 - `GET /api/v1/nodes/:nodeId/containers/:id/logs` – View container logs
 - `GET /api/v1/nodes/:nodeId/containers/:id/terminal` – Open container terminal (WebSocket)
 
