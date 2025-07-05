@@ -149,6 +149,13 @@ Dokémon provides a REST API for automation and integration. See the included `d
   ```
 - `POST /api/v1/nodes` – Create node
 - `PUT /api/v1/nodes/:id` – Update node
+  ``` example
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X PUT \
+  -d '{"name":"NEW_NAME","environmentId":ENV_ID}' \
+  http://<ip>:<port>/api/v1/nodes/<nodeId>
+  ```
 - `PATCH /api/v1/nodes/:id` – Update node container base URL
 - `GET /api/v1/nodes/:id` – Get node details
   ```example :
@@ -300,6 +307,10 @@ Dokémon provides a REST API for automation and integration. See the included `d
 
 ### Environments
 - `GET /api/v1/environments` – List environments
+  ``` example
+  curl -b dokemon-cookie.txt \
+  http://<ip>:<port>/api/v1/environments?p=1&s=100
+  ```
 - `POST /api/v1/environments` – Create environment
 - `PUT /api/v1/environments/:id` – Update environment
 - `DELETE /api/v1/environments/:id` – Delete environment
