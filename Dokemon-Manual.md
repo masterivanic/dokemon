@@ -234,6 +234,7 @@ Dokémon provides a REST API for automation and integration. See the included `d
   -d '{"name":"myvolume","driver":"local"}' \
   http://<host>:<port>/api/v1/nodes/<nodeId>/volumes/create
   ```
+  * Note works only on Server not remote (yet)
 - `POST /api/v1/nodes/:nodeId/volumes/remove` – Remove volume
   ```
   curl -b dokemon-cookie.txt \
