@@ -254,6 +254,9 @@ Dokémon provides a REST API for automation and integration. See the included `d
 
 ### Networks
 - `GET /api/v1/nodes/:nodeId/networks` – List networks
+  ``` example
+  curl -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/networks
+  ```
 - `POST /api/v1/nodes/:nodeId/networks/create` – Create network
 - `POST /api/v1/nodes/:nodeId/networks/remove` – Remove network
 - `POST /api/v1/nodes/:nodeId/networks/prune` – Prune networks
