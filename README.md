@@ -24,17 +24,62 @@ Dokémon (Dokemon) is a friendly GUI for managing Docker Containers. You can man
 
 You can run the below commands to quickly try out Dokémon (Dokemon).
 
+Directory Version
+
     # Create directory to store Dokémon (Dokemon) data
     sudo mkdir /dokemondata
 
     # Run Dokemon
     sudo docker run -p 9090:9090 -p 9443:9443\
-      --net=bridge \
+      --net=host \
       -v /dokemondata:/data \
       -v /var/run/docker.sock:/var/run/docker.sock \
       --restart unless-stopped \
       --name dokemon-server -d javastraat/dokemon-server:latest
 
+Volume Version
+
+    # Create Docker volume for Dokémon data
+    sudo docker volume create dokemondata
+
+    # Run Dokémon with volume
+    sudo docker run -p 9090:9090 \
+      --net=host \
+      -v dokemondata:/data \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      --restart unless-stopped \
+      --name dokemon-server -d javastraat/dokemon-server:latest
+
+Docker Compose Directory Version
+    
+    version: "3"
+    services:
+      dokemon-server:
+        container_name: dokemon-server
+        image: javastraat/dokemon-server:latest
+        ports:
+          - 9090:9090
+        volumes:
+          - /dokemondata:/data
+          - /var/run/docker.sock:/var/run/docker.sock
+        restart: unless-stopped  
+
+Docker Compose Volume Version
+
+    version: "3"
+    services:
+      dokemon-server:
+        container_name: dokemon-server
+        image: javastraat/dokemon-server:latest
+        ports:
+          - 9090:9090
+        volumes:
+          - dokemondata:/data
+          - /var/run/docker.sock:/var/run/docker.sock
+        restart: unless-stopped
+    volumes:
+        dokemondata:
+    
 **Note:** Whenever possible, it is recommended that you run Dokémon (Dokemon) in a private network and do not expose it to the Internet. In cases where this is not possible, for example when running on a VPS to which you only have public access, you should run Dokémon (Dokemon) behind an SSL enabled reverse proxy and use a strong password for maximum security. Refer the next section for sample configuration using Traefik.
 
 ## Using Traefik with LetsEncrypt SSL certificate
