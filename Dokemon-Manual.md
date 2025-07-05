@@ -166,28 +166,28 @@ Dokémon provides a REST API for automation and integration. See the included `d
   ``` # Start container
   curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/start \
   -H "Content-Type: application/json" \
-  -b "cookie=YOUR_SESSION_COOKIE"
+   -b dokemon-cookie.txt \
   -d '{"id":"<containerId>"}'
   ```
 - `POST /api/v1/nodes/:nodeId/containers/stop` – Stop container
   ``` # Stop container
   curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/stop \
   -H "Content-Type: application/json" \
-  -b "cookie=YOUR_SESSION_COOKIE"
+   -b dokemon-cookie.txt \
   -d '{"id":"<containerId>"}'
   ```
 - `POST /api/v1/nodes/:nodeId/containers/restart` – Restart container
   ``` # Restart container
   curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/restart \
   -H "Content-Type: application/json" \
-  -b "cookie=YOUR_SESSION_COOKIE"
+   -b dokemon-cookie.txt \
   -d '{"id":"<containerId>"}'
   ```
 - `POST /api/v1/nodes/:nodeId/containers/remove` – Remove container
   ``` # Remove (delete) container
   curl -X POST http://<host>:<port>/api/v1/nodes/<nodeId>/containers/remove \
   -H "Content-Type: application/json" \
-  -b "cookie=YOUR_SESSION_COOKIE"
+  -b dokemon-cookie.txt \
   -d '{"id":"<containerId>","force":true}'
   ```
 - `GET /api/v1/nodes/:nodeId/containers/:id/logs` – View container logs
@@ -203,11 +203,11 @@ Dokémon provides a REST API for automation and integration. See the included `d
 ### Images
 - `GET /api/v1/nodes/:nodeId/images` – List images
   ``` example
-  curl -b "cookie=YOUR_SESSION_COOKIE" http://<host>:<port>/api/v1/nodes/<nodeId>/images
+  curl  -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/images
   ```
 - `POST /api/v1/nodes/:nodeId/images/remove` – Remove image
   ``` example
-  curl -b "cookie=YOUR_SESSION_COOKIE" \
+  curl  -b dokemon-cookie.txt \
   -H "Content-Type: application/json" \
   -X POST \
   -d '{"id":"sha256:YOUR_IMAGE_ID","force":false}' \
@@ -215,7 +215,7 @@ Dokémon provides a REST API for automation and integration. See the included `d
   ```
 - `POST /api/v1/nodes/:nodeId/images/prune` – Prune images
   ``` example
-  curl -b "cookie=YOUR_SESSION_COOKIE"  \
+  curl  -b dokemon-cookie.txt  \
   -H "Content-Type: application/json" \
   -X POST \
   -d '{"all":true}' \
@@ -223,9 +223,33 @@ Dokémon provides a REST API for automation and integration. See the included `d
 
 ### Volumes
 - `GET /api/v1/nodes/:nodeId/volumes` – List volumes
+  ```
+  curl -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/volumes
+  ```
 - `POST /api/v1/nodes/:nodeId/volumes/create` – Create volume
+  ``` example
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"name":"myvolume","driver":"local"}' \
+  http://<host>:<port>/api/v1/nodes/<nodeId>/volumes/create
+  ```
 - `POST /api/v1/nodes/:nodeId/volumes/remove` – Remove volume
+  ```
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"name":"myvolume"}' \
+  http://<host>:<port>/api/v1/nodes/<nodeId>/volumes/remove
+  ```
 - `POST /api/v1/nodes/:nodeId/volumes/prune` – Prune volumes
+  ```
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"all":true}' \
+  http://<host>:<port>/api/v1/nodes/<nodeId>/volumes/prune
+  ```
 
 ### Networks
 - `GET /api/v1/nodes/:nodeId/networks` – List networks
