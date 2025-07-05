@@ -227,6 +227,7 @@ Dokémon provides a REST API for automation and integration. See the included `d
   curl -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/volumes
   ```
 - `POST /api/v1/nodes/:nodeId/volumes/create` – Create volume
+  * Note works only on Server not remote (yet)
   ``` example
   curl -b dokemon-cookie.txt \
   -H "Content-Type: application/json" \
@@ -234,7 +235,6 @@ Dokémon provides a REST API for automation and integration. See the included `d
   -d '{"name":"myvolume","driver":"local"}' \
   http://<host>:<port>/api/v1/nodes/<nodeId>/volumes/create
   ```
-  * Note works only on Server not remote (yet)
 - `POST /api/v1/nodes/:nodeId/volumes/remove` – Remove volume
   ```
   curl -b dokemon-cookie.txt \
@@ -258,8 +258,30 @@ Dokémon provides a REST API for automation and integration. See the included `d
   curl -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/networks
   ```
 - `POST /api/v1/nodes/:nodeId/networks/create` – Create network
+  * Note works only on Server not remote (yet)
+  ``` example
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"name":"mynetwork","driver":"bridge"}' \
+  http://192.168.1.2:9090/api/v1/nodes/1/networks/create
+  ```
 - `POST /api/v1/nodes/:nodeId/networks/remove` – Remove network
+  ``` example
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"id":"aa53ab595fb5226bd25b168aafe0f9a5f7555ea49e57960a41ab3e5d26365aff"}' \
+  http://192.168.1.2:9090/api/v1/nodes/1/networks/remove
+  ```
 - `POST /api/v1/nodes/:nodeId/networks/prune` – Prune networks
+- ``` example
+  curl -b dokemon-cookie.txt \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"all":true}' \
+  http://192.168.1.2:9090/api/v1/nodes/1/networks/prune
+  ```
 
 ### Compose Projects
 - `GET /api/v1/nodes/:nodeId/compose` – List Compose projects
