@@ -202,6 +202,9 @@ Dokémon provides a REST API for automation and integration. See the included `d
 
 ### Images
 - `GET /api/v1/nodes/:nodeId/images` – List images
+  ``` example
+  curl -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/images
+  ```
 - `POST /api/v1/nodes/:nodeId/images/remove` – Remove image
 - `POST /api/v1/nodes/:nodeId/images/prune` – Prune images
 
