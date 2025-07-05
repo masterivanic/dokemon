@@ -197,16 +197,29 @@ Dokémon provides a REST API for automation and integration. See the included `d
   ```
 - `GET /api/v1/nodes/:nodeId/containers/:id/terminal` – Open container terminal (WebSocket)
   ``` example
-  wscat -c "ws://<server_ip>:<server_port>/api/v1/nodes/<nodeId>/containers/<containerId>/terminal" --header "Cookie: <your_cookie>"
+  wscat -c "ws://<server_ip>:<server_port>/api/v1/nodes/<nodeId>/containers/<containerId>/terminal" --header "Cookie: <YOUR_SESSION_COOKIE>"
   ```
 
 ### Images
 - `GET /api/v1/nodes/:nodeId/images` – List images
   ``` example
-  curl -b dokemon-cookie.txt http://<host>:<port>/api/v1/nodes/<nodeId>/images
+  curl -b "cookie=YOUR_SESSION_COOKIE" http://<host>:<port>/api/v1/nodes/<nodeId>/images
   ```
 - `POST /api/v1/nodes/:nodeId/images/remove` – Remove image
+  ``` example
+  curl -b "cookie=YOUR_SESSION_COOKIE" \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"id":"sha256:YOUR_IMAGE_ID","force":false}' \
+  http://<host>:<port>/api/v1/nodes/<nodeId>/images/remove
+  ```
 - `POST /api/v1/nodes/:nodeId/images/prune` – Prune images
+  ``` example
+  curl -b "cookie=YOUR_SESSION_COOKIE"  \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"all":true}' \
+  http://<host>:<port>/api/v1/nodes/<nodeId>/images/prune
 
 ### Volumes
 - `GET /api/v1/nodes/:nodeId/volumes` – List volumes
