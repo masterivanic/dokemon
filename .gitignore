@@ -34,6 +34,6 @@ make-agent-windows.bat
 # App Binaries in root directory
 /agent
 /server
-
+/node_modules
 # env secret 🤪
 .env
