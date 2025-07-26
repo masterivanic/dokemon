@@ -8,7 +8,7 @@ require (
 	github.com/GeertJohan/go.rice v1.0.3
 	github.com/containers/image/v5 v5.35.0
 	github.com/distribution/reference v0.6.0
-	github.com/docker/docker v28.2.2+incompatible
+	github.com/docker/docker v28.3.2+incompatible
 	github.com/gabemarshall/pty v0.0.0-20220927143247-d84f0bb0c17e
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-playground/validator/v10 v10.27.0
