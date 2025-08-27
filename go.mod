@@ -1,8 +1,6 @@
 module github.com/dokemon-ng/dokemon
 
-go 1.23.3
-
-toolchain go1.24.0
+go 1.24.0
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
@@ -33,11 +31,11 @@ require (
 	github.com/daaku/go.zipexe v1.0.2 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect
-	github.com/docker/go-connections v0.5.0 // indirect
+	github.com/docker/go-connections v0.6.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -66,19 +64,19 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
-	go.opentelemetry.io/otel v1.36.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0 // indirect
+	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.36.0 // indirect
-	go.opentelemetry.io/otel/metric v1.36.0 // indirect
-	go.opentelemetry.io/otel/trace v1.36.0 // indirect
-	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	go.opentelemetry.io/otel/metric v1.37.0 // indirect
+	go.opentelemetry.io/otel/trace v1.37.0 // indirect
+	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
+	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	modernc.org/libc v1.65.10 // indirect
+	modernc.org/libc v1.66.7 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.38.0 // indirect
+	modernc.org/sqlite v1.38.2 // indirect
 )
