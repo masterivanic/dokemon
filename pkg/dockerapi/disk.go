@@ -7,17 +7,11 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/build"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 )
-
-type ResourceStats struct {
-	Total       int
-	Active      int
-	Size        int64
-	Reclaimable int64
-}
 
 func calculateImageStats(images []*image.Summary) ResourceStats {
 	var stats ResourceStats
@@ -25,7 +19,7 @@ func calculateImageStats(images []*image.Summary) ResourceStats {
 	for _, img := range images {
 		stats.Size += img.Size
 		if img.Containers == 0 {
-			stats.Reclaimable += img.Size
+			stats.Reclaimable += img.Size - img.SharedSize
 		} else {
 			stats.Active++
 		}
@@ -50,12 +44,12 @@ func calculateContainerStats(containers []*container.Summary) ResourceStats {
 func calculateVolumeStats(volumes []*volume.Volume) ResourceStats {
 	var stats ResourceStats
 	stats.Total = len(volumes)
-	stats.Active = stats.Total
 	for _, vol := range volumes {
 		if vol.UsageData != nil {
 			stats.Size += vol.UsageData.Size
 		}
 	}
+	stats.Active = stats.Total
 	return stats
 }
 
@@ -120,10 +114,11 @@ func GetDiskUsage() (*DiskUsageSummary, error) {
 		return nil, err
 	}
 
-	imageStats := calculateImageStats(diskUsage.Images)
-	containerStats := calculateContainerStats(diskUsage.Containers)
-	volumeStats := calculateVolumeStats(diskUsage.Volumes)
-	buildCacheStats := calculateBuildCacheStats(diskUsage.BuildCache)
+	var imageStats, containerStats, volumeStats, buildCacheStats ResourceStats
+	imageStats = calculateImageStats(diskUsage.Images)
+	containerStats = calculateContainerStats(diskUsage.Containers)
+	volumeStats = calculateVolumeStats(diskUsage.Volumes)
+	buildCacheStats = calculateBuildCacheStats(diskUsage.BuildCache)
 
 	return &DiskUsageSummary{
 		Categories: []DiskUsageCategory{
@@ -132,5 +127,33 @@ func GetDiskUsage() (*DiskUsageSummary, error) {
 			createDiskUsageCategory("Local Volumes", volumeStats),
 			createDiskUsageCategory("Build Cache", buildCacheStats),
 		},
+	}, nil
+}
+
+func BuildCacheRemove(req *BuildCachePruneRequest) (*BuildCachePruneReport, error) {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, err
+	}
+
+	opts := build.CachePruneOptions{
+		All: req.All,
+	}
+
+	if req.Filters != nil {
+		opts.Filters = filters.Args{}
+		for key, value := range req.Filters {
+			opts.Filters.Add(key, value)
+		}
+	}
+
+	report, err := cli.BuildCachePrune(context.Background(), opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BuildCachePruneReport{
+		CachesDeleted:  report.CachesDeleted,
+		SpaceReclaimed: report.SpaceReclaimed,
 	}, nil
 }
