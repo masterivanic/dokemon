@@ -877,6 +877,45 @@ paths:
         '204':
           description: Variable deleted
 
+  /disk:
+    get:
+      summary: Get disk usage information
+      description: Displays information regarding the amount of disk space used by the Docker daemon.
+      responses:
+        '200':
+          description: Disk usage information
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Internal server error
+
+  /disk/cache/prune:
+    post:
+      summary: Clean docker build cache
+      description: Prunes the Docker build cache to reclaim disk space.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                all:
+                  type: boolean
+                  description: Remove all unused build cache, not just dangling ones
+              required:
+                - all
+      responses:
+        '200':
+          description: Build cache pruned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Internal server error
   /ws:
     get:
       summary: WebSocket endpoint for agent/browser communication
