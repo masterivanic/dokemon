@@ -326,7 +326,7 @@ type ResourceStats struct {
 }
 
 type DockerBuildCachePrune struct {
-	All bool `json:"all"` // Remove all unused images, not just dangling
+	All bool `json:"all"`
 }
 
 type BuildCachePruneReport struct {
