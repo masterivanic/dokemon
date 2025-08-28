@@ -174,7 +174,6 @@ type DockerComposeGet struct {
 	ProjectName string `json:"projectName"`
 }
 
-// Network types
 type DockerNetworkCreate struct {
 	Name       string
 	Driver     string
@@ -317,4 +316,25 @@ type DiskUsageCategory struct {
 	Size               string `json:"size"`
 	Reclaimable        string `json:"reclaimable"`
 	ReclaimablePercent string `json:"reclaimablePercent"`
+}
+
+type ResourceStats struct {
+	Total       int
+	Active      int
+	Size        int64
+	Reclaimable int64
+}
+
+type DockerBuildCachePrune struct {
+	All bool `json:"all"`
+}
+
+type BuildCachePruneReport struct {
+	CachesDeleted  []string `json:"cachesDeleted"`
+	SpaceReclaimed uint64   `json:"spaceReclaimed"`
+}
+
+type BuildCachePruneRequest struct {
+	All     bool              `query:"all"`
+	Filters map[string]string `query:"filters"`
 }

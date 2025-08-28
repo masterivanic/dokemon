@@ -1,12 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import Loading from "@/components/widgets/loading";
 import useDisk from "@/hooks/useDisk";
 import {
-  Chart as ChartJS,
+  Chart,
   ArcElement,
   Tooltip,
   Legend,
   ChartOptions,
+  TooltipItem,
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import MainArea from "@/components/widgets/main-area";
@@ -15,12 +16,15 @@ import { Button } from "@/components/ui/button"
 import { Breadcrumb, BreadcrumbCurrent, BreadcrumbLink, BreadcrumbSeparator } from "@/components/widgets/breadcrumb";
 import TopBarActions from "@/components/widgets/top-bar-actions";
 import MainContent from "@/components/widgets/main-content";
+import DeleteDialog from "@/components/delete-dialog";
+import apiBaseUrl from "@/lib/api-base-url";
+import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+Chart.register(ArcElement, Tooltip, Legend);
 
 export default function DiskUsage() {
   const { isLoading, diskUsage, mutateDisk } = useDisk();
-  const chartRef = useRef<any>(null);
+  const [pruneInProgress, setPruneInProgress] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,6 +36,32 @@ export default function DiskUsage() {
 
   if (isLoading) return <Loading />;
   if (!diskUsage) return <div>No disk usage data available</div>;
+
+  const handlePrune = async () => {
+    setPruneInProgress(true)
+    const response = await fetch(`${apiBaseUrl()}/disk/cache/prune`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ all: true }),
+    })
+    if (!response.ok) {
+        const r = await response.json()
+        toastFailed(r.errors?.body)
+    } else {
+      mutateDisk()
+      const r = await response.json()
+      let description = "Nothing to delete from docker build cache"
+      if (r.cachesDeleted?.length > 0){
+        description = `Build cache deleted. Space reclaimed : ${convertByteToMb(
+          r.spaceReclaimed
+        )}`
+      }
+      setTimeout(async () => {
+        toastSuccess(description)
+      }, 500)
+    }
+    setPruneInProgress(false)
+  }
 
   const chartData = {
     labels: diskUsage.categories.map((cat) => cat.type),
@@ -86,7 +116,7 @@ export default function DiskUsage() {
       },
       tooltip: {
         callbacks: {
-          label: function(context) {
+          label: function(context: TooltipItem<"doughnut">) {
             const label = context.label || '';
             const category = diskUsage.categories[context.dataIndex];
             return `${label}: ${category.size} (${category.reclaimable} reclaimable)`;
@@ -140,6 +170,14 @@ export default function DiskUsage() {
             </svg>
             Refresh Data
           </Button>
+          <DeleteDialog
+            widthClass="w-42"
+            deleteCaption="Clean build cache (Prune All)"
+            deleteHandler={handlePrune}
+            isProcessing={pruneInProgress}
+            title="Clean cache"
+            message={`Are you sure you want to clean docker build cache ?`}
+          />
         </TopBarActions>
       </TopBar>
 
@@ -150,7 +188,7 @@ export default function DiskUsage() {
               Storage Distribution
             </h2>
             <div className="h-96">
-              <Doughnut ref={chartRef} data={chartData} options={chartOptions} />
+              <Doughnut data={chartData} options={chartOptions} />
             </div>
           </div>
 

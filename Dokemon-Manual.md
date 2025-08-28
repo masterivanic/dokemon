@@ -321,6 +321,11 @@ Dokémon provides a REST API for automation and integration. See the included `d
 - `PUT /api/v1/variables/:id` – Update variable
 - `DELETE /api/v1/variables/:id` – Delete variable
 
+## Disk Usage
+- `GET /api/v1/disk` – displays information regarding the amount of disk space used by the Docker daemon.
+- `POST /api/v1/disk/cache/prune` – Clean docker build cache
+
+
 ### WebSocket
 - `GET /ws` – WebSocket endpoint for agent/browser communication
 

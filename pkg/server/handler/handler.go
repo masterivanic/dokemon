@@ -189,6 +189,7 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	disk_usage := v1.Group("/disk")
 	disk_usage.GET("", h.GetDiskUsage)
+	disk_usage.POST("/cache/prune", h.PruneBuildCache)
 
 	variablevalues := variables.Group("/:variableId/values/:environmentId")
 	variablevalues.PUT("", h.CreateOrUpdateVariableValue)
