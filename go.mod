@@ -16,7 +16,7 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/rs/zerolog v1.34.0
 	golang.org/x/crypto v0.41.0
-	gorm.io/gorm v1.30.1
+	gorm.io/gorm v1.30.5
 )
 
 require (
