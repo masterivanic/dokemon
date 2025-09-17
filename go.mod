@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/containers/image/v5 v5.36.1
+	github.com/containers/image/v5 v5.36.2
 	github.com/distribution/reference v0.6.0
 	github.com/docker/docker v28.3.3+incompatible
 	github.com/gabemarshall/pty v0.0.0-20220927143247-d84f0bb0c17e
