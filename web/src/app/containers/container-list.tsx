@@ -8,14 +8,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb";
 import useContainers from "@/hooks/useContainers";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import apiBaseUrl from "@/lib/api-base-url";
 import { IContainer, IPort } from "@/lib/api-models";
@@ -35,13 +27,14 @@ import {
   toastSomethingWentWrong,
 } from "@/lib/utils";
 import TableButtonDelete from "@/components/widgets/table-button-delete";
-import { TableNoData } from "@/components/widgets/table-no-data";
 import DeleteDialog from "@/components/delete-dialog";
 import { Input } from "@/components/ui/input";
 import { useFilterAndSort } from "@/hooks/useFilterAndSort";
 import { usePagination } from "@/lib/pagination";
-import PaginationFooter from "@/components/ui/pagination-footer";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { DataTable, DataTableColumnHeader } from "@/components/ui/data-table";
+import { ColumnDef } from "@tanstack/react-table";
+
 
 export default function ContainerList() {
   const { nodeId } = useParams();
@@ -57,15 +50,13 @@ export default function ContainerList() {
     searchTerm,
     setSearchTerm,
     sortedItems: sortedContainers = [],
-    requestSort,
-    sortConfig
   } = useFilterAndSort<IContainer>(containers?.items || [], {
     initialSortKey: "name",
     initialSortDirection: "asc",
     filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
 
-  const [paginationConfig, paginationFunctions, paginatedContainers] = usePagination(
+  const [paginationConfig, paginationFunctions] = usePagination(
     sortedContainers,
     10
   );
@@ -231,6 +222,212 @@ export default function ContainerList() {
     return arr;
   }
 
+  const columns: ColumnDef<IContainer>[] = [
+    {
+      accessorKey: "state",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="State" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.state == "exited" ? (
+          <Badge variant="destructive" title={item.status}>
+            {item.state}
+          </Badge>
+        ) : (
+          <Badge variant="default" title={item.status}>
+            {item.state}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <button
+            className="font-bold hover:underline hover:text-blue-600 dark:hover:text-blue-400"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+            }}
+            title={`View logs for ${item.name}`}
+          >
+            {item.name}
+          </button>
+        );
+      },
+    },
+    {
+      accessorKey: "image",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Image" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <>
+            <StaleStatusIcon status={item.stale} />
+            {item.image.startsWith("sha256:")
+              ? item.image.replace("sha256:", "").slice(0, 10)
+              : item.image}
+          </>
+        );
+      },
+    },
+    {
+      accessorKey: "ports",
+      header: "Ports",
+      cell: ({ row }) => {
+        const item = row.original;
+        return getPortsHtml(item.ports);
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="flex items-center gap-1">
+            {isDokemonContainer(item) && (
+              <button
+                className={`p-1 rounded text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-800 ${isUpgrading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title="Upgrade"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const type = item.image.includes('agent') ? 'agent' : 'server';
+                  handleUpgrade(type);
+                }}
+                disabled={isUpgrading}
+              >
+                <ArrowDownTrayIcon className="w-4 h-4" />
+              </button>
+            )}
+            {item.state === "running" ? (
+              <>
+                <button
+                  className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Terminal"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/nodes/${nodeId}/containers/${item.name}/terminal`);
+                  }}
+                >
+                  <Terminal className="w-4 h-4" />
+                </button>
+                <button
+                  className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Logs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                  }}
+                >
+                  <ScrollText className="w-4 h-4" />
+                </button>
+                <button
+                  className="p-1 rounded text-amber-500 dark:text-amber-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Restart"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRestartContainer(item.id);
+                  }}
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                </button>
+                <button
+                  className="p-1 rounded text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Stop"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStopContainer(item.id);
+                  }}
+                >
+                  <StopIcon className="w-4 h-4" />
+                </button>
+                <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                  <TableButtonDelete
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteContainerConfirmation(item);
+                    }}
+                  />
+                </div>
+              </>
+            ) : item.state === "exited" ? (
+              <>
+                <button
+                  className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Logs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                  }}
+                >
+                  <ScrollText className="w-4 h-4" />
+                </button>
+                <button
+                  className="p-1 rounded text-green-600 dark:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Start"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartContainer(item.id);
+                  }}
+                >
+                  <PlayIcon className="w-4 h-4" />
+                </button>
+                <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                  <TableButtonDelete
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteContainerConfirmation(item);
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <button
+                  className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Logs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
+                  }}
+                >
+                  <ScrollText className="w-4 h-4" />
+                </button>
+                <button
+                  className="p-1 rounded text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  title="Stop"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStopContainer(item.id);
+                  }}
+                >
+                  <StopIcon className="w-4 h-4" />
+                </button>
+                <div className="inline-flex text-gray-60 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                  <TableButtonDelete
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteContainerConfirmation(item);
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <MainArea>
       {deleteContainerConfirmationOpen && (
@@ -280,218 +477,12 @@ export default function ContainerList() {
             )}
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("state")}
-              >
-                <div className="flex items-center">
-                  State
-                  {sortConfig.key === "state" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("name")}
-              >
-                <div className="flex items-center">
-                  Name
-                  {sortConfig.key === "name" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead scope="col">Image</TableHead>
-              <TableHead scope="col">Ports</TableHead>
-              <TableHead scope="col">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedContainers.length === 0 ? (
-              <TableNoData colSpan={5} />
-            ) : (
-              paginatedContainers.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    {item.state == "exited" ? (
-                      <Badge variant="destructive" title={item.status}>
-                        {item.state}
-                      </Badge>
-                    ) : (
-                      <Badge variant="default" title={item.status}>
-                        {item.state}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <button
-                      className="font-bold hover:underline hover:text-blue-600 dark:hover:text-blue-400"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
-                      }}
-                      title={`View logs for ${item.name}`}
-                    >
-                      {item.name}
-                    </button>
-                  </TableCell>
-                  <TableCell>
-                    <StaleStatusIcon status={item.stale} />
-                    {item.image.startsWith("sha256:")
-                      ? item.image.replace("sha256:", "").slice(0, 10)
-                      : item.image}
-                  </TableCell>
-                  <TableCell>{getPortsHtml(item.ports)}</TableCell>
-                  <TableCell className="text-left">
-                    <div className="flex items-center gap-1">
-                      {isDokemonContainer(item) && (
-                        <button
-                          className={`p-1 rounded text-purple-600 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-800 ${isUpgrading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          title="Upgrade"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const type = item.image.includes('agent') ? 'agent' : 'server';
-                            handleUpgrade(type);
-                          }}
-                          disabled={isUpgrading}
-                        >
-                          <ArrowDownTrayIcon className="w-4 h-4" />
-                        </button>
-                      )}
-                      {item.state === "running" ? (
-                        <>
-                          <button
-                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Terminal"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/nodes/${nodeId}/containers/${item.name}/terminal`);
-                            }}
-                          >
-                            <Terminal className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Logs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
-                            }}
-                          >
-                            <ScrollText className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 rounded text-amber-500 dark:text-amber-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Restart"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRestartContainer(item.id);
-                            }}
-                          >
-                            <ArrowPathIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 rounded text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Stop"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStopContainer(item.id);
-                            }}
-                          >
-                            <StopIcon className="w-4 h-4" />
-                          </button>
-                          <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                            <TableButtonDelete
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteContainerConfirmation(item);
-                              }}
-                            />
-                          </div>
-                        </>
-                      ) : item.state === "exited" ? (
-                        <>
-                          <button
-                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Logs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
-                            }}
-                          >
-                            <ScrollText className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 rounded text-green-600 dark:text-green-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Start"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStartContainer(item.id);
-                            }}
-                          >
-                            <PlayIcon className="w-4 h-4" />
-                          </button>
-                          <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                            <TableButtonDelete
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteContainerConfirmation(item);
-                              }}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            className="p-1 rounded text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Logs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/nodes/${nodeId}/containers/${item.name}/logs`);
-                            }}
-                          >
-                            <ScrollText className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 rounded text-red-600 dark:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Stop"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStopContainer(item.id);
-                            }}
-                          >
-                            <StopIcon className="w-4 h-4" />
-                          </button>
-                          <div className="inline-flex text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                            <TableButtonDelete
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteContainerConfirmation(item);
-                              }}
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <PaginationFooter
+        <DataTable
+          columns={columns}
+          data={sortedContainers}
           paginationConfig={paginationConfig}
           paginationFunctions={paginationFunctions}
+          noDataMessage="No containers found"
         />
       </MainContent>
     </MainArea>
