@@ -56,9 +56,10 @@ export default function ContainerList() {
     filterKeys: ['name', 'image', 'state', 'id'] as (keyof IContainer)[]
   });
 
-  const [paginationConfig, paginationFunctions] = usePagination(
+  const [paginationConfig, paginationFunctions, paginatedContainers] = usePagination(
     sortedContainers,
-    10
+    5,
+    `containers_${nodeId}`
   );
 
   const isDokemonContainer = (container: IContainer) => {
@@ -479,7 +480,7 @@ export default function ContainerList() {
         </div>
         <DataTable
           columns={columns}
-          data={sortedContainers}
+          data={paginatedContainers}
           paginationConfig={paginationConfig}
           paginationFunctions={paginationFunctions}
           noDataMessage="No containers found"
