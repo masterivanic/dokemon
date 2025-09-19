@@ -5,14 +5,6 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { INetwork } from "@/lib/api-models"
 import { useState } from "react"
 import useNetworks from "@/hooks/useNetworks"
@@ -23,7 +15,6 @@ import MainContent from "@/components/widgets/main-content"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
-import { TableNoData } from "@/components/widgets/table-no-data"
 import { toastFailed, toastSuccess } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
@@ -33,7 +24,8 @@ import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid"
 import { Button } from "@/components/ui/button"
 import NetworkCreateDialog from "./network-create"
 import { usePagination } from "@/lib/pagination"
-import PaginationFooter from "@/components/ui/pagination-footer"
+import { DataTable, DataTableColumnHeader } from "@/components/ui/data-table"
+import { ColumnDef } from "@tanstack/react-table"
 
 const systemNetworks = [
   "none",
@@ -60,8 +52,6 @@ export default function NetworkList() {
     searchTerm,
     setSearchTerm,
     sortedItems: sortedNetworks = [],
-    requestSort,
-    sortConfig
   } = useFilterAndSort<INetwork>(networks?.items || [], {
     initialSortKey: "name",
     initialSortDirection: "asc",
@@ -70,7 +60,8 @@ export default function NetworkList() {
 
   const [paginationConfig, paginationFunctions, paginatedNetworks] = usePagination(
     sortedNetworks,
-    10
+    10,
+    `networks_${nodeId}`
   )
 
   if (isLoading) return <Loading />
@@ -130,6 +121,74 @@ export default function NetworkList() {
     }
     setPruneInProgress(false)
   }
+
+  const columns: ColumnDef<INetwork>[] = [
+    {
+      accessorKey: "id",
+      header: "Id",
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.id.substring(0, 12);
+      },
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.name;
+      },
+    },
+    {
+      accessorKey: "driver",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Driver" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.driver;
+      },
+    },
+    {
+      accessorKey: "scope",
+      header: "Scope",
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.scope;
+      },
+    },
+    {
+      accessorKey: "inUse",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.inUse ? "In use" : "Unused";
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="text-right">
+            {!systemNetworks.includes(item.name) && !item.inUse && (
+              <TableButtonDelete
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteNetworkConfirmation(item);
+                }}
+              />
+            )}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <MainArea>
@@ -200,87 +259,12 @@ export default function NetworkList() {
             )}
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead scope="col">Id</TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("name")}
-              >
-                <div className="flex items-center">
-                  Name
-                  {sortConfig.key === "name" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("driver")}
-              >
-                <div className="flex items-center">
-                  Driver
-                  {sortConfig.key === "driver" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead scope="col">Scope</TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("inUse")}
-              >
-                <div className="flex items-center">
-                  Status
-                  {sortConfig.key === "inUse" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead scope="col">
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedNetworks.length === 0 ? (
-              <TableNoData colSpan={6} />
-            ) : (
-              paginatedNetworks.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.id.substring(0, 12)}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.driver}</TableCell>
-                  <TableCell>{item.scope}</TableCell>
-                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
-                  <TableCell className="text-right">
-                    {!systemNetworks.includes(item.name) && !item.inUse && (
-                      <TableButtonDelete
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteNetworkConfirmation(item)
-                        }}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <PaginationFooter
+        <DataTable
+          columns={columns}
+          data={paginatedNetworks}
           paginationConfig={paginationConfig}
           paginationFunctions={paginationFunctions}
+          noDataMessage="No networks found"
         />
       </MainContent>
     </MainArea>

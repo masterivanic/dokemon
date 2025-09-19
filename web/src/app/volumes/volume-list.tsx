@@ -7,14 +7,6 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +24,6 @@ import TopBar from "@/components/widgets/top-bar";
 import TopBarActions from "@/components/widgets/top-bar-actions";
 import MainContent from "@/components/widgets/main-content";
 import TableButtonDelete from "@/components/widgets/table-button-delete";
-import { TableNoData } from "@/components/widgets/table-no-data";
 import DeleteDialog from "@/components/delete-dialog";
 import useVolumes from "@/hooks/useVolumes";
 import useNodeHead from "@/hooks/useNodeHead";
@@ -41,8 +32,8 @@ import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils";
 import apiBaseUrl from "@/lib/api-base-url";
 import { useFilterAndSort } from "@/hooks/useFilterAndSort";
 import { usePagination } from "@/lib/pagination";
-import PaginationFooter from "@/components/ui/pagination-footer";
-
+import { DataTable, DataTableColumnHeader } from "@/components/ui/data-table";
+import { ColumnDef } from "@tanstack/react-table";
 
 export default function VolumeList() {
   const { nodeId } = useParams();
@@ -62,8 +53,6 @@ export default function VolumeList() {
     searchTerm,
     setSearchTerm,
     sortedItems: sortedVolumes = [],
-    requestSort,
-    sortConfig
   } = useFilterAndSort<IVolume>(volumes?.items || [], {
     initialSortKey: "driver",
     initialSortDirection: "asc",
@@ -72,7 +61,8 @@ export default function VolumeList() {
 
   const [paginationConfig, paginationFunctions, paginatedVolumes] = usePagination(
     sortedVolumes,
-    10
+    10,
+    `volumes_${nodeId}`
   )
 
   if (isLoading) return <Loading />;
@@ -163,6 +153,58 @@ export default function VolumeList() {
     }
     setCreateInProgress(false);
   };
+
+  const columns: ColumnDef<IVolume>[] = [
+    {
+      accessorKey: "driver",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Driver" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.driver;
+      },
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.name;
+      },
+    },
+    {
+      accessorKey: "inUse",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.inUse ? "In use" : "Unused";
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="text-right">
+            {!item.inUse && (
+              <TableButtonDelete
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteVolumeConfirmation(item);
+                }}
+              />
+            )}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <MainArea>
@@ -275,84 +317,12 @@ export default function VolumeList() {
             )}
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("driver")}
-              >
-                <div className="flex items-center">
-                  Driver
-                  {sortConfig.key === "driver" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("name")}
-              >
-                <div className="flex items-center">
-                  Name
-                  {sortConfig.key === "name" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("inUse")}
-              >
-                <div className="flex items-center">
-                  Status
-                  {sortConfig.key === "inUse" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead scope="col">
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedVolumes.length === 0 ? (
-              <TableNoData colSpan={4} />
-            ) : (
-              paginatedVolumes.map((item) => (
-                <TableRow key={item.name}>
-                  <TableCell>{item.driver}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
-                  <TableCell className="text-right">
-                    {!item.inUse && (
-                      <TableButtonDelete
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteVolumeConfirmation(item);
-                        }}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <PaginationFooter
+        <DataTable
+          columns={columns}
+          data={paginatedVolumes}
           paginationConfig={paginationConfig}
           paginationFunctions={paginationFunctions}
-          pageSizeOptions={[5, 10, 25, 50, 100]}
+          noDataMessage="No volumes found"
         />
       </MainContent>
     </MainArea>

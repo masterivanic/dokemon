@@ -3,7 +3,9 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
   useReactTable,
+  SortingState,
 } from "@tanstack/react-table"
 
 import {
@@ -14,6 +16,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import PaginationFooter from "@/components/ui/pagination-footer";
+import { ArrowUpDown } from "lucide-react";
+import { useState } from "react";
+
+interface DataTableColumnHeaderProps {
+  column: any;
+  title: string;
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -22,35 +32,67 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (item: TData) => any
   idVisible?: boolean
   globalFilter?: string
+  paginationConfig?: any
+  paginationFunctions?: any
+  noDataMessage?: string
   onGlobalFilterChange?: (value: string) => void
+}
+
+export function DataTableColumnHeader({ column, title }: DataTableColumnHeaderProps) {
+  const sortDirection = column.getIsSorted();
+
+  return (
+    <div
+      className="flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    >
+      {title}
+      {sortDirection && (
+        <span className="ml-1">
+          {sortDirection === "asc" ? "↑" : "↓"}
+        </span>
+      )}
+      {!sortDirection && (
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      )}
+    </div>
+  );
 }
 
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onRowClickId: onRowClickId,
-  onRowClick: onRowClick,
+  onRowClickId,
+  onRowClick,
   idVisible = false,
+  noDataMessage = "No results.",
   globalFilter = "",
+  paginationConfig,
+  paginationFunctions,
   onGlobalFilterChange,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([])
+
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
+      sorting,
       globalFilter,
     },
+    onSortingChange: setSorting,
     onGlobalFilterChange,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     initialState: {
       columnVisibility: { id: idVisible },
     },
   })
 
   return (
-    <>
+    <div className="space-y-4">
       {onGlobalFilterChange && (
         <div className="mb-2">
           <input
@@ -113,13 +155,20 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {noDataMessage}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-    </>
+
+      {paginationConfig && paginationFunctions && (
+        <PaginationFooter
+          paginationConfig={paginationConfig}
+          paginationFunctions={paginationFunctions}
+        />
+      )}
+    </div>
   )
 }

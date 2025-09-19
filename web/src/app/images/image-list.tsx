@@ -5,14 +5,6 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { IImage } from "@/lib/api-models"
 import { useState } from "react"
 import useImages from "@/hooks/useImages"
@@ -24,15 +16,14 @@ import MainContent from "@/components/widgets/main-content"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
-import { TableNoData } from "@/components/widgets/table-no-data"
 import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
 import { useFilterAndSort } from "@/hooks/useFilterAndSort"
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid"
 import { Input } from "@/components/ui/input"
 import { usePagination } from "@/lib/pagination"
-import PaginationFooter from "@/components/ui/pagination-footer";
-
+import { DataTable, DataTableColumnHeader } from "@/components/ui/data-table"
+import { ColumnDef } from "@tanstack/react-table"
 
 export default function ImageList() {
   const { nodeId } = useParams()
@@ -48,8 +39,6 @@ export default function ImageList() {
     searchTerm,
     setSearchTerm,
     sortedItems: sortedImages = [],
-    requestSort,
-    sortConfig
   } = useFilterAndSort<IImage>(images?.items || [], {
     initialSortKey: "name",
     initialSortDirection: "asc",
@@ -58,7 +47,8 @@ export default function ImageList() {
 
   const [paginationConfig, paginationFunctions, paginatedImages] = usePagination(
     sortedImages,
-    10
+    10,
+    `images_${nodeId}`
   )
 
   if (isLoading) return <Loading />
@@ -121,6 +111,79 @@ export default function ImageList() {
     setPruneInProgress(false)
   }
 
+  const columns: ColumnDef<IImage>[] = [
+    {
+      accessorKey: "id",
+      header: "Id",
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.id.substring(7, 19);
+      },
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.name;
+      },
+    },
+    {
+      accessorKey: "tag",
+      header: "Tag",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <>
+            {item.tag}
+            {item.dangling && (
+              <span className="text-xs text-red-400"> (Dangling)</span>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      accessorKey: "inUse",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => {
+        const item = row.original;
+        return item.inUse ? "In use" : "Unused";
+      },
+    },
+    {
+      accessorKey: "size",
+      header: "Size",
+      cell: ({ row }) => {
+        const item = row.original;
+        return convertByteToMb(item.size);
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const item = row.original;
+        return (
+          <div className="text-right">
+            {!item.inUse && (
+              <TableButtonDelete
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteImageConfirmation(item);
+                }}
+              />
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <MainArea>
       {deleteImageConfirmationOpen && (
@@ -177,79 +240,12 @@ export default function ImageList() {
             )}
           </div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead scope="col">Id</TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("name")}
-              >
-                <div className="flex items-center">
-                  Name
-                  {sortConfig.key === "name" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead scope="col">Tag</TableHead>
-              <TableHead
-                scope="col"
-                className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                onClick={() => requestSort("inUse")}
-              >
-                <div className="flex items-center">
-                  Status
-                  {sortConfig.key === "inUse" && (
-                    <span className="ml-1">
-                      {sortConfig.direction === "asc" ? "↑" : "↓"}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead scope="col">Size</TableHead>
-              <TableHead scope="col">
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedImages.length === 0 ? (
-              <TableNoData colSpan={5} />
-            ) : (
-              paginatedImages.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.id.substring(7, 19)}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>
-                    {item.tag}{" "}
-                    {item.dangling && (
-                      <span className="text-xs text-red-400"> (Dangling)</span>
-                    )}
-                  </TableCell>
-                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
-                  <TableCell>{convertByteToMb(item.size)}</TableCell>
-                  <TableCell className="text-right">
-                    {!item.inUse && (
-                      <TableButtonDelete
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteImageConfirmation(item)
-                        }}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <PaginationFooter
+        <DataTable
+          columns={columns}
+          data={paginatedImages}
           paginationConfig={paginationConfig}
           paginationFunctions={paginationFunctions}
+          noDataMessage="No images found"
         />
       </MainContent>
     </MainArea>

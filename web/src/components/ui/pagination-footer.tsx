@@ -22,7 +22,7 @@ interface PaginationFooterProps {
 export default function PaginationFooter({
   paginationConfig,
   paginationFunctions,
-  pageSizeOptions = [10, 20, 25, 50, 100],
+  pageSizeOptions = [5, 10, 20, 25, 50, 100],
   showFirstLast = true,
 }: PaginationFooterProps) {
   const {

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export interface PaginationConfig {
   pageSize: number
@@ -16,59 +16,74 @@ export interface PaginationFunctions {
   goToLastPage: () => void
 }
 
-export const usePagination = <T>(
-  items: T[],
-  initialPageSize = 10
-): [PaginationConfig, PaginationFunctions, T[]] => {
-  const [pageSize, setPageSize] = useState(initialPageSize)
-  const [currentPage, setCurrentPage] = useState(1)
+export function usePagination<T>(items: T[], defaultPageSize: number = 10, key: string) {
+  const getStoredValues = () => {
+    try {
+      const storedPageSize = localStorage.getItem(`${key}_pageSize`);
+      const storedCurrentPage = localStorage.getItem(`${key}_currentPage`);
 
-  const totalItems = items.length
-  const totalPages = Math.ceil(totalItems / pageSize)
+      return {
+        pageSize: storedPageSize ? parseInt(storedPageSize) : defaultPageSize,
+        currentPage: storedCurrentPage ? parseInt(storedCurrentPage) : 1
+      };
+    } catch {
+      return {
+        pageSize: defaultPageSize,
+        currentPage: 1
+      };
+    }
+  };
+
+  const storedValues = getStoredValues();
+  const [pageSize, setPageSize] = useState(storedValues.pageSize);
+  const [currentPage, setCurrentPage] = useState(storedValues.currentPage);
+
+  useEffect(() => {
+    localStorage.setItem(`${key}_pageSize`, pageSize.toString());
+  }, [pageSize, key]);
+
+  useEffect(() => {
+    localStorage.setItem(`${key}_currentPage`, currentPage.toString());
+  }, [currentPage, key]);
+
+  const setPersistedPageSize = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+
+  const totalItems = items.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   const paginatedItems = items.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
-  )
+  );
 
   const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
-  }
+    const validPage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(validPage);
+  };
 
-  const nextPage = () => {
-    goToPage(currentPage + 1)
-  }
-
-  const prevPage = () => {
-    goToPage(currentPage - 1)
-  }
-
-  const goToFirstPage = () => {
-    goToPage(1)
-  }
-
-  const goToLastPage = () => {
-    goToPage(totalPages)
-  }
+  const goToFirstPage = () => goToPage(1);
+  const goToLastPage = () => goToPage(totalPages);
+  const prevPage = () => goToPage(currentPage - 1);
+  const nextPage = () => goToPage(currentPage + 1);
 
   const paginationConfig: PaginationConfig = {
-    pageSize,
     currentPage,
+    pageSize,
     totalItems,
     totalPages,
-  }
+  };
 
   const paginationFunctions: PaginationFunctions = {
     goToPage,
-    setPageSize: (size: number) => {
-      setPageSize(size)
-      goToFirstPage()
-    },
-    nextPage,
-    prevPage,
+    setPageSize: setPersistedPageSize,
     goToFirstPage,
+    prevPage,
+    nextPage,
     goToLastPage,
-  }
+  };
 
-  return [paginationConfig, paginationFunctions, paginatedItems]
+  return [paginationConfig, paginationFunctions, paginatedItems] as const;
 }
