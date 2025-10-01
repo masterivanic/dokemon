@@ -28,14 +28,14 @@ func (s *LocalFileSystemComposeLibraryStore) Create(m *model.FileSystemComposeLi
 	p := filepath.Join(s.composeLibraryPath, m.ProjectName)
 
 	if _, err := os.Stat(p); errors.Is(err, os.ErrNotExist) {
-		err := os.MkdirAll(p, 0755)
+		err := os.MkdirAll(p, 0o755)
 		if err != nil {
 			return err
 		}
 
 		filename := filepath.Join(p, "compose.yaml")
 
-		f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+		f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o755)
 		if err != nil {
 			return err
 		}
@@ -94,7 +94,7 @@ func (s *LocalFileSystemComposeLibraryStore) Update(m *model.FileSystemComposeLi
 		}
 	}
 
-	f, err := os.OpenFile(composeProjectFilePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
+	f, err := os.OpenFile(composeProjectFilePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o755)
 	if err != nil {
 		return err
 	}

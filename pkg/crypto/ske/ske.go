@@ -11,9 +11,7 @@ type Ske struct {
 	key []byte
 }
 
-var (
-	ske Ske
-)
+var ske Ske
 
 func Init(key string) {
 	keyBytes, err := base64.StdEncoding.DecodeString(key)

@@ -20,8 +20,10 @@ func startTaskSession(tqm messages.TaskQueuedMessage) {
 	defer c.Close()
 
 	stream := false
-	steamMessageTypes := []string{"DockerContainerLogs", "DockerContainerTerminal",
-		"DockerComposeDeploy", "DockerComposePull", "DockerComposePull", "DockerComposeUp", "DockerComposeDown", "DockerComposeLogs"}
+	steamMessageTypes := []string{
+		"DockerContainerLogs", "DockerContainerTerminal",
+		"DockerComposeDeploy", "DockerComposePull", "DockerComposePull", "DockerComposeUp", "DockerComposeDown", "DockerComposeLogs",
+	}
 	if slices.Contains(steamMessageTypes, messageType) {
 		stream = true
 	}

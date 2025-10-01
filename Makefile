@@ -4,6 +4,9 @@ GO_VER_MIN ?= 1.23.3
 
 default: help
 
+lint:
+	golangci-lint run -c .golangci.yml ./pkg/...
+
 build-server: ## Build server for production or local
 	@if [ "$(env-target)" = "prod" ]; then \
 		sudo docker buildx build --platform linux/amd64,linux/arm64 -t javastraat/dokemon-server:latest --push -f Dockerfile.server .; \

@@ -55,6 +55,7 @@ func ContainerScheduleRefreshStaleStatus() {
 		time.Sleep(24 * time.Hour)
 	}
 }
+
 func ContainerRefreshStaleStatus() error {
 	if containerStaleStatus == nil {
 		containerStaleStatus = make(map[string]string)

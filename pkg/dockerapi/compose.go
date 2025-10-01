@@ -236,7 +236,7 @@ func createTempComposeFile(projectName string, definition string, variables map[
 }
 
 func toEnvFormat(variables map[string]store.VariableValue) []string {
-	var ret = make([]string, len(variables))
+	ret := make([]string, len(variables))
 
 	i := 0
 	for k, v := range variables {
@@ -253,7 +253,7 @@ func logVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *websoc
 	}
 
 	keys := make([]string, 0)
-	for k, _ := range variables {
+	for k := range variables {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)

@@ -31,7 +31,6 @@ func GenerateSelfSignedCert() (cert string, key string, err error) {
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
 	if err != nil {
 		return "", "", err
-
 	}
 
 	cert = string(pem.EncodeToMemory(

@@ -26,9 +26,7 @@ type Handler struct {
 	fileSystemComposeLibraryStore   store.FileSystemComposeLibraryStore
 }
 
-var (
-	defaultTimeout = 30 * time.Second
-)
+var defaultTimeout = 30 * time.Second
 
 func NewHandler(
 	composeProjectsPath string,

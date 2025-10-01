@@ -94,9 +94,7 @@ func (s *SqlNodeComposeProjectStore) IsUniqueNameExcludeItself(nodeId uint, name
 }
 
 func (s *SqlNodeComposeProjectStore) UpdateOldVersionRecords() error {
-	var (
-		l []model.NodeComposeProject
-	)
+	var l []model.NodeComposeProject
 
 	if err := s.db.Where("type is null or type = ''").Find(&l).Error; err != nil {
 		return err

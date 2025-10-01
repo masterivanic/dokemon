@@ -118,6 +118,7 @@ func getMainIP() string {
 	}
 	return ""
 }
+
 func getLocalNetworkIP() string {
 	// Try Docker bridge method first
 	if ip := getHostIPViaDockerBridge(); ip != "" {

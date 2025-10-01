@@ -100,8 +100,7 @@ type DockerImagesPruneResponse struct {
 	SpaceReclaimed uint64                         `json:"spaceReclaimed"`
 }
 
-type DockerVolumeList struct {
-}
+type DockerVolumeList struct{}
 
 type Volume struct {
 	Driver string `json:"driver"`
@@ -141,8 +140,7 @@ type DockerVolumeCreateResponse struct {
 	Mountpoint string
 }
 
-type DockerNetworkList struct {
-}
+type DockerNetworkList struct{}
 
 type Network struct {
 	Id     string `json:"id"`
@@ -160,15 +158,13 @@ type DockerNetworkRemove struct {
 	Id string `json:"id"`
 }
 
-type DockerNetworksPrune struct {
-}
+type DockerNetworksPrune struct{}
 
 type DockerNetworksPruneResponse struct {
 	NetworksDeleted []string `json:"networksDeleted"`
 }
 
-type DockerComposeList struct {
-}
+type DockerComposeList struct{}
 
 type DockerComposeGet struct {
 	ProjectName string `json:"projectName"`

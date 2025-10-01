@@ -1,7 +1,6 @@
 package messages
 
-type Ping struct {
-}
+type Ping struct{}
 
 type ConnectMessage struct {
 	ConnectionToken string `json:"connectionToken"`

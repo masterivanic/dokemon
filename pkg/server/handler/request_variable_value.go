@@ -26,7 +26,6 @@ func (r *variableCreateOrUpdateRequest) bind(c echo.Context, m *model.VariableVa
 	m.EnvironmentId = r.EnvironmentId
 
 	enryptedValue, err := ske.Encrypt(r.Value)
-
 	if err != nil {
 		return err
 	}
