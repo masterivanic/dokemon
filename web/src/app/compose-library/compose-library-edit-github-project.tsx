@@ -46,7 +46,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, HelpCircle } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -241,7 +241,20 @@ export default function ComposeLibraryEditGitHubProject() {
                         name="url"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>GitHub URL of Compose File</FormLabel>
+                            <FormLabel>Repository URL of Compose File
+                              <span
+                                title={
+                                  `Supported providers:\n` +
+                                  `- GitHub: https://github.com/OWNER/REPO/blob/REF/path/to/file.yml\n` +
+                                  `- GitLab: https://gitlab.com/OWNER/REPO/-/blob/REF/path/to/file.yml\n` +
+                                  `- Bitbucket: https://bitbucket.org/OWNER/REPO/src/REF/path/to/file.yml\n` +
+                                  `- Codeberg: https://codeberg.org/OWNER/REPO/src/branch/REF/path/to/file.yml`
+                                }
+                                className="ml-1 align-middle"
+                              >
+                                <HelpCircle size={16} className="inline text-blue-500 cursor-pointer" />
+                              </span>
+                            </FormLabel>
                             <FormControl>
                               <Input {...field} />
                             </FormControl>
@@ -271,13 +284,13 @@ export default function ComposeLibraryEditGitHubProject() {
                                         className={cn(
                                           "inline-flex w-[300px] justify-between font-normal text-slate-800 dark:text-slate-50",
                                           !field.value &&
-                                            "text-muted-foreground"
+                                          "text-muted-foreground"
                                         )}
                                       >
                                         {field.value
                                           ? credentials?.items.find(
-                                              (item) => item.id === field.value
-                                            )?.name
+                                            (item) => item.id === field.value
+                                          )?.name
                                           : "(None)"}
                                         <ChevronsUpDown className="ml-2 mt-1 h-4 w-4 shrink-0 opacity-50" />
                                       </Button>

@@ -351,7 +351,7 @@ export default function ComposeDefinitionGitHub({
                         name="url"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>GitHub URL of Compose File</FormLabel>
+                            <FormLabel>Repository URL of Compose File</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
