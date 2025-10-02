@@ -5,11 +5,11 @@ import (
 )
 
 type credentialResponse struct {
-	Id       uint    `json:"id"`
-	Name     string  `json:"name"`
 	Service  *string `json:"service"`
-	Type     string  `json:"type"`
 	UserName *string `json:"userName"`
+	Name     string  `json:"name"`
+	Type     string  `json:"type"`
+	Id       uint    `json:"id"`
 }
 
 func newCredentialResponse(m *model.Credential) *credentialResponse {
@@ -23,11 +23,11 @@ func newCredentialResponse(m *model.Credential) *credentialResponse {
 }
 
 type credentialHead struct {
-	Id       uint    `json:"id"`
-	Name     string  `json:"name"`
 	Service  *string `json:"service"`
-	Type     string  `json:"type"`
 	UserName *string `json:"userName"`
+	Name     string  `json:"name"`
+	Type     string  `json:"type"`
+	Id       uint    `json:"id"`
 }
 
 func newCredentialHead(m *model.Credential) credentialHead {

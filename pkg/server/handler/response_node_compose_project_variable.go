@@ -6,10 +6,10 @@ import (
 )
 
 type nodeComposeProjectVariableResponse struct {
-	Id       uint   `json:"id"`
 	Name     string `json:"name"`
-	IsSecret bool   `json:"isSecret"`
 	Value    string `json:"value"`
+	Id       uint   `json:"id"`
+	IsSecret bool   `json:"isSecret"`
 }
 
 func newNodeComposeProjectVariableResponse(m *model.NodeComposeProjectVariable) nodeComposeProjectVariableResponse {

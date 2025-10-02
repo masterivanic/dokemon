@@ -36,7 +36,7 @@ func startTaskSession(tqm messages.TaskQueuedMessage) {
 	}
 
 	if !taskSessionResponseMessage.Success {
-		log.Error().Str("taskId", tqm.TaskId).Str("serverError", taskSessionResponseMessage.Message).Msg("Task session estabilshment failed")
+		log.Error().Str("taskId", tqm.TaskId).Str("serverError", taskSessionResponseMessage.Message).Msg("Task session establishments failed")
 		return
 	}
 

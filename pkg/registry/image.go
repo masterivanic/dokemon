@@ -5,11 +5,10 @@ import (
 )
 
 type Image struct {
+	named  reference.Named
 	Domain string
 	Path   string
 	Tag    string
-
-	named reference.Named
 }
 
 func ParseImage(name string) (Image, error) {

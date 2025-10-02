@@ -155,7 +155,7 @@ func ComposeLogs(req *DockerComposeLogs, ws *websocket.Conn) error {
 	mu := setupPinging(ws, &connectionClosed)
 
 	cmd := exec.Command("docker-compose", "-p", req.ProjectName, "logs", "-f")
-	// We use pty so that we get colours in the output. Note that it has bugs on windows and some
+	// We use pty so that we get colors in the output. Note that it has bugs on windows and some
 	// parts of the lines are not aligned correctly. We only support Linux so this is fine.
 	f, err := pty.Start(cmd)
 	if err != nil {

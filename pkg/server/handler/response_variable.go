@@ -3,16 +3,16 @@ package handler
 import "github.com/dokemon-ng/dokemon/pkg/server/model"
 
 type variableResponse struct {
-	Id       uint   `json:"id"`
 	Name     string `json:"name"`
+	Id       uint   `json:"id"`
 	IsSecret bool   `json:"isSecret"`
 }
 
 type variableHead struct {
-	Id       uint              `json:"id"`
-	Name     string            `json:"name"`
-	IsSecret bool              `json:"isSecret"`
 	Values   map[string]string `json:"values"`
+	Name     string            `json:"name"`
+	Id       uint              `json:"id"`
+	IsSecret bool              `json:"isSecret"`
 }
 
 func newVariableResponse(m *model.Variable) *variableResponse {

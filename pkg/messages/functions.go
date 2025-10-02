@@ -2,7 +2,6 @@ package messages
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -45,7 +44,7 @@ func Parse[T interface{}](messageOnWireString string) (m *T, _ error) {
 	messageTypeName := strings.Split(messageOnWireString, " ")[0]
 
 	if messageTypeName != typeName {
-		return nil, errors.New(fmt.Sprintf("Expected message of type %s but received %s", typeName, messageTypeName))
+		return nil, fmt.Errorf("Expected message of type %s but received %s", typeName, messageTypeName)
 	}
 
 	messageJson := []byte(messageOnWireString[len(messageTypeName):])
@@ -60,7 +59,7 @@ func GetMessageJson[T interface{}](messageOnWireString string) (m []byte, _ erro
 	messageTypeName := strings.Split(messageOnWireString, " ")[0]
 
 	if messageTypeName != typeName {
-		return nil, errors.New(fmt.Sprintf("Expected message of type %s but received %s", typeName, messageTypeName))
+		return nil, fmt.Errorf("Expected message of type %s but received %s", typeName, messageTypeName)
 	}
 
 	messageJson := []byte(messageOnWireString[len(messageTypeName):])

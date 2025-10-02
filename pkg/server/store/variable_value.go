@@ -50,8 +50,8 @@ func (s *SqlVariableValueStore) Get(variableId, environmentId uint) (*model.Vari
 }
 
 type envToValue struct {
-	Id    uint
 	Value *string
+	Id    uint
 }
 
 func (s *SqlVariableValueStore) GetMap(variableId uint) (map[string]string, error) {
@@ -84,8 +84,8 @@ func (s *SqlVariableValueStore) GetMap(variableId uint) (map[string]string, erro
 }
 
 type variable struct {
-	Name     string
 	Value    *string
+	Name     string
 	IsSecret bool
 }
 

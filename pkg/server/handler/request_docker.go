@@ -163,40 +163,40 @@ func (r *dockerNetworkRemoveRequest) bind(c echo.Context, m *dockerapi.DockerNet
 	return nil
 }
 
-type dockerComposeProjectCreateRequest struct {
-	ProjectName string `json:"projectName" validate:"required,max=100"`
-	Definition  string `json:"definition"`
-}
+// type dockerComposeProjectCreateRequest struct {
+// 	ProjectName string `json:"projectName" validate:"required,max=100"`
+// 	Definition  string `json:"definition"`
+// }
 
-func (r *dockerComposeProjectCreateRequest) bind(c echo.Context, m *dockerapi.DockerComposeProjectCreate) error {
-	if err := c.Bind(r); err != nil {
-		return err
-	}
+// func (r *dockerComposeProjectCreateRequest) bind(c echo.Context, m *dockerapi.DockerComposeProjectCreate) error {
+// 	if err := c.Bind(r); err != nil {
+// 		return err
+// 	}
 
-	if err := c.Validate(r); err != nil {
-		return err
-	}
+// 	if err := c.Validate(r); err != nil {
+// 		return err
+// 	}
 
-	m.ProjectName = r.ProjectName
-	m.Definition = r.Definition
-	return nil
-}
+// 	m.ProjectName = r.ProjectName
+// 	m.Definition = r.Definition
+// 	return nil
+// }
 
-type dockerComposeProjectUpdateRequest struct {
-	ProjectName string `json:"projectName" validate:"required,max=100"`
-	Definition  string `json:"definition"`
-}
+// type dockerComposeProjectUpdateRequest struct {
+// 	ProjectName string `json:"projectName" validate:"required,max=100"`
+// 	Definition  string `json:"definition"`
+// }
 
-func (r *dockerComposeProjectUpdateRequest) bind(c echo.Context, m *dockerapi.DockerComposeProjectUpdate) error {
-	if err := c.Bind(r); err != nil {
-		return err
-	}
+// func (r *dockerComposeProjectUpdateRequest) bind(c echo.Context, m *dockerapi.DockerComposeProjectUpdate) error {
+// 	if err := c.Bind(r); err != nil {
+// 		return err
+// 	}
 
-	if err := c.Validate(r); err != nil {
-		return err
-	}
+// 	if err := c.Validate(r); err != nil {
+// 		return err
+// 	}
 
-	m.ProjectName = r.ProjectName
-	m.Definition = r.Definition
-	return nil
-}
+// 	m.ProjectName = r.ProjectName
+// 	m.Definition = r.Definition
+// 	return nil
+// }

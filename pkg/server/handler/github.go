@@ -2,7 +2,7 @@ package handler
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,11 +33,11 @@ type gitUrlParts struct {
 func getGitUrlParts(rawurl string) (*gitUrlParts, error) {
 	u, err := url.Parse(rawurl)
 	if err != nil {
-		return nil, errors.New("Invalid URL")
+		return nil, errors.New("invalid URL")
 	}
 	parts := strings.Split(u.Path, "/")
 	if len(parts) < 5 {
-		return nil, errors.New("URL should be of format: <provider>/<OWNER>/<REPO>/blob/<REF>/path/to/file")
+		return nil, errors.New("url should be of format: <provider>/<OWNER>/<REPO>/blob/<REF>/path/to/file")
 	}
 	var provider gitProvider
 	switch u.Host {
@@ -73,7 +73,7 @@ func getRawFileUrl(p *gitUrlParts) (string, error) {
 		log.Warn().Msg("https://codeberg.org/" + p.Owner + "/" + p.Repo + "/raw/" + p.Ref + "/" + p.Path)
 		return "https://codeberg.org/" + p.Owner + "/" + p.Repo + "/raw/" + p.Ref + "/" + p.Path, nil
 	default:
-		return "", errors.New("Unsupported git provider")
+		return "", errors.New("unsupported git provider")
 	}
 }
 
@@ -101,9 +101,9 @@ func getGitFileContent(url string, token string) (string, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return "", errors.New("Failed to fetch file: " + resp.Status)
+		return "", errors.New("failed to fetch file: " + resp.Status)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -120,12 +120,12 @@ func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
 	if r.CredentialId != nil {
 		credential, err := h.credentialStore.GetById(*r.CredentialId)
 		if err != nil || credential == nil {
-			return unprocessableEntity(c, errors.New("Credentials not found"))
+			return unprocessableEntity(c, errors.New("credentials not found"))
 		}
 
 		decryptedSecret, err = ske.Decrypt(credential.Secret)
 		if err != nil {
-			return unprocessableEntity(c, errors.New("Failed to decrypt credentials"))
+			return unprocessableEntity(c, errors.New("failed to decrypt credentials"))
 		}
 	}
 
@@ -136,7 +136,7 @@ func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
 		} else {
 			log.Error().Err(err).Str("url", r.Url).Msg("Error while retriveing file content from Git provider")
 		}
-		return unprocessableEntity(c, errors.New("Error while retrieving file content from provided Git URL"))
+		return unprocessableEntity(c, errors.New("error while retrieving file content from provided Git URL"))
 	}
 
 	return ok(c, newGitHubfileContentResponse(&content))

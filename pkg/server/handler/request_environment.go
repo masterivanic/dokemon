@@ -25,8 +25,8 @@ func (r *environmentCreateRequest) bind(c echo.Context, m *model.Environment) er
 }
 
 type environmentUpdateRequest struct {
-	Id   uint   `json:"id" validate:"required"`
 	Name string `json:"name" validate:"required,max=50"`
+	Id   uint   `json:"id" validate:"required"`
 }
 
 func (r *environmentUpdateRequest) bind(c echo.Context, m *model.Environment) error {

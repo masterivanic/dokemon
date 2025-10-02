@@ -76,10 +76,10 @@ func (r *githubComposeProjectCreateRequest) bind(c echo.Context, m *model.Compos
 }
 
 type githubComposeProjectUpdateRequest struct {
-	Id           uint   `json:"id" validate:"required"`
-	ProjectName  string `json:"projectName" validate:"required,max=100"`
 	CredentialId *uint  `json:"credentialId"`
+	ProjectName  string `json:"projectName" validate:"required,max=100"`
 	Url          string `json:"url" validate:"required,max=255"`
+	Id           uint   `json:"id" validate:"required"`
 }
 
 func (r *githubComposeProjectUpdateRequest) bind(c echo.Context, m *model.ComposeLibraryItem) error {

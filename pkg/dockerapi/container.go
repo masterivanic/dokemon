@@ -29,7 +29,12 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 	for i, c := range dcontainers {
 		ports := make([]Port, len(c.Ports))
 		for j, port := range c.Ports {
-			ports[j] = Port(port)
+			ports[j] = Port{
+				IP:          port.IP,
+				PrivatePort: port.PrivatePort,
+				PublicPort:  port.PublicPort,
+				Type:        port.Type,
+			}
 		}
 
 		image := strings.Split(c.Image, "@")[0]

@@ -154,7 +154,7 @@ func (s *LocalFileSystemComposeLibraryStore) DeleteByName(projectName string) er
 	}
 
 	if count > 0 {
-		return errors.New(fmt.Sprintf("Definition is in use by %d projects and cannot be deleted", count))
+		return fmt.Errorf("Definition is in use by %d projects and cannot be deleted", count)
 	}
 
 	err = os.RemoveAll(composeProjectDirPath)

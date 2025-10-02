@@ -7,9 +7,9 @@ import (
 )
 
 type nodeResponse struct {
-	Id            uint   `json:"id"`
-	Name          string `json:"name"`
 	EnvironmentId *uint  `json:"environmentId"`
+	Name          string `json:"name"`
+	Id            uint   `json:"id"`
 }
 
 func newNodeResponse(m *model.Node) *nodeResponse {
@@ -21,13 +21,13 @@ func newNodeResponse(m *model.Node) *nodeResponse {
 }
 
 type nodeHead struct {
-	Id               uint    `json:"id"`
+	ContainerBaseUrl *string `json:"containerBaseUrl"`
 	Name             string  `json:"name"`
 	AgentVersion     string  `json:"agentVersion"`
 	Environment      string  `json:"environment"`
+	Id               uint    `json:"id"`
 	Online           bool    `json:"online"`
 	Registered       bool    `json:"registered"`
-	ContainerBaseUrl *string `json:"containerBaseUrl"`
 }
 
 func newNodeHead(m *model.Node) nodeHead {

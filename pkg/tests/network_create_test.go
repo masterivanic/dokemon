@@ -12,10 +12,10 @@ import (
 
 func TestNetworkCreate(t *testing.T) {
 	tests := []struct {
-		name          string
 		req           *dokemonDocker.DockerNetworkCreate
-		expectedError string
 		mockFunc      func(ctx context.Context, name string, options network.CreateOptions) (dokemonDocker.DockerNetworkCreateResponse, error)
+		name          string
+		expectedError string
 	}{
 		{
 			name: "basic-bridge-network",
