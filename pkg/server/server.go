@@ -277,7 +277,7 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 		Str("arch", runtime.GOARCH).
 		Msg("Starting Dokémon")
 
-	//log.Info().Msgf("Starting Dokémon v%s-%s", common.Version, runtime.GOARCH)
+	// log.Info().Msgf("Starting Dokémon v%s-%s", common.Version, runtime.GOARCH)
 	log.Info().Msgf("Starting Dokémon Server %s", getFullVersion())
 
 	if dataPath == "" {

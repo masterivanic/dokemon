@@ -12,8 +12,8 @@ import (
 )
 
 type AuthCookieContent struct {
-	UserName string    `json:"userName"`
 	Expiry   time.Time `json:"expiry"`
+	UserName string    `json:"userName"`
 }
 
 const AUTH_COOKIE_NAME = "dmauth"

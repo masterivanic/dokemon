@@ -155,7 +155,7 @@ func ComposeLogs(req *DockerComposeLogs, ws *websocket.Conn) error {
 	mu := setupPinging(ws, &connectionClosed)
 
 	cmd := exec.Command("docker-compose", "-p", req.ProjectName, "logs", "-f")
-	// We use pty so that we get colours in the output. Note that it has bugs on windows and some
+	// We use pty so that we get colors in the output. Note that it has bugs on windows and some
 	// parts of the lines are not aligned correctly. We only support Linux so this is fine.
 	f, err := pty.Start(cmd)
 	if err != nil {
@@ -236,7 +236,7 @@ func createTempComposeFile(projectName string, definition string, variables map[
 }
 
 func toEnvFormat(variables map[string]store.VariableValue) []string {
-	var ret = make([]string, len(variables))
+	ret := make([]string, len(variables))
 
 	i := 0
 	for k, v := range variables {
@@ -253,7 +253,7 @@ func logVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *websoc
 	}
 
 	keys := make([]string, 0)
-	for k, _ := range variables {
+	for k := range variables {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)

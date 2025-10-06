@@ -1,7 +1,6 @@
 package messages
 
-type Ping struct {
-}
+type Ping struct{}
 
 type ConnectMessage struct {
 	ConnectionToken string `json:"connectionToken"`
@@ -10,8 +9,8 @@ type ConnectMessage struct {
 }
 
 type ConnectResponseMessage struct {
-	Success bool   `json:"success"`
 	Message string `json:"message"`
+	Success bool   `json:"success"`
 }
 
 type TaskQueuedMessage struct {
@@ -26,19 +25,19 @@ type TaskSessionMessage struct {
 }
 
 type TaskSessionResponseMessage struct {
-	Success bool   `json:"success"`
 	Message string `json:"message"`
+	Success bool   `json:"success"`
 }
 
 type TaskLogMessage struct {
-	Offset uint   `json:"offset"` // TODO:
 	Level  string `json:"level"`
 	Text   string `json:"text"`
+	Offset uint   `json:"offset"`
 }
 
 type TaskStatusMessage struct {
-	Status string  `json:"status"`
 	Result *string `json:"result"`
+	Status string  `json:"status"`
 }
 
 type Message interface {

@@ -13,13 +13,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var (
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-)
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 func (h *Handler) GetContainerList(c echo.Context) error {
 	var err error

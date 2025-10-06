@@ -1,18 +1,18 @@
 package model
 
 type NodeComposeProject struct {
-	Id                 uint
-	NodeId             uint
-	Node               Node
+	LibraryProject     *ComposeLibraryItem
+	Credential         *Credential
+	Definition         *string
 	EnvironmentId      *uint
 	Environment        *Environment
 	LibraryProjectId   *uint
-	LibraryProject     *ComposeLibraryItem
 	LibraryProjectName *string `gorm:"size:50"`
-	ProjectName        string  `gorm:"size:50"`
-	Type               string  `gorm:"size:20,default:''"` // github, local
-	Url                *string `gorm:"size:255"`
 	CredentialId       *uint
-	Credential         *Credential
-	Definition         *string // nil for github projects
+	Url                *string `gorm:"size:255"`
+	Node               Node
+	Type               string `gorm:"size:20,default:''"`
+	ProjectName        string `gorm:"size:50"`
+	NodeId             uint
+	Id                 uint
 }

@@ -3,9 +3,9 @@ package handler
 import "github.com/dokemon-ng/dokemon/pkg/server/model"
 
 type userResponse struct {
-	Id           uint   `json:"id"`
 	Username     string `json:"username"`
 	PasswordHash string `json:"passwordHash"`
+	Id           uint   `json:"id"`
 }
 
 func newUserResponse(m *model.User) *userResponse {
@@ -16,8 +16,8 @@ func newUserResponse(m *model.User) *userResponse {
 }
 
 type userHead struct {
-	Id       uint   `json:"id"`
 	Username string `json:"username"`
+	Id       uint   `json:"id"`
 }
 
 func newUserHeadList(rows []model.User) []userHead {
@@ -25,7 +25,8 @@ func newUserHeadList(rows []model.User) []userHead {
 	for i, r := range rows {
 		headRows[i] = userHead{
 			Id:       r.Id,
-			Username: r.UserName}
+			Username: r.UserName,
+		}
 	}
 	return headRows
 }

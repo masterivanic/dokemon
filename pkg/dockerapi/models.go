@@ -8,9 +8,9 @@ import (
 
 type Port struct {
 	IP          string `json:"ip"`
-	PrivatePort uint16 `json:"privatePort"` // Container
-	PublicPort  uint16 `json:"publicPort"`  // Host
 	Type        string `json:"type"`
+	PrivatePort uint16 `json:"privatePort"`
+	PublicPort  uint16 `json:"publicPort"`
 }
 
 type Container struct {
@@ -19,8 +19,8 @@ type Container struct {
 	Image  string `json:"image"`
 	Status string `json:"status"`
 	State  string `json:"state"`
+	Stale  string `json:"stale"`
 	Ports  []Port `json:"ports"`
-	Stale  string `json:"stale"` // yes, no, error, processing
 }
 
 type DockerContainerList struct {
@@ -63,8 +63,8 @@ type Image struct {
 	Name     string `json:"name"`
 	Tag      string `json:"tag"`
 	Size     int64  `json:"size"`
-	Dangling bool   `json:"dangling"`
 	Created  int64  `json:"created"`
+	Dangling bool   `json:"dangling"`
 	InUse    bool   `json:"inUse"`
 }
 
@@ -100,8 +100,7 @@ type DockerImagesPruneResponse struct {
 	SpaceReclaimed uint64                         `json:"spaceReclaimed"`
 }
 
-type DockerVolumeList struct {
-}
+type DockerVolumeList struct{}
 
 type Volume struct {
 	Driver string `json:"driver"`
@@ -128,10 +127,10 @@ type DockerVolumesPruneResponse struct {
 
 // DockerVolumeCreate contains volume creation parameters
 type DockerVolumeCreate struct {
-	Name       string
-	Driver     string
 	DriverOpts map[string]string
 	Labels     map[string]string
+	Name       string
+	Driver     string
 }
 
 // DockerVolumeCreateResponse contains created volume info
@@ -141,8 +140,7 @@ type DockerVolumeCreateResponse struct {
 	Mountpoint string
 }
 
-type DockerNetworkList struct {
-}
+type DockerNetworkList struct{}
 
 type Network struct {
 	Id     string `json:"id"`
@@ -160,26 +158,24 @@ type DockerNetworkRemove struct {
 	Id string `json:"id"`
 }
 
-type DockerNetworksPrune struct {
-}
+type DockerNetworksPrune struct{}
 
 type DockerNetworksPruneResponse struct {
 	NetworksDeleted []string `json:"networksDeleted"`
 }
 
-type DockerComposeList struct {
-}
+type DockerComposeList struct{}
 
 type DockerComposeGet struct {
 	ProjectName string `json:"projectName"`
 }
 
 type DockerNetworkCreate struct {
-	Name       string
-	Driver     string
 	Options    map[string]string
 	Labels     map[string]string
 	IPAM       *IPAMConfig
+	Name       string
+	Driver     string
 	Internal   bool
 	Attachable bool
 	Ingress    bool
@@ -192,9 +188,9 @@ type DockerNetworkCreateResponse struct {
 }
 
 type IPAMConfig struct {
+	Options map[string]string `json:"Options"`
 	Driver  string            `json:"Driver"`
 	Config  []IPAMPool        `json:"Config"`
-	Options map[string]string `json:"Options"`
 }
 
 type IPAMPool struct {
@@ -253,21 +249,21 @@ type DockerComposeLogs struct {
 }
 
 type DockerComposeDeploy struct {
+	Variables   map[string]store.VariableValue `json:"variables"`
 	ProjectName string                         `json:"projectName"`
 	Definition  string                         `json:"definition"`
-	Variables   map[string]store.VariableValue `json:"variables"`
 }
 
 type DockerComposePull struct {
+	Variables   map[string]store.VariableValue `json:"variables"`
 	ProjectName string                         `json:"projectName"`
 	Definition  string                         `json:"definition"`
-	Variables   map[string]store.VariableValue `json:"variables"`
 }
 
 type DockerComposeUp struct {
+	Variables   map[string]store.VariableValue `json:"variables"`
 	ProjectName string                         `json:"projectName"`
 	Definition  string                         `json:"definition"`
-	Variables   map[string]store.VariableValue `json:"variables"`
 }
 
 type DockerComposeDown struct {
@@ -311,11 +307,11 @@ type DiskUsageSummary struct {
 
 type DiskUsageCategory struct {
 	Type               string `json:"type"`
-	Total              int    `json:"total"`
-	Active             int    `json:"active"`
 	Size               string `json:"size"`
 	Reclaimable        string `json:"reclaimable"`
 	ReclaimablePercent string `json:"reclaimablePercent"`
+	Total              int    `json:"total"`
+	Active             int    `json:"active"`
 }
 
 type ResourceStats struct {
@@ -335,6 +331,6 @@ type BuildCachePruneReport struct {
 }
 
 type BuildCachePruneRequest struct {
-	All     bool              `query:"all"`
 	Filters map[string]string `query:"filters"`
+	All     bool              `query:"all"`
 }

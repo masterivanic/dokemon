@@ -12,7 +12,6 @@ import (
 )
 
 type Handler struct {
-	composeProjectsPath             string
 	composeLibraryStore             store.ComposeLibraryStore
 	credentialStore                 store.CredentialStore
 	environmentStore                store.EnvironmentStore
@@ -24,11 +23,10 @@ type Handler struct {
 	variableStore                   store.VariableStore
 	variableValueStore              store.VariableValueStore
 	fileSystemComposeLibraryStore   store.FileSystemComposeLibraryStore
+	composeProjectsPath             string
 }
 
-var (
-	defaultTimeout = 30 * time.Second
-)
+var defaultTimeout = 30 * time.Second
 
 func NewHandler(
 	composeProjectsPath string,

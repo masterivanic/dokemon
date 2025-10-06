@@ -8,9 +8,9 @@ import (
 )
 
 type variableCreateOrUpdateRequest struct {
+	Value         string `json:"value"`
 	VariableId    uint   `json:"variableId" validate:"required"`
 	EnvironmentId uint   `json:"environmentId" validate:"required"`
-	Value         string `json:"value"`
 }
 
 func (r *variableCreateOrUpdateRequest) bind(c echo.Context, m *model.VariableValue) error {
@@ -26,7 +26,6 @@ func (r *variableCreateOrUpdateRequest) bind(c echo.Context, m *model.VariableVa
 	m.EnvironmentId = r.EnvironmentId
 
 	enryptedValue, err := ske.Encrypt(r.Value)
-
 	if err != nil {
 		return err
 	}

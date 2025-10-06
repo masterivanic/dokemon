@@ -47,8 +47,8 @@ func (r *userLoginRequest) bind(c echo.Context, m *model.User) error {
 }
 
 type userUpdateRequest struct {
-	Id       uint   `json:"id" validate:"required"`
 	UserName string `json:"userName" validate:"max=255"`
+	Id       uint   `json:"id" validate:"required"`
 }
 
 func (r *userUpdateRequest) bind(c echo.Context, m *model.User) error {

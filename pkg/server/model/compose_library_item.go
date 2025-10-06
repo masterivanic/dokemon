@@ -18,10 +18,10 @@ type FileSystemComposeLibraryItemUpdate struct {
 
 // Remote: This is a DB model
 type ComposeLibraryItem struct {
-	Id           uint
 	CredentialId *uint
 	Credential   *Credential
 	ProjectName  string `gorm:"size:50"`
-	Type         string `gorm:"size:20,default:''"` // github (filesystem projects are not stored in this table so this type is not allowed here)
+	Type         string `gorm:"size:20,default:''"`
 	Url          string `gorm:"size:255"`
+	Id           uint
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type nodeCreateRequest struct {
-	Name          string `json:"name" validate:"required,max=50"`
 	EnvironmentId *uint  `json:"environmentId"`
+	Name          string `json:"name" validate:"required,max=50"`
 }
 
 func (r *nodeCreateRequest) bind(c echo.Context, m *model.Node) error {
@@ -27,9 +27,9 @@ func (r *nodeCreateRequest) bind(c echo.Context, m *model.Node) error {
 }
 
 type nodeUpdateRequest struct {
-	Id            uint   `json:"id" validate:"required"`
-	Name          string `json:"name" validate:"required,max=50"`
 	EnvironmentId *uint  `json:"environmentId"`
+	Name          string `json:"name" validate:"required,max=50"`
+	Id            uint   `json:"id" validate:"required"`
 }
 
 func (r *nodeUpdateRequest) bind(c echo.Context, m *model.Node) error {
@@ -49,8 +49,8 @@ func (r *nodeUpdateRequest) bind(c echo.Context, m *model.Node) error {
 }
 
 type nodeContainerBaseUrlUpdateRequest struct {
-	Id               uint   `json:"id" validate:"required"`
 	ContainerBaseUrl string `json:"containerBaseUrl" validate:"max=255"`
+	Id               uint   `json:"id" validate:"required"`
 }
 
 func (r *nodeContainerBaseUrlUpdateRequest) bind(c echo.Context, m *model.Node) error {

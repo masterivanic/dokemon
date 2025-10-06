@@ -27,8 +27,8 @@ func (r *variableCreateRequest) bind(c echo.Context, m *model.Variable) error {
 }
 
 type variableUpdateRequest struct {
-	Id       uint   `json:"id" validate:"required"`
 	Name     string `json:"name" validate:"required,max=100"`
+	Id       uint   `json:"id" validate:"required"`
 	IsSecret bool   `json:"isSecret"`
 }
 

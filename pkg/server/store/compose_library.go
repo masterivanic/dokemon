@@ -76,7 +76,7 @@ func (s *SqlComposeLibraryStore) DeleteById(id uint) error {
 	}
 
 	if count > 0 {
-		return errors.New(fmt.Sprintf("Definition is in use by %d projects and cannot be deleted", count))
+		return fmt.Errorf("Definition is in use by %d projects and cannot be deleted", count)
 	}
 
 	if err := s.db.Delete(&model.ComposeLibraryItem{}, id).Error; err != nil {

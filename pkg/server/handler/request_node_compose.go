@@ -52,10 +52,10 @@ func (r *nodeComposeGitHubCreateRequest) bind(c echo.Context, m *model.NodeCompo
 }
 
 type nodeComposeGitHubUpdateRequest struct {
-	Id           uint   `json:"id" validate:"required"`
-	ProjectName  string `json:"projectName" validate:"required,max=50"`
 	CredentialId *uint  `json:"credentialId"`
+	ProjectName  string `json:"projectName" validate:"required,max=50"`
 	Url          string `json:"url" validate:"required,max=255"`
+	Id           uint   `json:"id" validate:"required"`
 }
 
 func (r *nodeComposeGitHubUpdateRequest) bind(c echo.Context, m *model.NodeComposeProject) error {
@@ -98,9 +98,9 @@ func (r *nodeComposeLocalCreateRequest) bind(c echo.Context, m *model.NodeCompos
 }
 
 type nodeComposeLocalUpdateRequest struct {
-	Id          uint   `json:"id" validate:"required"`
 	ProjectName string `json:"projectName" validate:"required,max=50"`
 	Definition  string `json:"definition"`
+	Id          uint   `json:"id" validate:"required"`
 }
 
 func (r *nodeComposeLocalUpdateRequest) bind(c echo.Context, m *model.NodeComposeProject) error {

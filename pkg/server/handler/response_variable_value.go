@@ -21,7 +21,6 @@ func newVariableValueResponse(m *model.VariableValue) *variableValueResponse {
 		decryptedValue = ""
 	} else {
 		decryptedValue, err = ske.Decrypt(m.Value)
-
 		if err != nil {
 			log.Fatalln(err)
 		}

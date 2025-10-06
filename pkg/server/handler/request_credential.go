@@ -38,11 +38,11 @@ func (r *credentialCreateRequest) bind(c echo.Context, m *model.Credential) erro
 }
 
 type credentialUpdateDetailsRequest struct {
-	Id       uint    `json:"id" validate:"required"`
-	Name     string  `json:"name" validate:"required,max=50"`
 	Service  *string `json:"service" validate:"omitempty,max=50"`
-	Type     string  `json:"type" validate:"required,max=50"`
 	UserName *string `json:"userName" validate:"omitempty,max=100"`
+	Name     string  `json:"name" validate:"required,max=50"`
+	Type     string  `json:"type" validate:"required,max=50"`
+	Id       uint    `json:"id" validate:"required"`
 }
 
 func (r *credentialUpdateDetailsRequest) bind(c echo.Context, m *model.Credential) error {
@@ -64,8 +64,8 @@ func (r *credentialUpdateDetailsRequest) bind(c echo.Context, m *model.Credentia
 }
 
 type credentialUpdateSecretRequest struct {
-	Id     uint   `json:"id" validate:"required"`
 	Secret string `json:"secret" validate:"required"`
+	Id     uint   `json:"id" validate:"required"`
 }
 
 func (r *credentialUpdateSecretRequest) bind(c echo.Context, m *model.Credential) error {

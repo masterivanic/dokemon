@@ -2,9 +2,7 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
@@ -24,23 +22,6 @@ func newError(err error) errorResponse {
 	return e
 }
 
-func newValidatorError(err error) errorResponse {
-	e := errorResponse{}
-	e.Errors = make(map[string]interface{})
-	errs := err.(validator.ValidationErrors)
-	for _, v := range errs {
-		e.Errors[v.Field()] = fmt.Sprintf("%v", v.Tag())
-	}
-	return e
-}
-
-func accessForbiddenError() errorResponse {
-	e := errorResponse{}
-	e.Errors = make(map[string]interface{})
-	e.Errors["body"] = "Access forbidden."
-	return e
-}
-
 func resourceNotFoundError(resourceName string) errorResponse {
 	e := errorResponse{}
 	e.Errors = make(map[string]interface{})
@@ -49,20 +30,12 @@ func resourceNotFoundError(resourceName string) errorResponse {
 }
 
 // Error Messages
-func duplicateIdError() error {
-	return duplicateFieldError("Id")
-}
-
 func duplicateNameError() error {
 	return duplicateFieldError("Name")
 }
 
 func duplicateUserNameError() error {
 	return duplicateFieldError("UserName")
-}
-
-func duplicateEmailError() error {
-	return duplicateFieldError("Email")
 }
 
 func duplicateFieldError(fieldName string) error {

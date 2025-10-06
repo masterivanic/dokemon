@@ -9,7 +9,7 @@ type composeLibraryItemHead struct {
 }
 
 func newComposeLibraryItemHead(m *model.ComposeLibraryItem) composeLibraryItemHead {
-	var id uint = m.Id
+	id := m.Id
 	ret := composeLibraryItemHead{
 		Id:          &id,
 		ProjectName: m.ProjectName,
@@ -44,10 +44,10 @@ func newFileSystemComposeLibraryItem(m *model.FileSystemComposeLibraryItem) file
 }
 
 type gitHubComposeLibraryItem struct {
-	Id           uint   `json:"id"`
 	CredentialId *uint  `json:"credentialId"`
 	ProjectName  string `json:"projectName"`
 	Url          string `json:"url"`
+	Id           uint   `json:"id"`
 }
 
 func newGitHubComposeLibraryItem(m *model.ComposeLibraryItem) gitHubComposeLibraryItem {

@@ -8,13 +8,13 @@ import (
 )
 
 type nodeComposeProjectItemHead struct {
-	Id                 uint    `json:"id"`
-	ProjectName        string  `json:"projectName"`
-	Type               string  `json:"type"`
 	LibraryProjectId   *uint   `json:"libraryProjectId"`
 	LibraryProjectName *string `json:"libraryProjectName"`
+	ProjectName        string  `json:"projectName"`
+	Type               string  `json:"type"`
 	Status             string  `json:"status"`
 	Stale              string  `json:"stale"`
+	Id                 uint    `json:"id"`
 }
 
 func newNodeComposeProjectItemHead(ncp *model.NodeComposeProject, dci *dockerapi.ComposeItem) nodeComposeProjectItemHead {
@@ -52,16 +52,16 @@ func newNodeComposeProjectItemList(ncplist []model.NodeComposeProject, dcilist [
 }
 
 type nodeComposeProjectItem struct {
-	Id                 uint    `json:"id"`
-	ProjectName        string  `json:"projectName"`
-	Type               string  `json:"type"`
 	LibraryProjectId   *uint   `json:"libraryProjectId"`
 	LibraryProjectName *string `json:"libraryProjectName"`
 	Url                *string `json:"url"`
 	CredentialId       *uint   `json:"credentialId"`
 	Definition         *string `json:"definition"`
+	ProjectName        string  `json:"projectName"`
+	Type               string  `json:"type"`
 	Status             string  `json:"status"`
 	Stale              string  `json:"stale"`
+	Id                 uint    `json:"id"`
 }
 
 func newNodeComposeProjectItem(ncp *model.NodeComposeProject, dci *dockerapi.ComposeItem) nodeComposeProjectItem {
