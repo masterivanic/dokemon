@@ -334,3 +334,20 @@ type BuildCachePruneRequest struct {
 	Filters map[string]string `query:"filters"`
 	All     bool              `query:"all"`
 }
+
+type ClusterInfo struct {
+	ID                     string   `json:"id"`
+	Name                   string   `json:"name"`
+	CreatedAt              string   `json:"created_at"`
+	UpdatedAt              string   `json:"updated_at"`
+	Version                string   `json:"version"`
+	TLSInfo                string   `json:"tls_info"`
+	RootRotationInProgress bool     `json:"root_rotation_in_progress"`
+	DefaultAddrPool        []string `json:"default_addr_pool"`
+	SubnetSize             uint32   `json:"subnet_size"`
+	DataPathPort           uint32   `json:"data_path_port"`
+	Spec                   string   `json:"spec"`
+	NodeCount              int      `json:"node_count"`
+	ManagerCount           int      `json:"manager_count"`
+	WorkerCount            int      `json:"worker_count"`
+}

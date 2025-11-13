@@ -193,6 +193,9 @@ func (h *Handler) Register(e *echo.Echo) {
 	variablevalues.PUT("", h.CreateOrUpdateVariableValue)
 	variablevalues.GET("", h.GetVariableValue)
 
+	swarm_cluster := nodes.Group("/:nodeId/swarm")
+	swarm_cluster.GET("", h.GetSwarmClusterInfo)
+
 	changepassword := v1.Group("/changepassword")
 	changepassword.POST("", h.ChangeUserPassword)
 
