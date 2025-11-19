@@ -92,6 +92,8 @@ func startTaskSession(tqm messages.TaskQueuedMessage) {
 		handleDockerComposeDown(c, taskDefinition)
 	case "DockerComposeDownNoStreaming":
 		handleDockerComposeDownNoStreaming(c, taskDefinition)
+	case "ClusterSwarmNodeList":
+		handleClusterSwarmNodesList(c, taskDefinition)
 	default:
 		panic("Invalid message received")
 	}
