@@ -7,14 +7,8 @@ import (
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
+	"github.com/dokemon-ng/dokemon/pkg/util"
 )
-
-func shortenString(s string, maxLen int) string {
-	if len(s) > maxLen {
-		return s[:maxLen] + "..."
-	}
-	return s
-}
 
 func GetSwarmClusterInfo() (*ClusterInfo, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -44,7 +38,8 @@ func GetSwarmClusterInfo() (*ClusterInfo, error) {
 
 	tlsInfo := "Disabled"
 	if clusterInfo.TLSInfo.TrustRoot != "" {
-		tlsInfo = fmt.Sprintf("TrustRoot: %s", shortenString(clusterInfo.TLSInfo.TrustRoot, 50))
+		tlsInfo = fmt.Sprintf("TrustRoot: %s", util.ShortenString(clusterInfo.TLSInfo.TrustRoot, 50))
+
 	}
 
 	var specInfo strings.Builder
@@ -69,5 +64,42 @@ func GetSwarmClusterInfo() (*ClusterInfo, error) {
 		WorkerCount:            workerCount,
 	}
 
+	return response, nil
+}
+
+func GetSwarmClusterNodesList(req *ClusterSwarmNodeList) (*ClusterSwarmNodeListResponse, error) {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, err
+	}
+
+	nodes, err := cli.NodeList(context.Background(), swarm.NodeListOptions{
+		Filters: req.Filters,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var nodeList []*SwarmNodeInfo
+	for _, node := range nodes {
+		nodeInfo := &SwarmNodeInfo{
+			ID:           node.ID,
+			Name:         node.Description.Hostname,
+			Role:         string(node.Spec.Role),
+			Engine:       node.Description.Engine.EngineVersion,
+			IPAddress:    util.GetNodeIPAddress(node),
+			Status:       string(node.Status.State),
+			Availability: string(node.Spec.Availability),
+		}
+		if node.Description.Resources.NanoCPUs != 0 || node.Description.Resources.MemoryBytes != 0 {
+			nodeInfo.CPU = node.Description.Resources.NanoCPUs
+			nodeInfo.Memory = node.Description.Resources.MemoryBytes
+		}
+		nodeList = append(nodeList, nodeInfo)
+	}
+	response := &ClusterSwarmNodeListResponse{
+		Nodes: nodeList,
+		Count: len(nodeList),
+	}
 	return response, nil
 }

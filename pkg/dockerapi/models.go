@@ -1,6 +1,7 @@
 package dockerapi
 
 import (
+	"github.com/docker/docker/api/types/filters"
 	"github.com/dokemon-ng/dokemon/pkg/server/store"
 )
 
@@ -350,4 +351,25 @@ type ClusterInfo struct {
 	NodeCount              int      `json:"node_count"`
 	ManagerCount           int      `json:"manager_count"`
 	WorkerCount            int      `json:"worker_count"`
+}
+
+type ClusterSwarmNodeList struct {
+	Filters filters.Args
+}
+
+type ClusterSwarmNodeListResponse struct {
+	Nodes []*SwarmNodeInfo `json:"nodes"`
+	Count int              `json:"count"`
+}
+
+type SwarmNodeInfo struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Role         string `json:"role"`
+	CPU          int64  `json:"cpu"`
+	Memory       int64  `json:"memory"`
+	Engine       string `json:"engine"`
+	IPAddress    string `json:"ip_address"`
+	Status       string `json:"status"`
+	Availability string `json:"availability"`
 }
