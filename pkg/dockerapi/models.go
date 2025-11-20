@@ -1,6 +1,7 @@
 package dockerapi
 
 import (
+	"github.com/docker/docker/api/types/filters"
 	"github.com/dokemon-ng/dokemon/pkg/server/store"
 )
 
@@ -333,4 +334,60 @@ type BuildCachePruneReport struct {
 type BuildCachePruneRequest struct {
 	Filters map[string]string `query:"filters"`
 	All     bool              `query:"all"`
+}
+
+type ClusterInfo struct {
+	ID                     string   `json:"id"`
+	Name                   string   `json:"name"`
+	CreatedAt              string   `json:"created_at"`
+	UpdatedAt              string   `json:"updated_at"`
+	Version                string   `json:"version"`
+	TLSInfo                string   `json:"tls_info"`
+	RootRotationInProgress bool     `json:"root_rotation_in_progress"`
+	DefaultAddrPool        []string `json:"default_addr_pool"`
+	SubnetSize             uint32   `json:"subnet_size"`
+	DataPathPort           uint32   `json:"data_path_port"`
+	Spec                   string   `json:"spec"`
+	NodeCount              int      `json:"node_count"`
+	ManagerCount           int      `json:"manager_count"`
+	WorkerCount            int      `json:"worker_count"`
+}
+
+type ClusterSwarmNodeList struct {
+	Filters filters.Args
+}
+
+type ClusterSwarmNodeListResponse struct {
+	Nodes []*SwarmNodeInfo `json:"nodes"`
+	Count int              `json:"count"`
+}
+
+type SwarmNodeInfo struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Role         string `json:"role"`
+	CPU          int64  `json:"cpu"`
+	Memory       int64  `json:"memory"`
+	Engine       string `json:"engine"`
+	IPAddress    string `json:"ip_address"`
+	Status       string `json:"status"`
+	Availability string `json:"availability"`
+}
+
+type SwarmNodeInfoDetailsResponse struct {
+	Name          string   `json:"name"`
+	OSInfo        string   `json:"os"`
+	CPU           int64    `json:"cpu"`
+	Memory        int64    `json:"memory"`
+	Version       string   `json:"version"`
+	VolumeType    string   `json:"volume"`
+	NetworkPlugin string   `json:"network"`
+	Role          string   `json:"role"`
+	Availability  string   `json:"availability"`
+	Status        string   `json:"status"`
+	Labels        []string `json:"labels"`
+}
+
+type SwarmNodeInfoId struct {
+	Id string `json:"id" validate:"required,max=100"`
 }
