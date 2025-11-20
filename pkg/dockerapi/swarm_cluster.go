@@ -103,3 +103,54 @@ func GetSwarmClusterNodesList(req *ClusterSwarmNodeList) (*ClusterSwarmNodeListR
 	}
 	return response, nil
 }
+
+func GetSwarmNodeByID(req *SwarmNodeInfoId) (*SwarmNodeInfoDetailsResponse, error) {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, err
+	}
+
+	node, _, err := cli.NodeInspectWithRaw(context.Background(), req.Id)
+	if err != nil {
+		return nil, err
+	}
+	osInfo := fmt.Sprintf("%s %s", node.Description.Platform.OS, node.Description.Platform.Architecture)
+	if node.Description.Platform.OS == "linux" && node.Description.Platform.OS != "" {
+		osInfo = fmt.Sprintf("%s %s (%s)", node.Description.Platform.OS, node.Description.Platform.Architecture, node.Description.Platform.OS)
+	}
+	var labels []string
+	for key, value := range node.Spec.Labels {
+		labels = append(labels, fmt.Sprintf("%s=%s", key, value))
+	}
+	plugins := node.Description.Engine.Plugins
+	volumeType := "default"
+	networkPlugin := "default"
+
+	for _, plugin := range plugins {
+		switch plugin.Type {
+		case "Volume":
+			if plugin.Name != "" {
+				volumeType = plugin.Name
+			}
+		case "Network":
+			if len(plugin.Name) > 0 {
+				networkPlugin = plugin.Name
+			}
+		}
+	}
+
+	nodeDetails := &SwarmNodeInfoDetailsResponse{
+		Name:          node.Description.Hostname,
+		OSInfo:        osInfo,
+		CPU:           node.Description.Resources.NanoCPUs,
+		Memory:        node.Description.Resources.MemoryBytes,
+		Version:       node.Description.Engine.EngineVersion,
+		VolumeType:    volumeType,
+		NetworkPlugin: networkPlugin,
+		Role:          string(node.Spec.Role),
+		Availability:  string(node.Spec.Availability),
+		Status:        string(node.Status.State),
+		Labels:        labels,
+	}
+	return nodeDetails, nil
+}

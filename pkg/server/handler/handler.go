@@ -196,6 +196,7 @@ func (h *Handler) Register(e *echo.Echo) {
 	swarm_cluster := nodes.Group("/:nodeId/swarm")
 	swarm_cluster.GET("/nodes", h.GetSwarmClusterNodesList) // nodeId/swarm/nodes?role=manager&status=ready&availability=active
 	swarm_cluster.GET("/info", h.GetSwarmClusterInfo)
+	swarm_cluster.GET("/:id", h.GetSwarmNodeByID)
 
 	changepassword := v1.Group("/changepassword")
 	changepassword.POST("", h.ChangeUserPassword)

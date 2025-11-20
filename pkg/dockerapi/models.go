@@ -373,3 +373,21 @@ type SwarmNodeInfo struct {
 	Status       string `json:"status"`
 	Availability string `json:"availability"`
 }
+
+type SwarmNodeInfoDetailsResponse struct {
+	Name          string   `json:"name"`
+	OSInfo        string   `json:"os"`
+	CPU           int64    `json:"cpu"`
+	Memory        int64    `json:"memory"`
+	Version       string   `json:"version"`
+	VolumeType    string   `json:"volume"`
+	NetworkPlugin string   `json:"network"`
+	Role          string   `json:"role"`
+	Availability  string   `json:"availability"`
+	Status        string   `json:"status"`
+	Labels        []string `json:"labels"`
+}
+
+type SwarmNodeInfoId struct {
+	Id string `json:"id" validate:"required,max=100"`
+}
