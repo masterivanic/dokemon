@@ -391,3 +391,14 @@ type SwarmNodeInfoDetailsResponse struct {
 type SwarmNodeInfoId struct {
 	Id string `json:"id" validate:"required,max=100"`
 }
+
+type ClusterSwarmNodeRemoveRequest struct {
+	Id    string `json:"id" validate:"required,max=100"`
+	Force bool   `json:"force"`
+}
+
+type SwarmNodeUpdateRequest struct {
+	Id           string `json:"id" validate:"required,max=100"`
+	Role         string `json:"role"` // worker or manager
+	Availability string `json:"avaibility"`
+}

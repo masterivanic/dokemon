@@ -8,7 +8,19 @@ import (
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	"github.com/dokemon-ng/dokemon/pkg/util"
+	"github.com/rs/zerolog/log"
 )
+
+var NodeAvailability = map[string]string{
+	"active": "active",
+	"drain":  "drain",
+	"pause":  "pause",
+}
+
+var NodeRole = map[string]string{
+	"worker":  "worker",
+	"manager": "manager",
+}
 
 func GetSwarmClusterInfo() (*ClusterInfo, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -153,4 +165,50 @@ func GetSwarmNodeByID(req *SwarmNodeInfoId) (*SwarmNodeInfoDetailsResponse, erro
 		Labels:        labels,
 	}
 	return nodeDetails, nil
+}
+
+func SwarmClusterNodeRemove(req *ClusterSwarmNodeRemoveRequest) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	err = cli.NodeRemove(context.Background(), req.Id, swarm.NodeRemoveOptions{
+		Force: req.Force,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SwarmClusterUpdateNode(req *SwarmNodeUpdateRequest) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	node, _, err := cli.NodeInspectWithRaw(context.Background(), req.Id)
+	if err != nil {
+		return err
+	}
+	if string(node.Spec.Availability) == req.Availability {
+		log.Error().Err(err).Msg("Cannot change node status")
+	}
+
+	if req.Role == "" {
+		req.Role = string(node.Spec.Role)
+	}
+
+	if req.Availability == "" {
+		req.Availability = string(node.Spec.Availability)
+	}
+
+	err = cli.NodeUpdate(context.Background(), req.Id, node.Meta.Version, swarm.NodeSpec{
+		Annotations:  node.Spec.Annotations,
+		Role:         swarm.NodeRole(NodeRole[req.Role]),
+		Availability: swarm.NodeAvailability(req.Availability),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
