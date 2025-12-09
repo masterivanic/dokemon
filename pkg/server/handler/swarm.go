@@ -122,7 +122,7 @@ func (h *Handler) UpdateSwarmClusterNode(c echo.Context) error {
 	}
 	updateRequest.Id = swarmNodeId
 
-	SwarmUpdateRequest := dockerapi.SwarmNodeUpdateRequest{
+	swarmUpdateRequest := dockerapi.SwarmNodeUpdateRequest{
 		Id:           updateRequest.Id,
 		Role:         updateRequest.Role,
 		Availability: updateRequest.Availability,
@@ -131,9 +131,9 @@ func (h *Handler) UpdateSwarmClusterNode(c echo.Context) error {
 	}
 
 	if nodeId == 1 {
-		err = dockerapi.SwarmClusterUpdateNode(&SwarmUpdateRequest)
+		err = dockerapi.SwarmClusterUpdateNode(&swarmUpdateRequest)
 	} else {
-		err = messages.ProcessTask(uint(nodeId), SwarmUpdateRequest, defaultTimeout)
+		err = messages.ProcessTask(uint(nodeId), swarmUpdateRequest, defaultTimeout)
 	}
 	if err != nil {
 		return err
@@ -144,6 +144,42 @@ func (h *Handler) UpdateSwarmClusterNode(c echo.Context) error {
 		Availability: updateRequest.Availability,
 		Name:         updateRequest.Name,
 		Labels:       updateRequest.Labels,
+	})
+
+}
+
+func (h *Handler) PromoteOrDemoteSwarmClusterNode(c echo.Context) error {
+	var err error
+	nodeId, err := strconv.Atoi(c.Param("nodeId"))
+
+	if err != nil {
+		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
+	}
+
+	swarmNodeId := c.Param("id")
+	if swarmNodeId == "" {
+		return unprocessableEntity(c, errors.New("swarm node ID is required"))
+	}
+	var request dockerapi.SwarmNodePromoteOrDemoteRequest
+	if err := c.Bind(&request); err != nil {
+		return unprocessableEntity(c, errors.New("invalid request body"))
+	}
+	request.Id = swarmNodeId
+	updateRequest := dockerapi.SwarmNodePromoteOrDemoteRequest{
+		Id:     request.Id,
+		Action: request.Action,
+	}
+	if nodeId == 1 {
+		err = dockerapi.SwarmClusterPromoteOrDemoteNode(&updateRequest)
+	} else {
+		err = messages.ProcessTask(uint(nodeId), updateRequest, defaultTimeout)
+	}
+	if err != nil {
+		return err
+	}
+	return ok(c, dockerapi.SwarmNodePromoteOrDemoteRequest{
+		Id:     request.Id,
+		Action: request.Action,
 	})
 
 }

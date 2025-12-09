@@ -224,3 +224,36 @@ func SwarmClusterUpdateNode(req *SwarmNodeUpdateRequest) error {
 	}
 	return nil
 }
+
+func SwarmClusterPromoteOrDemoteNode(req *SwarmNodePromoteOrDemoteRequest) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	node, _, err := cli.NodeInspectWithRaw(context.Background(), req.Id)
+	if err != nil {
+		return err
+	}
+	currentRole := string(node.Spec.Role)
+	var targetRole swarm.NodeRole
+	switch req.Action {
+	case "promote":
+		targetRole = swarm.NodeRoleManager
+	case "demote":
+		if currentRole == "worker" {
+			return fmt.Errorf("node %s is already a worker", req.Id)
+		}
+		if util.IsLastManager(cli, req.Id) {
+			return fmt.Errorf("cannot demote the last manager in the swarm")
+		}
+		targetRole = swarm.NodeRoleWorker
+	}
+
+	nodeSpec := node.Spec
+	nodeSpec.Role = targetRole
+	err = cli.NodeUpdate(context.Background(), req.Id, node.Meta.Version, nodeSpec)
+	if err != nil {
+		return err
+	}
+	return nil
+}

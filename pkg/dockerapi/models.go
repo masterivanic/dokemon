@@ -404,3 +404,8 @@ type SwarmNodeUpdateRequest struct {
 	Name         string            `json:"name"`
 	Labels       map[string]string `json:"labels"`
 }
+
+type SwarmNodePromoteOrDemoteRequest struct {
+	Id     string `json:"id" validate:"required,max=100"`
+	Action string `json:"action" validate:"required"` //  promote or demote
+}
