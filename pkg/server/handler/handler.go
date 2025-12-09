@@ -198,7 +198,7 @@ func (h *Handler) Register(e *echo.Echo) {
 	swarm_cluster.GET("/info", h.GetSwarmClusterInfo)
 	swarm_cluster.GET("/:id", h.GetSwarmNodeByID)
 	swarm_cluster.DELETE("/:id", h.RemoveSwarmClusterNode)
-	swarm_cluster.POST("/:id", h.UpdateSwarmClusterNode)
+	swarm_cluster.PUT("/:id", h.UpdateSwarmClusterNode)
 
 	changepassword := v1.Group("/changepassword")
 	changepassword.POST("", h.ChangeUserPassword)

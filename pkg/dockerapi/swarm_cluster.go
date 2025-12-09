@@ -191,7 +191,7 @@ func SwarmClusterUpdateNode(req *SwarmNodeUpdateRequest) error {
 		return err
 	}
 	if string(node.Spec.Availability) == req.Availability {
-		log.Error().Err(err).Msg("Cannot change node status")
+		log.Error().Err(err).Msg("Cannot change node status to same status")
 	}
 
 	if req.Role == "" {

@@ -133,6 +133,13 @@ func (h *Handler) UpdateSwarmClusterNode(c echo.Context) error {
 	} else {
 		err = messages.ProcessTask(uint(nodeId), SwarmUpdateRequest, defaultTimeout)
 	}
-	return err
+	if err != nil {
+		return err
+	}
+	return ok(c, dockerapi.SwarmNodeUpdateRequest{
+		Id:           updateRequest.Id,
+		Role:         updateRequest.Role,
+		Availability: updateRequest.Availability,
+	})
 
 }
