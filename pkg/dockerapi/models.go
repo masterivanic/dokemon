@@ -398,7 +398,9 @@ type ClusterSwarmNodeRemoveRequest struct {
 }
 
 type SwarmNodeUpdateRequest struct {
-	Id           string `json:"id" validate:"required,max=100"`
-	Role         string `json:"role"` // worker or manager
-	Availability string `json:"availability"`
+	Id           string            `json:"id" validate:"required,max=100"`
+	Role         string            `json:"role"` // worker or manager
+	Availability string            `json:"availability"`
+	Name         string            `json:"name"`
+	Labels       map[string]string `json:"labels"`
 }

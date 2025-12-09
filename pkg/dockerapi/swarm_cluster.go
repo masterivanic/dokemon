@@ -3,6 +3,7 @@ package dockerapi
 import (
 	"context"
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/docker/docker/api/types/swarm"
@@ -202,11 +203,22 @@ func SwarmClusterUpdateNode(req *SwarmNodeUpdateRequest) error {
 		req.Availability = string(node.Spec.Availability)
 	}
 
-	err = cli.NodeUpdate(context.Background(), req.Id, node.Meta.Version, swarm.NodeSpec{
-		Annotations:  node.Spec.Annotations,
-		Role:         swarm.NodeRole(NodeRole[req.Role]),
-		Availability: swarm.NodeAvailability(req.Availability),
-	})
+	if req.Name == "" {
+		req.Name = string(node.Spec.Name)
+	}
+
+	nodeSpec := node.Spec
+	nodeSpec.Annotations.Name = req.Name
+	nodeSpec.Availability = swarm.NodeAvailability(req.Availability)
+	nodeSpec.Role = swarm.NodeRole(req.Role)
+	if req.Labels != nil {
+		if nodeSpec.Annotations.Labels == nil {
+			nodeSpec.Annotations.Labels = make(map[string]string)
+		}
+		maps.Copy(nodeSpec.Annotations.Labels, req.Labels)
+	}
+
+	err = cli.NodeUpdate(context.Background(), req.Id, node.Meta.Version, nodeSpec)
 	if err != nil {
 		return err
 	}

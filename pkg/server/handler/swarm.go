@@ -126,6 +126,8 @@ func (h *Handler) UpdateSwarmClusterNode(c echo.Context) error {
 		Id:           updateRequest.Id,
 		Role:         updateRequest.Role,
 		Availability: updateRequest.Availability,
+		Name:         updateRequest.Name,
+		Labels:       updateRequest.Labels,
 	}
 
 	if nodeId == 1 {
@@ -140,6 +142,8 @@ func (h *Handler) UpdateSwarmClusterNode(c echo.Context) error {
 		Id:           updateRequest.Id,
 		Role:         updateRequest.Role,
 		Availability: updateRequest.Availability,
+		Name:         updateRequest.Name,
+		Labels:       updateRequest.Labels,
 	})
 
 }
