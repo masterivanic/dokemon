@@ -16,10 +16,8 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/rs/zerolog v1.34.0
 	golang.org/x/crypto v0.42.0
-	gorm.io/gorm v1.31.0
+	gorm.io/gorm v1.31.1
 )
-
-require github.com/google/go-querystring v1.1.0 // indirect
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
@@ -43,8 +41,6 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/google/go-github/v57 v57.0.0
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
