@@ -73,6 +73,23 @@ runserver: ## Build and run the server locally
 	SSL_ENABLED="0" \
 	./server
 
+install-eletrize: ## install eletrize for live go server reload
+	go install github.com/lasfh/eletrize@latest
+	export PATH="$PATH:$(go env GOPATH)/bin"
+	@echo "install eletrize successfully.."
+
+start: ## Build and run the server with live reload (for dev purpose only)
+	@echo "🧹 Cleaning up previous build..."
+	@rm -f ./server
+
+	@echo "🌐 Building web frontend..."
+	@cd web && npm run build
+
+	@DB_CONNECTION_STRING="/tmp/db" \
+	DATA_PATH="/tmp" \
+	LOG_LEVEL="DEBUG" \
+	SSL_ENABLED="0" \
+	eletrize run ./server "go build -o server ./cmd/server" --ext=.go,.mod,.tsx
 
 update-go-mod: ## Update go mod
 	cp go.mod go.mod.bak

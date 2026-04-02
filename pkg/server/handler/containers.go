@@ -141,7 +141,7 @@ func (h *Handler) RemoveContainer(c echo.Context) error {
 	if nodeId == 1 {
 		err = dockerapi.ContainerRemove(&m)
 	} else {
-		err = messages.ProcessTask[dockerapi.DockerContainerRemove](uint(nodeId), m, defaultTimeout)
+		err = messages.ProcessTask(uint(nodeId), m, defaultTimeout)
 	}
 
 	if err != nil {

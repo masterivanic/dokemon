@@ -1,8 +1,11 @@
 package util
 
 import (
+	"context"
+
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
+	"github.com/docker/docker/client"
 )
 
 func ShortenString(s string, maxLen int) string {
@@ -39,4 +42,22 @@ func CreateNodeFilters(role, status, availability string) filters.Args {
 	}
 
 	return filterArgs
+}
+
+func IsLastManager(cli *client.Client, nodeID string) bool {
+	managerCount := 0
+	filterArgs := filters.NewArgs()
+	filterArgs.Add("role", "manager")
+	nodes, err := cli.NodeList(context.Background(), swarm.NodeListOptions{
+		Filters: filterArgs,
+	})
+	if err != nil {
+		return false
+	}
+	for _, node := range nodes {
+		if node.Spec.Role == swarm.NodeRoleManager && node.Status.State != swarm.NodeStateDown {
+			managerCount++
+		}
+	}
+	return managerCount == 1 && nodes[0].ID == nodeID
 }

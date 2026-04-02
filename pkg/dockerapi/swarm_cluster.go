@@ -3,12 +3,25 @@ package dockerapi
 import (
 	"context"
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	"github.com/dokemon-ng/dokemon/pkg/util"
+	"github.com/rs/zerolog/log"
 )
+
+var NodeAvailability = map[string]string{
+	"active": "active",
+	"drain":  "drain",
+	"pause":  "pause",
+}
+
+var NodeRole = map[string]string{
+	"worker":  "worker",
+	"manager": "manager",
+}
 
 func GetSwarmClusterInfo() (*ClusterInfo, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -153,4 +166,94 @@ func GetSwarmNodeByID(req *SwarmNodeInfoId) (*SwarmNodeInfoDetailsResponse, erro
 		Labels:        labels,
 	}
 	return nodeDetails, nil
+}
+
+func SwarmClusterNodeRemove(req *ClusterSwarmNodeRemoveRequest) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	err = cli.NodeRemove(context.Background(), req.Id, swarm.NodeRemoveOptions{
+		Force: req.Force,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SwarmClusterUpdateNode(req *SwarmNodeUpdateRequest) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	node, _, err := cli.NodeInspectWithRaw(context.Background(), req.Id)
+	if err != nil {
+		return err
+	}
+	if string(node.Spec.Availability) == req.Availability {
+		log.Error().Err(err).Msg("Cannot change node status to same status")
+	}
+
+	if req.Role == "" {
+		req.Role = string(node.Spec.Role)
+	}
+
+	if req.Availability == "" {
+		req.Availability = string(node.Spec.Availability)
+	}
+
+	if req.Name == "" {
+		req.Name = string(node.Spec.Name)
+	}
+
+	nodeSpec := node.Spec
+	nodeSpec.Annotations.Name = req.Name
+	nodeSpec.Availability = swarm.NodeAvailability(req.Availability)
+	nodeSpec.Role = swarm.NodeRole(req.Role)
+	if req.Labels != nil {
+		if nodeSpec.Annotations.Labels == nil {
+			nodeSpec.Annotations.Labels = make(map[string]string)
+		}
+		maps.Copy(nodeSpec.Annotations.Labels, req.Labels)
+	}
+
+	err = cli.NodeUpdate(context.Background(), req.Id, node.Meta.Version, nodeSpec)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SwarmClusterPromoteOrDemoteNode(req *SwarmNodePromoteOrDemoteRequest) error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	node, _, err := cli.NodeInspectWithRaw(context.Background(), req.Id)
+	if err != nil {
+		return err
+	}
+	currentRole := string(node.Spec.Role)
+	var targetRole swarm.NodeRole
+	switch req.Action {
+	case "promote":
+		targetRole = swarm.NodeRoleManager
+	case "demote":
+		if currentRole == "worker" {
+			return fmt.Errorf("node %s is already a worker", req.Id)
+		}
+		if util.IsLastManager(cli, req.Id) {
+			return fmt.Errorf("cannot demote the last manager in the swarm")
+		}
+		targetRole = swarm.NodeRoleWorker
+	}
+
+	nodeSpec := node.Spec
+	nodeSpec.Role = targetRole
+	err = cli.NodeUpdate(context.Background(), req.Id, node.Meta.Version, nodeSpec)
+	if err != nil {
+		return err
+	}
+	return nil
 }
